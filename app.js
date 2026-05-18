@@ -1,5 +1,5 @@
 // ============================================
-// APG BOCHUM - ANA UYGULAMA
+// APG BOCHUM - ANA UYGULAMA (TAMAMEN YENİLENDİ)
 // ============================================
 
 // Global değişkenler
@@ -7,27 +7,21 @@ let currentSchicht = "B";
 let currentSchichtType = "Frühschicht";
 let selectedStaff = [];
 let loggedInUser = "";
-let currentDateForReport = "";
+let currentSchichtFilter = "B";
+let allReports = [];
 
 // Sayfa yüklendiğinde
 document.addEventListener("DOMContentLoaded", function() {
     initApp();
 });
 
-// Başlangıç ayarları
 function initApp() {
-    // Tarihi bugüne ayarla
     setInitialTodayDate();
-    
-    // Event listener'ları bağla
     bindEvents();
-    
-    // Schicht tipi butonlarını aktifleştir
     setSchichtType(currentSchichtType);
     setSchicht(currentSchicht);
 }
 
-// Tarihi bugüne ayarla (Nachtschicht için düzeltmeli)
 function setInitialTodayDate() {
     const today = new Date();
     const year = today.getFullYear();
@@ -37,22 +31,17 @@ function setInitialTodayDate() {
     if (dateInput) {
         dateInput.value = `${year}-${month}-${day}`;
     }
-    currentDateForReport = `${day}.${month}.${year}`;
 }
 
-// Nachtschicht için tarih kontrolü (saat 22:00'dan sonra ve 05:30-06:10 arası)
 function getCorrectDateForNightShift() {
     const now = new Date();
     const currentHour = now.getHours();
     const currentMinute = now.getMinutes();
     
-    // Nachtschicht ve saat 22:00'dan sonra veya 05:30-06:10 arası
     if (currentSchichtType === "Nachtschicht") {
-        // Saat 22:00 - 23:59 arası: raporu bugün için gönder
         if (currentHour >= 22) {
             return new Date();
         }
-        // Saat 00:00 - 06:10 arası: raporu bir önceki gün için gönder
         else if (currentHour < 6 || (currentHour === 6 && currentMinute <= 10)) {
             const yesterday = new Date();
             yesterday.setDate(yesterday.getDate() - 1);
@@ -62,27 +51,21 @@ function getCorrectDateForNightShift() {
     return new Date();
 }
 
-// Event listener'ları bağla
 function bindEvents() {
-    // Login butonu
     const loginBtn = document.getElementById('loginBtn');
     if (loginBtn) loginBtn.addEventListener('click', checkLogin);
     
-    // Şifre kaydet butonu
     const savePassBtn = document.getElementById('savePassBtn');
     if (savePassBtn) savePassBtn.addEventListener('click', saveNewPassword);
     
-    // Schicht butonları
     document.querySelectorAll('.schicht-btn[data-schicht]').forEach(btn => {
         btn.addEventListener('click', () => setSchicht(btn.dataset.schicht));
     });
     
-    // Schicht tip butonları
     document.querySelectorAll('.type-btn').forEach(btn => {
         btn.addEventListener('click', () => setSchichtType(btn.dataset.type));
     });
     
-    // Mitarbeiter ekleme
     const openWorkerBtn = document.getElementById('openWorkerBtn');
     if (openWorkerBtn) openWorkerBtn.addEventListener('click', openWorkerOverlay);
     
@@ -94,31 +77,45 @@ function bindEvents() {
         document.getElementById('workerOverlay').style.display = 'none';
     });
     
-    // Anlage değişimi
     const anlageSelect = document.getElementById('anlage');
     if (anlageSelect) anlageSelect.addEventListener('change', (e) => onAnlageChange(e.target.value));
     
-    // Artikel ekleme
     const addArtikelBtn = document.getElementById('addArtikelBtn');
     if (addArtikelBtn) addArtikelBtn.addEventListener('click', addArtikel);
     
-    // Rapor gönderme
     const mainSendBtn = document.getElementById('mainSendBtn');
     if (mainSendBtn) mainSendBtn.addEventListener('click', processReport);
     
-    // Admin panel yenileme
     const refreshBtn = document.getElementById('refreshDashboardBtn');
     if (refreshBtn) refreshBtn.addEventListener('click', loadAdminDashboard);
     
-    // Yetki verme butonu
     const grantRightsBtn = document.getElementById('grantRightsBtn');
     if (grantRightsBtn) grantRightsBtn.addEventListener('click', grantSuperManagerRights);
     
-    // FT butonları (toggle)
     document.querySelectorAll('.ft-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             this.classList.toggle('active');
             liveCheck();
+        });
+    });
+    
+    // FILTRE BUTONLARI
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const schicht = btn.dataset.filterSchicht;
+            if (schicht) {
+                currentSchichtFilter = schicht;
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('active-filter');
+                    b.style.background = "#0f172a";
+                    b.style.borderColor = "#334155";
+                });
+                btn.classList.add('active-filter');
+                btn.style.background = "#38bdf8";
+                btn.style.borderColor = "#38bdf8";
+                document.getElementById('activeSchichtFilter').innerText = schicht;
+                loadAdminDashboard();
+            }
         });
     });
 }
@@ -141,20 +138,16 @@ async function checkLogin() {
     hideLoginError();
     
     try {
-        const response = await fetch(SCRIPT_URL);
-        const cloudDB = await response.json();
-        
-        if (cloudDB && cloudDB[username]) {
-            if (cloudDB[username] === password) {
+        if (SCRIPT_URL && SCRIPT_URL !== "") {
+            const response = await fetch(SCRIPT_URL);
+            const cloudDB = await response.json();
+            if (cloudDB && cloudDB[username] && cloudDB[username] === password) {
                 enterApp(username);
                 return;
             }
         }
-    } catch(e) {
-        // Cloud hatası varsa local kontrol et
-    }
+    } catch(e) {}
     
-    // Local kontrol
     if (INITIAL_DB[username] === password) {
         enterApp(username);
     } else {
@@ -193,15 +186,17 @@ async function saveNewPassword() {
     btn.innerHTML = "Aktivieren... ⏳";
     
     try {
-        await fetch(SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify({
-                action: "setPassword",
-                username: loggedInUser,
-                password: p1
-            })
-        });
+        if (SCRIPT_URL && SCRIPT_URL !== "") {
+            await fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify({
+                    action: "setPassword",
+                    username: loggedInUser,
+                    password: p1
+                })
+            });
+        }
         enterApp(loggedInUser);
     } catch(e) {
         alert("Fehler beim Speichern des Passworts.");
@@ -215,7 +210,6 @@ async function enterApp(username) {
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('setPassScreen').style.display = 'none';
     
-    // Nachtschicht için tarih düzeltmesi
     const correctedDate = getCorrectDateForNightShift();
     const year = correctedDate.getFullYear();
     const month = String(correctedDate.getMonth() + 1).padStart(2, '0');
@@ -223,12 +217,13 @@ async function enterApp(username) {
     document.getElementById('datum').value = `${year}-${month}-${day}`;
     
     try {
-        const res = await fetch(SCRIPT_URL + "?action=getReports");
-        const data = await res.json();
-        if (data.managers) SUPER_MANAGERS = data.managers;
+        if (SCRIPT_URL && SCRIPT_URL !== "") {
+            const res = await fetch(SCRIPT_URL + "?action=getReports");
+            const data = await res.json();
+            if (data.managers) SUPER_MANAGERS = data.managers;
+        }
     } catch(e) {}
     
-    // Admin kontrolü
     if (SUPER_MANAGERS.includes(username)) {
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerHTML = "Willkommen, " + username + " (Admin Mode)";
@@ -243,7 +238,6 @@ async function enterApp(username) {
         document.getElementById('mainApp').style.display = 'block';
         document.getElementById('currentUserDisplay').innerHTML = "Angemeldet: " + username;
         
-        // Kullanıcının schicht'ini bul
         let foundSchicht = "B";
         if (WORKER_DATA["A"].some(w => w.includes(username))) foundSchicht = "A";
         if (WORKER_DATA["C"].some(w => w.includes(username))) foundSchicht = "C";
@@ -259,7 +253,6 @@ async function enterApp(username) {
 function setSchicht(schicht) {
     currentSchicht = schicht;
     
-    // Butonları güncelle
     document.querySelectorAll('.schicht-btn[data-schicht]').forEach(btn => {
         btn.classList.remove('active');
         if (btn.dataset.schicht === schicht) {
@@ -267,11 +260,9 @@ function setSchicht(schicht) {
         }
     });
     
-    // Seçili çalışanları temizle
     selectedStaff = [];
     renderStaff();
     
-    // Schicht'e göre otomatik tip ata
     if (schicht === "A") setSchichtType('Frühschicht');
     else if (schicht === "B") setSchichtType('Spätschicht');
     else if (schicht === "C") setSchichtType('Nachtschicht');
@@ -297,10 +288,9 @@ function openWorkerOverlay() {
     const workers = WORKER_DATA[currentSchicht] || [];
     
     workerListDiv.innerHTML = workers.map(w => 
-        `<div class="worker-opt" data-worker="${w.replace(/"/g, '&quot;')}">${w}</div>`
+        `<div class="worker-opt" data-worker="${w.replace(/"/g, '&quot;')}">${escapeHtml(w)}</div>`
     ).join('');
     
-    // Event listener ekle
     document.querySelectorAll('.worker-opt').forEach(opt => {
         opt.addEventListener('click', () => {
             const name = opt.dataset.worker;
@@ -345,7 +335,6 @@ function removeStaff(name) {
     renderStaff();
 }
 
-// HTML escape fonksiyonu (XSS koruması)
 function escapeHtml(str) {
     if (!str) return '';
     return str.replace(/[&<>]/g, function(m) {
@@ -413,18 +402,15 @@ function addArtikel() {
     
     container.appendChild(div);
     
-    // Remove butonu
     const removeBtn = div.querySelector('.remove-artikel-btn');
     removeBtn.addEventListener('click', () => {
         div.remove();
         liveCheck();
     });
     
-    // Ausschuss ekle butonu
     const addAusBtn = div.querySelector('.add-aus-btn');
     addAusBtn.addEventListener('click', () => addRow(id, 'aus'));
     
-    // Störung ekle butonu
     const addStoerBtn = div.querySelector('.add-stoer-btn');
     addStoerBtn.addEventListener('click', () => addRow(id, 'stoer'));
 }
@@ -457,7 +443,6 @@ function addRow(artId, type) {
     
     rowsDiv.appendChild(rowDiv);
     
-    // Sonstige kontrolü
     const select = rowDiv.querySelector(`.${type}-select`);
     const sonstInput = rowDiv.querySelector('.sonstige-input');
     
@@ -465,7 +450,6 @@ function addRow(artId, type) {
         sonstInput.style.display = select.value === 'Sonstige' ? 'block' : 'none';
     });
     
-    // Remove butonu
     const removeRowBtn = rowDiv.querySelector('.remove-row-btn');
     removeRowBtn.addEventListener('click', () => {
         rowDiv.remove();
@@ -476,14 +460,13 @@ function addRow(artId, type) {
 }
 
 // ============================================
-// VALİDASYON & LİVE CHECK
+// VALİDASYON
 // ============================================
 
 function liveCheck() {
     let isValid = true;
     let compoundTotal = 0;
     
-    // Her artikel için kontrol
     document.querySelectorAll('.artikel-row').forEach(row => {
         const id = row.id.split('_')[1];
         const ausTotal = parseInt(row.querySelector('.art-aus-total')?.value) || 0;
@@ -507,12 +490,10 @@ function liveCheck() {
             }
         }
         
-        // Compound süre kontrolü
         const duration = parseInt(row.querySelector('.art-duration')?.value) || 0;
         compoundTotal += duration;
     });
     
-    // Compound toplam süre kontrolü
     const comTotalSpan = document.getElementById('comTotal');
     const anlageValue = document.getElementById('anlage')?.value;
     
@@ -523,11 +504,9 @@ function liveCheck() {
         }
     }
     
-    // Mitarbeiter ve Anlage kontrolü
     if (selectedStaff.length === 0) isValid = false;
     if (!document.getElementById('anlage')?.value) isValid = false;
     
-    // Send butonunu güncelle
     const sendBtn = document.getElementById('mainSendBtn');
     if (sendBtn) sendBtn.disabled = !isValid;
 }
@@ -541,12 +520,10 @@ async function processReport() {
     btn.innerHTML = "Sende... ⏳";
     btn.disabled = true;
     
-    // FT seçimleri
     const fts = Array.from(document.querySelectorAll('.ft-btn.active'))
         .map(btn => btn.dataset.ft || btn.innerText)
         .join(", ");
     
-    // Tarih formatı
     const rawDate = document.getElementById('datum').value;
     let formattedDate = "";
     if (rawDate) {
@@ -556,7 +533,6 @@ async function processReport() {
         }
     }
     
-    // Artikel verilerini topla
     const articles = [];
     document.querySelectorAll('.artikel-row').forEach(row => {
         const artName = row.querySelector('.art-name')?.value || "NA";
@@ -609,11 +585,13 @@ async function processReport() {
     };
     
     try {
-        await fetch(SCRIPT_URL, {
-            method: "POST",
-            mode: "no-cors",
-            body: JSON.stringify(payload)
-        });
+        if (SCRIPT_URL && SCRIPT_URL !== "") {
+            await fetch(SCRIPT_URL, {
+                method: "POST",
+                mode: "no-cors",
+                body: JSON.stringify(payload)
+            });
+        }
         alert("✅ Vielen Dank! Der Bericht wurde erfolgreich übermittelt.");
         window.location.reload();
     } catch(e) {
@@ -623,51 +601,80 @@ async function processReport() {
 }
 
 // ============================================
-// ADMIN PANELİ
+// ADMIN PANELİ (FILTRELİ)
 // ============================================
 
 async function loadAdminDashboard() {
     const container = document.getElementById('reportsContainer');
     const loadingDiv = document.getElementById('dashboardLoading');
+    const activeFilterSpan = document.getElementById('activeSchichtFilter');
     
     if (loadingDiv) loadingDiv.style.display = 'block';
     
     try {
-        const response = await fetch(SCRIPT_URL + "?action=getReports");
-        const data = await response.json();
-        const reports = data.reports || [];
+        if (SCRIPT_URL && SCRIPT_URL !== "") {
+            const response = await fetch(SCRIPT_URL + "?action=getReports");
+            const data = await response.json();
+            allReports = data.reports || [];
+        } else {
+            allReports = [];
+        }
         
         if (loadingDiv) loadingDiv.style.display = 'none';
-        
         if (!container) return;
         
-        if (reports.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#94a3b8;">Keine Berichte vorhanden.</p>';
+        let filteredReports = allReports;
+        if (currentSchichtFilter !== "ALL") {
+            filteredReports = allReports.filter(r => r.schicht === currentSchichtFilter);
+        }
+        
+        if (filteredReports.length === 0) {
+            container.innerHTML = `<p style="text-align:center; color:#94a3b8;">Keine Berichte für Schicht ${currentSchichtFilter} vorhanden.</p>`;
+            if (activeFilterSpan) activeFilterSpan.innerText = currentSchichtFilter;
             return;
         }
         
-        container.innerHTML = reports.map(r => `
-            <div class="report-box">
-                <span class="badge-origin">${escapeHtml(r.origin || '-')}</span>
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:6px; margin-bottom:8px;">
-                    <span>📅 ${escapeHtml(r.date || '-')}</span>
-                    <span>Von: ${escapeHtml(r.sender || '-')}</span>
+        if (activeFilterSpan) activeFilterSpan.innerText = currentSchichtFilter;
+        
+        container.innerHTML = filteredReports.map(r => {
+            let schichtColor = "";
+            if (r.schicht === "A") schichtColor = "#3b82f6";
+            if (r.schicht === "B") schichtColor = "#22c55e";
+            if (r.schicht === "C") schichtColor = "#f97316";
+            
+            return `
+                <div class="report-box" style="border-left: 5px solid ${schichtColor};">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span class="badge-origin" style="background:${schichtColor};">Schicht ${escapeHtml(r.schicht || '-')} - ${escapeHtml(r.schichtType || '-')}</span>
+                        <span style="font-size:12px; color:#94a3b8;">📅 ${escapeHtml(r.date || '-')}</span>
+                    </div>
+                    <div style="margin-top:12px;">
+                        <p class="dash-text">👤 Gesendet von: <b>${escapeHtml(r.sender || '-')}</b></p>
+                        <p class="dash-text">🏭 Anlage: <b>${escapeHtml(r.anlage || '-')}</b> ${r.ft && r.ft !== '-' ? `<span style="color:var(--primary);">[FT: ${escapeHtml(r.ft)}]</span>` : ''}</p>
+                        <p class="dash-text">📦 Artikel: <b>${escapeHtml(r.artikel || '-')}</b></p>
+                        <p class="dash-text" style="color:var(--success);">✅ Gutteile: <b>${r.gut || 0}</b></p>
+                        <p class="dash-text" style="color:var(--danger);">❌ Ausschuss: <b>${r.ausTotal || 0}</b></p>
+                        ${r.ausGrund && r.ausGrund !== '-' ? `<p class="dash-sub-text">↳ Grund: ${escapeHtml(r.ausGrund)} | ${r.ausStk || 0} Stk</p>` : ''}
+                        ${r.stoerung && r.stoerung !== '-' ? `<p class="dash-sub-text">⚙️ Störung: ${escapeHtml(r.stoerung)} | ${r.dauer || 0} Min</p>` : ''}
+                        <p style="margin-top:12px; padding-top:8px; border-top:1px dashed var(--border); font-size:13px;">
+                            👥 Team: ${escapeHtml(r.staff || '-')}
+                        </p>
+                    </div>
                 </div>
-                <div>
-                    <p class="dash-text">Anlage: <b>${escapeHtml(r.anlage || '-')}</b> ${r.ft && r.ft !== '-' ? `<span style="color:var(--primary);">[FT: ${escapeHtml(r.ft)}]</span>` : ''}</p>
-                    <p class="dash-text">Artikel: <b>${escapeHtml(r.artikel || '-')}</b></p>
-                    <p class="dash-text" style="color:var(--success);">Gutteile: <b>${r.gut || 0}</b></p>
-                    <p class="dash-text" style="color:var(--danger);">Ausschuss: <b>${r.ausTotal || 0}</b></p>
-                    ${r.ausGrund && r.ausGrund !== '-' ? `<p class="dash-sub-text">↳ ${escapeHtml(r.ausGrund)} | ${r.ausStk || 0} Stk</p>` : ''}
-                    ${r.stoerung && r.stoerung !== '-' ? `<p class="dash-sub-text">⚙️ ${escapeHtml(r.stoerung)} | ${r.dauer || 0} Min</p>` : ''}
-                    <p style="margin-top:10px; padding-top:6px; border-top:1px dashed var(--border);">Team: ${escapeHtml(r.staff || '-')}</p>
-                </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
         
     } catch(e) {
         if (loadingDiv) loadingDiv.style.display = 'none';
-        if (container) container.innerHTML = '<p style="text-align:center; color:var(--danger);">❌ Fehler beim Laden.</p>';
+        if (container) {
+            container.innerHTML = `
+                <div style="text-align:center; padding:40px;">
+                    <p style="color:var(--danger);">❌ Fehler beim Laden der Berichte.</p>
+                    <p style="color:#94a3b8; font-size:13px;">${e.message || 'Netzwerkfehler'}</p>
+                    <p style="color:#94a3b8; font-size:12px; margin-top:10px;">Tipp: Google Sheets Verbindung nicht aktiv. Demo Modus.</p>
+                </div>
+            `;
+        }
     }
 }
 
@@ -697,14 +704,16 @@ async function grantSuperManagerRights() {
         updateManagersList();
         
         try {
-            await fetch(SCRIPT_URL, {
-                method: "POST",
-                mode: "no-cors",
-                body: JSON.stringify({
-                    action: "updateRights",
-                    managers: SUPER_MANAGERS
-                })
-            });
+            if (SCRIPT_URL && SCRIPT_URL !== "") {
+                await fetch(SCRIPT_URL, {
+                    method: "POST",
+                    mode: "no-cors",
+                    body: JSON.stringify({
+                        action: "updateRights",
+                        managers: SUPER_MANAGERS
+                    })
+                });
+            }
             alert(`${name} wurde als Super-Manager aktiviert!`);
         } catch(e) {
             alert("Fehler beim Speichern der Berechtigung.");
@@ -712,10 +721,5 @@ async function grantSuperManagerRights() {
     }
 }
 
-// ============================================
-// YARDIMCI FONKSİYONLAR
-// ============================================
-
-// Global fonksiyonlar (HTML içinden çağrılabilir)
 window.removeStaff = removeStaff;
 window.liveCheck = liveCheck;
