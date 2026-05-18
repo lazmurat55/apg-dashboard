@@ -3,7 +3,7 @@
 // ============================================
 
 // Google Apps Script URL (boş bırakırsan demo modunda çalışır)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwxiIc_4kL_v5Y36Vd9PROdNd3h0mTqSzViYn7zuASs4MaekPeXu41iOnDCsmbi0HP0jw/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxQeQj9yo3dl9F2IPFMUk5_0Lu9FR8SLy_P4fP67zsuRkES6Hea_QhSZrw4SKjZHDBIBA/exec";
 
 // ============================================
 // WHATSAPP GÖNDERME AYARI (KAPALI)
