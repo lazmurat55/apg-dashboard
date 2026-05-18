@@ -50,6 +50,7 @@
         @media (min-width: 768px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
         .report-box { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 18px; }
+        .rights-box { background: rgba(56,189,248,0.05); border: 1px dashed var(--primary); padding: 15px; border-radius: 15px; margin-bottom: 20px; }
         #workerOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
         .overlay-content { background: var(--card); width: 95%; max-width: 450px; max-height: 80vh; overflow-y: auto; border-radius: 20px; padding: 25px; border: 1px solid var(--primary); }
         .worker-opt { padding: 14px; border-bottom: 1px solid var(--border); cursor: pointer; }
@@ -100,7 +101,39 @@
     <div class="header">
         <h1>APG Live Dashboard</h1>
         <p id="adminUserDisplay"></p>
-        <div style="margin: 20px auto; max-width: 400px;"><label>Schicht filtern</label><div class="schicht-group"><button class="filter-btn" onclick="filterSchicht('A')">🔵 A</button><button class="filter-btn active-filter" onclick="filterSchicht('B')">🟢 B</button><button class="filter-btn" onclick="filterSchicht('C')">🟠 C</button></div></div>
+        
+        <!-- BEREICHTIGUNG VERWALTEN -->
+        <div id="rightsManagementBox" class="rights-box" style="display:none; text-align:left;">
+            <label style="margin-top:0;">🔐 Rechte verwalten (Super-Manager)</label>
+            <div style="display:flex; gap:10px; margin-top:5px;">
+                <select id="rightsSelect" style="padding:8px; flex:2;">
+                    <option value="">-- Benutzer wählen --</option>
+                </select>
+                <button class="sub-btn" onclick="grantSuperManagerRights()">Berechtigung geben</button>
+            </div>
+            <div id="currentManagersList" style="margin-top:8px; font-size:12px; color:#94a3b8;"></div>
+        </div>
+        
+        <!-- SCHICHTLEITER ZUWEISUNG -->
+        <div id="schichtleiterBox" class="rights-box" style="display:none; text-align:left;">
+            <label style="margin-top:0;">👔 Schichtleiter zuweisen</label>
+            <div class="grid-2" style="gap:10px;">
+                <div><label style="font-size:11px;">Schicht A</label><select id="schichtleiterA" style="padding:8px;"></select></div>
+                <div><label style="font-size:11px;">Schicht B</label><select id="schichtleiterB" style="padding:8px;"></select></div>
+                <div><label style="font-size:11px;">Schicht C</label><select id="schichtleiterC" style="padding:8px;"></select></div>
+            </div>
+            <button class="sub-btn" onclick="saveSchichtleiter()" style="margin-top:10px;">Speichern</button>
+            <div id="schichtleiterStatus" style="margin-top:5px; font-size:11px; color:#22c55e;"></div>
+        </div>
+        
+        <div style="margin: 20px auto; max-width: 400px;">
+            <label>📋 Schicht filtern</label>
+            <div class="schicht-group">
+                <button class="filter-btn" onclick="filterSchicht('A')">🔵 A</button>
+                <button class="filter-btn active-filter" onclick="filterSchicht('B')">🟢 B</button>
+                <button class="filter-btn" onclick="filterSchicht('C')">🟠 C</button>
+            </div>
+        </div>
         <button class="main-btn" onclick="loadAdminDashboard()" style="margin-top:15px; padding:12px; max-width:300px;">🔄 Aktualisieren</button>
     </div>
     <div id="reportsContainer" class="reports-grid"></div>
@@ -123,17 +156,33 @@
 // ============================================
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqWG5_E0N6NigKpfc4DlSocgr2jwofgJ_W6zScvDO2cIcOjCMA5A/exec";
 
+// Kullanıcılar (şifreler)
 const USERS = {
     "Keskin": "517",
-    "Uzun": "1433"
+    "Uzun": "1433",
+    "Kunert": "502",
+    "Aldirmaz": "577",
+    "Beher": "510"
 };
 
+// Super Manager listesi (tüm yetkiler)
+let SUPER_MANAGERS = ["Keskin", "Uzun"];
+
+// Schichtleiter (her schicht için sorumlu)
+let SCHICHTLEITER = {
+    "A": "",
+    "B": "",
+    "C": ""
+};
+
+// Çalışan listeleri
 const WORKER_DATA = {
     "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D."],
     "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T."],
     "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin"]
 };
 
+// Kodlar
 const CODE_DATA = {
     PUR: { aus: ["6-2-01 Temperatur zu niedrig","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] },
     Spritz: { aus: ["6-1-01 Anfahrschrott","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] },
@@ -148,6 +197,7 @@ let currentSchicht = "B";
 let currentSchichtType = "Frühschicht";
 let selectedStaff = [];
 let artikelCounter = 0;
+let currentFilter = "B";
 
 // ============================================
 // LOGIN
@@ -160,22 +210,81 @@ function checkLogin() {
     if (USERS[username] && USERS[username] === password) {
         currentUser = username;
         document.getElementById('loginScreen').style.display = 'none';
+        document.getElementById('adminPanel').style.display = 'block';
+        document.getElementById('adminUserDisplay').innerHTML = "Willkommen, " + username + " (Admin Mode)";
         
-        if (username === "Keskin" || username === "Uzun") {
-            document.getElementById('adminPanel').style.display = 'block';
-            document.getElementById('adminUserDisplay').innerHTML = "Willkommen, " + username + " (Admin Mode)";
-            loadAdminDashboard();
-        } else {
-            document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('currentUserDisplay').innerHTML = "Angemeldet: " + username;
-            setSchicht("B");
+        // Super Manager göster
+        if (SUPER_MANAGERS.includes(username)) {
+            document.getElementById('rightsManagementBox').style.display = 'block';
+            document.getElementById('schichtleiterBox').style.display = 'block';
+            loadUserSelect();
+            loadSchichtleiterSelects();
+            updateManagersList();
         }
+        
+        loadAdminDashboard();
     } else {
         errorDiv.style.display = 'block';
         errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
     }
 }
 
+function loadUserSelect() {
+    let select = document.getElementById('rightsSelect');
+    let users = Object.keys(USERS);
+    select.innerHTML = '<option value="">-- Benutzer wählen --</option>' + users.map(u => `<option value="${u}">${u}</option>`).join('');
+}
+
+function updateManagersList() {
+    document.getElementById('currentManagersList').innerHTML = "✅ Berechtigte Manager: " + SUPER_MANAGERS.join(', ');
+}
+
+function grantSuperManagerRights() {
+    let select = document.getElementById('rightsSelect');
+    let name = select.value;
+    if (!name) { alert("Bitte Benutzer wählen!"); return; }
+    if (!SUPER_MANAGERS.includes(name)) {
+        SUPER_MANAGERS.push(name);
+        updateManagersList();
+        alert(name + " wurde als Super-Manager aktiviert!");
+    } else {
+        alert(name + " ist bereits Super-Manager!");
+    }
+}
+
+function loadSchichtleiterSelects() {
+    let users = Object.keys(USERS);
+    for (let s of ["A", "B", "C"]) {
+        let select = document.getElementById(`schichtleiter${s}`);
+        if (select) {
+            select.innerHTML = '<option value="">-- Kein Schichtleiter --</option>' + 
+                users.map(u => `<option value="${u}" ${SCHICHTLEITER[s] === u ? 'selected' : ''}>${u}</option>`).join('');
+        }
+    }
+}
+
+function saveSchichtleiter() {
+    SCHICHTLEITER["A"] = document.getElementById('schichtleiterA').value;
+    SCHICHTLEITER["B"] = document.getElementById('schichtleiterB').value;
+    SCHICHTLEITER["C"] = document.getElementById('schichtleiterC').value;
+    document.getElementById('schichtleiterStatus').innerHTML = "✅ Gespeichert: A=" + (SCHICHTLEITER["A"] || "-") + " | B=" + (SCHICHTLEITER["B"] || "-") + " | C=" + (SCHICHTLEITER["C"] || "-");
+    setTimeout(() => { document.getElementById('schichtleiterStatus').innerHTML = ""; }, 3000);
+}
+
+function filterSchicht(schicht) {
+    currentFilter = schicht;
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active-filter');
+        btn.style.background = "#0f172a";
+    });
+    event.target.classList.add('active-filter');
+    event.target.style.background = "#38bdf8";
+    loadAdminDashboard();
+}
+
+// ============================================
+// SCHICHT & MITARBEITER
+// ============================================
 function setSchicht(schicht) {
     currentSchicht = schicht;
     document.querySelectorAll('.schicht-btn[onclick*="setSchicht"]').forEach(btn => {
@@ -235,6 +344,9 @@ function removeStaff(name) {
     renderStaff();
 }
 
+// ============================================
+// ANLAGE & ARTIKEL
+// ============================================
 function onAnlageChange(value) {
     document.getElementById('ftBox').style.display = value.startsWith("PUR") ? "block" : "none";
     document.getElementById('comTimeBox').style.display = value === "COM" ? "block" : "none";
@@ -313,19 +425,26 @@ function processReport() {
     window.location.reload();
 }
 
+// ============================================
+// DASHBOARD (Schichtleiter sees only own shift)
+// ============================================
 function loadAdminDashboard() {
     let container = document.getElementById('reportsContainer');
-    container.innerHTML = '<p style="text-align:center;">📊 Dashboard - Keine Berichte vorhanden</p>';
-}
-
-function filterSchicht(schicht) {
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active-filter');
-        btn.style.background = "#0f172a";
-    });
-    event.target.classList.add('active-filter');
-    event.target.style.background = "#38bdf8";
-    loadAdminDashboard();
+    let userRole = "admin";
+    let userSchicht = "";
+    
+    // Schichtleiter kontrolü
+    if (SCHICHTLEITER["A"] === currentUser) userSchicht = "A";
+    else if (SCHICHTLEITER["B"] === currentUser) userSchicht = "B";
+    else if (SCHICHTLEITER["C"] === currentUser) userSchicht = "C";
+    
+    let allowedSchicht = userSchicht ? userSchicht : currentFilter;
+    
+    if (userSchicht) {
+        container.innerHTML = `<p style="text-align:center;">📊 Schichtleiter ${currentUser} - Nur Schicht ${userSchicht} wird angezeigt</p><p style="text-align:center; color:#94a3b8;">Keine Berichte vorhanden</p>`;
+    } else {
+        container.innerHTML = `<p style="text-align:center;">📊 Dashboard - Keine Berichte für Schicht ${allowedSchicht} vorhanden</p>`;
+    }
 }
 
 // Sayfa açılınca tarihi bugüne ayarla
@@ -333,7 +452,9 @@ let today = new Date();
 let year = today.getFullYear();
 let month = String(today.getMonth() + 1).padStart(2, '0');
 let day = String(today.getDate()).padStart(2, '0');
-document.getElementById('datum').value = `${year}-${month}-${day}`;
+if (document.getElementById('datum')) {
+    document.getElementById('datum').value = `${year}-${month}-${day}`;
+}
 </script>
 
 </body>
