@@ -51,19 +51,14 @@
         @media (min-width: 768px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
         .report-box { background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 15px; }
-        .rights-box { background: rgba(56,189,248,0.05); border: 1px dashed var(--primary); padding: 10px; border-radius: 10px; margin-bottom: 15px; }
-        .inline-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-        .inline-group select { flex: 1; margin: 0; }
-        .inline-group button { margin: 0; width: auto; padding: 8px 15px; }
-        .small-text { font-size: 11px; color: #94a3b8; }
+        .filter-group { display: flex; gap: 8px; justify-content: center; margin: 15px 0; }
+        .filter-btn { padding: 8px 20px; background: #0f172a; border: 1px solid var(--border); border-radius: 20px; color: white; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .filter-btn.active-filter { background: var(--primary); color: #0f172a; }
         #workerOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
         .overlay-content { background: var(--card); width: 95%; max-width: 400px; max-height: 70vh; overflow-y: auto; border-radius: 20px; padding: 20px; border: 1px solid var(--primary); }
         .worker-opt { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; }
         .worker-opt:hover { background: rgba(56,189,248,0.1); }
-        .filter-group { display: flex; gap: 8px; justify-content: center; margin: 15px 0; }
-        .filter-btn { padding: 8px 20px; background: #0f172a; border: 1px solid var(--border); border-radius: 20px; color: white; cursor: pointer; font-weight: bold; font-size: 14px; }
-        .filter-btn.active-filter { background: var(--primary); color: #0f172a; }
-        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; gap: 5px; } body { padding: 5px; } .inline-group { flex-direction: column; } .inline-group button { width: 100%; } }
+        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; gap: 5px; } body { padding: 5px; } }
     </style>
 </head>
 <body>
@@ -79,7 +74,7 @@
     </div>
 </div>
 
-<!-- ANA UYGULAMA -->
+<!-- İŞÇİ ANA EKRANI (RAPOR GÖNDERME) -->
 <div class="card" id="mainApp" style="display:none;">
     <div class="header"><h1>Adler Pelzer Group</h1><p id="currentUserDisplay" style="color:var(--success); font-size:12px;"></p></div>
     <div class="grid-2">
@@ -135,9 +130,9 @@ const USERS = {
 };
 
 const WORKER_DATA = {
-    "A": ["Kunert M.", "Karali O.", "Mikuczynski K."],
-    "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R."],
-    "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö."]
+    "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D."],
+    "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T."],
+    "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin"]
 };
 
 const CODE_DATA = {
@@ -166,11 +161,14 @@ function checkLogin() {
         currentUser = username;
         document.getElementById('loginScreen').style.display = 'none';
         
+        // Admin - Keskin veya Uzun
         if (username === "Keskin" || username === "Uzun") {
             document.getElementById('adminPanel').style.display = 'block';
             document.getElementById('adminUserDisplay').innerHTML = "Willkommen, " + username + " (Admin)";
             loadAdminDashboard();
-        } else {
+        } 
+        // İşçi - Rapor gönderme ekranı
+        else {
             document.getElementById('mainApp').style.display = 'block';
             document.getElementById('currentUserDisplay').innerHTML = "Angemeldet: " + username;
             setSchicht("B");
