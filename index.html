@@ -79,7 +79,7 @@
     </div>
 </div>
 
-<!-- ANA UYGULAMA -->
+<!-- İŞÇİ EKRANI (RAPOR GÖNDERME) -->
 <div class="card" id="mainApp" style="display:none;">
     <div class="header"><h1>Adler Pelzer Group</h1><p id="currentUserDisplay" style="color:var(--success); font-size:12px;"></p></div>
     <div class="grid-2">
@@ -99,11 +99,10 @@
     <button id="mainSendBtn" class="main-btn" disabled onclick="processReport()">📤 SPEICHERN & SENDEN</button>
 </div>
 
-<!-- ADMIN PANEL -->
+<!-- ADMIN PANEL (SADECE KESKIN GÖRÜR) -->
 <div class="dashboard-card" id="adminPanel" style="display:none;">
     <div class="header"><h1>APG Dashboard</h1><p id="adminUserDisplay" style="font-size:12px;"></p></div>
     
-    <!-- KLEINE RECHTE & SCHICHTLEITER ZEILE -->
     <div class="rights-box">
         <div class="inline-group" style="justify-content: space-between; flex-wrap: wrap;">
             <div class="inline-group" style="flex:2;">
@@ -161,12 +160,19 @@ const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqW
 
 // Kullanıcılar
 const USERS = {
-    "Keskin": "517", "Uzun": "1433", "Kunert": "502", "Aldirmaz": "577", "Beher": "510",
-    "Brand": "1722", "Keskin Mur.": "518", "Naumann": "999", "Schönborn": "1361"
+    "Keskin": "517",
+    "Uzun": "1433",
+    "Kunert": "502",
+    "Aldirmaz": "577",
+    "Beher": "510",
+    "Brand": "1722",
+    "Keskin Mur.": "518",
+    "Naumann": "999",
+    "Schönborn": "1361"
 };
 
-// Super Manager
-let SUPER_MANAGERS = ["Keskin", "Uzun"];
+// SADECE KESKIN ADMIN (Uzun admin değil)
+let SUPER_MANAGERS = ["Keskin"];
 
 // Schichtleiter
 let SCHICHTLEITER = {"A": "", "B": "", "C": ""};
@@ -206,13 +212,33 @@ function checkLogin() {
     if (USERS[username] && USERS[username] === password) {
         currentUser = username;
         document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('adminUserDisplay').innerHTML = "👤 " + username + (SUPER_MANAGERS.includes(username) ? " (Admin)" : "");
         
-        loadUserSelect();
-        updateManagersList();
-        updateSchichtleiterDisplay();
-        loadAdminDashboard();
+        // SADECE KESKIN ADMIN PANELI GÖRÜR
+        if (username === "Keskin") {
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('adminUserDisplay').innerHTML = "👑 " + username + " (Admin)";
+            loadUserSelect();
+            updateManagersList();
+            updateSchichtleiterDisplay();
+            loadAdminDashboard();
+        } 
+        // SCHICHTLEITER KENDI SCHICHT'INI GÖRÜR (ama rapor gönderemez, sadece izler)
+        else if (SCHICHTLEITER["A"] === username || SCHICHTLEITER["B"] === username || SCHICHTLEITER["C"] === username) {
+            document.getElementById('adminPanel').style.display = 'block';
+            let userSchicht = "";
+            if (SCHICHTLEITER["A"] === username) userSchicht = "A";
+            else if (SCHICHTLEITER["B"] === username) userSchicht = "B";
+            else if (SCHICHTLEITER["C"] === username) userSchicht = "C";
+            document.getElementById('adminUserDisplay').innerHTML = "👔 " + username + " (Schichtleiter " + userSchicht + ")";
+            currentFilter = userSchicht;
+            loadAdminDashboard();
+        }
+        // İŞÇİLER - RAPOR GÖNDERME EKRANI
+        else {
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('currentUserDisplay').innerHTML = "👤 " + username;
+            setSchicht("B");
+        }
     } else {
         errorDiv.style.display = 'block';
         errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
@@ -267,7 +293,7 @@ function filterSchicht(schicht) {
 }
 
 // ============================================
-// SCHICHT & MITARBEITER
+// SCHICHT & MITARBEITER (İŞÇİLER İÇİN)
 // ============================================
 function setSchicht(schicht) {
     currentSchicht = schicht;
@@ -329,7 +355,7 @@ function removeStaff(name) {
 }
 
 // ============================================
-// ANLAGE & ARTIKEL (Kompakt)
+// ANLAGE & ARTIKEL
 // ============================================
 function onAnlageChange(value) {
     document.getElementById('ftBox').style.display = value.startsWith("PUR") ? "block" : "none";
@@ -409,6 +435,9 @@ function processReport() {
     window.location.reload();
 }
 
+// ============================================
+// DASHBOARD
+// ============================================
 function loadAdminDashboard() {
     let container = document.getElementById('reportsContainer');
     let userSchicht = "";
