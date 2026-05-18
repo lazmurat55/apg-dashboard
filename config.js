@@ -2,17 +2,13 @@
 // APG BOCHUM - KONFIGÜRASYON DOSYASI
 // ============================================
 
-// Google Apps Script URL (kendi URL'n ile değiştir)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwQKipv7Yym4HTLM3Mqkqsir6YzvkayND9zehItHKUTM1zeyBUeA0F4CEiCKVaxQ_AhVg/exec";
+// Google Apps Script URL (boş bırakırsan demo modunda çalışır)
+const SCRIPT_URL = "";
 
 // ============================================
-// WHATSAPP GÖNDERME AYARI
-// TRUE = Aktif, FALSE = Deaktif
+// WHATSAPP GÖNDERME AYARI (KAPALI)
 // ============================================
-const WHATSAPP_ACTIVE = false;  // 👈 Burayı false yapınca WhatsApp gönderimi KAPANIR
-
-// WhatsApp Numara (sadece ACTIVE true ise kullanılır)
-const WHATSAPP_NR = "";  // Boş bırakıldı
+const WHATSAPP_ACTIVE = false;
 
 // ============================================
 // KULLANICILAR (Nachname + Şifre)
@@ -87,14 +83,12 @@ const INITIAL_DB = {
     "Tchaleu": "1723"
 };
 
-// ÇALIŞAN LİSTELERİ (kısa gösterim için)
 const WORKER_DATA = {
     "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D.", "Kantaroglu A.", "Krancioch A.", "Held D.", "Berisha I.", "Neji M.", "Mulugeta G.", "Udezue P.", "Jansen M.", "Aksoy O.", "Yildirim S.", "Brand N.", "Louze A.", "Blanquez Romero V.", "Diallo M.D.", "Sener E.", "Klomrit", "Garcia"],
     "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T.", "Besche T.", "Eickhoff P.", "Toth Renata", "Gibba n.", "Helf A.", "Isbir J.", "Jeyakumar S.", "Kalisch T.", "Kowarsch R.", "Nowak M.", "Pähler D.", "Patarcsity V.", "Pulendran K.", "Sahin E.", "Savas S.", "Schiavitelli", "Uluyüz B.", "Uzun S.", "Klomrit", "Garcia"],
     "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin", "Gertz S.", "Schönborn Ch.", "Fortes Ch.", "Sakaguchi M.", "Mercan M.", "Krämer Ch.", "Juretzka T.", "Kumbara E.", "Skupio D.", "Skrago T.", "Bah A.", "Kaya A.", "Jdea A.", "Toure A.", "Schneider D.", "Tchaleu Bertrand", "Keskinmus", "Klomrit", "Garcia"]
 };
 
-// KODLAR
 const CODE_DATA = {
     PUR: {
         aus: ["6-2-01 Temperatur zu niedrig", "6-2-02 Schaum haftet nicht am Bauteil", "6-2-03 Einlegefehler", "6-2-04 Schussabbruch", "6-2-05 CIM nicht voll ausgeschäumt", "6-2-06 Lippe gerissen", "6-2-07 CIM gerissen", "7-2-01 Nacharbeit am Bauteil (Entgraten, Nachkleben etc.)", "Sonstige"],
@@ -110,5 +104,4 @@ const CODE_DATA = {
     }
 };
 
-// SUPER MANAGER
 let SUPER_MANAGERS = ["Keskin", "Uzun"];
