@@ -2,85 +2,11 @@
 // APG BOCHUM - KONFIGÜRASYON DOSYASI
 // ============================================
 
-// Google Apps Script URL
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqWG5_E0N6NigKpfc4DlSocgr2jwofgJ_W6zScvDO2cIcOjCMA5A/exec
-function doGet() {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  let allReports = [];
+// Google Apps Script URL (Web App linki - DOĞRU)
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqWG5_E0N6NigKpfc4DlSocgr2jwofgJ_W6zScvDO2cIcOjCMA5A/exec";
 
-  ["A", "B", "C"].forEach(s => {
-    const sheet = ss.getSheetByName(`Schicht ${s}`);
-    if (!sheet) return;
-    const data = sheet.getDataRange().getValues();
-    for (let i = 1; i < data.length; i++) {
-      const row = data[i];
-      if (!row[0]) continue;
-      allReports.push({
-        schicht: s,
-        date: row[0],
-        sender: row[1] || "",
-        staff: row[2] || "",
-        anlage: row[3] || "",
-        ft: row[4] || "-",
-        artikel: row[5] || "",
-        gut: row[6] || 0,
-        ausTotal: row[7] || 0,
-        ausGrund: row[8] || "-",
-        stoerung: row[9] || "-",
-        dauer: row[10] || 0
-      });
-    }
-  });
-
-  return ContentService.createTextOutput(JSON.stringify({
-    status: "ok",
-    reports: allReports,
-    managers: ["Keskin", "Uzun"]
-  })).setMimeType(ContentService.MimeType.JSON);
-}
-
-function doPost(e) {
-  try {
-    const data = JSON.parse(e.postData.contents);
-    if (data.action === "sendReport") return saveReport(data);
-    return ContentService.createTextOutput("OK");
-  } catch (err) {
-    return ContentService.createTextOutput("ERROR: " + err.toString());
-  }
-}
-
-function saveReport(data) {
-  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
-  const sheetName = `Schicht ${data.schicht}`;
-  let sheet = ss.getSheetByName(sheetName);
-
-  if (!sheet) {
-    sheet = ss.insertSheet(sheetName);
-    sheet.getRange(1, 1, 1, 11).setValues([[
-      "Datum", "Sender", "Mitarbeiter", "Anlage", "Formträger",
-      "Artikelnummer", "Stückzahl", "Ausschuss", "Grund", "Störung", "min"
-    ]]);
-  }
-
-  const date = data.customDate || new Date().toLocaleDateString("de-DE");
-  (data.articles || []).forEach(art => {
-    sheet.appendRow([
-      date,
-      data.sender,
-      data.staff,
-      data.anlage,
-      data.ft || "-",
-      art.name || "-",
-      art.gut || 0,
-      art.ausTotal || 0,
-      art.ausGrund !== "-" ? art.ausGrund : "",
-      art.stoerGrund !== "-" ? art.stoerGrund : "",
-      art.stoerMin || 0
-    ]);
-  });
-
-  return ContentService.createTextOutput("OK");
-}";
+// Google Sheets ID (doküman kimliği)
+const SPREADSHEET_ID = "1i7p-dQGC0m5j2TLBq31TIAyjqt6vfRi0YboIRJCKyi0";
 
 // WhatsApp gönderme kapalı
 const WHATSAPP_ACTIVE = false;
@@ -159,21 +85,25 @@ const DEFAULT_PASSWORDS = {
 };
 
 // ============================================
-// KULLANICILAR (yedek - local için)
+// YEDEK KULLANICILAR (LOCAL İÇİN)
 // ============================================
 const INITIAL_DB = {
     "Keskin": "517",
     "Uzun": "1433"
 };
 
-// ÇALIŞAN LİSTELERİ
+// ============================================
+// ÇALIŞAN LİSTELERİ (SCHICHT'E GÖRE)
+// ============================================
 const WORKER_DATA = {
     "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D.", "Kantaroglu A.", "Krancioch A.", "Held D.", "Berisha I.", "Neji M.", "Mulugeta G.", "Udezue P.", "Jansen M.", "Aksoy O.", "Yildirim S.", "Brand N.", "Louze A.", "Blanquez Romero V.", "Diallo M.D.", "Sener E.", "Klomrit", "Garcia"],
     "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T.", "Besche T.", "Eickhoff P.", "Toth Renata", "Gibba n.", "Helf A.", "Isbir J.", "Jeyakumar S.", "Kalisch T.", "Kowarsch R.", "Nowak M.", "Pähler D.", "Patarcsity V.", "Pulendran K.", "Sahin E.", "Savas S.", "Schiavitelli", "Uluyüz B.", "Uzun S.", "Klomrit", "Garcia"],
     "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin", "Gertz S.", "Schönborn Ch.", "Fortes Ch.", "Sakaguchi M.", "Mercan M.", "Krämer Ch.", "Juretzka T.", "Kumbara E.", "Skupio D.", "Skrago T.", "Bah A.", "Kaya A.", "Jdea A.", "Toure A.", "Schneider D.", "Tchaleu Bertrand", "Keskinmus", "Klomrit", "Garcia"]
 };
 
-// KODLAR
+// ============================================
+// STÖRUNG & AUSSCHUSS KODLARI
+// ============================================
 const CODE_DATA = {
     PUR: {
         aus: ["6-2-01 Temperatur zu niedrig", "6-2-02 Schaum haftet nicht am Bauteil", "6-2-03 Einlegefehler", "6-2-04 Schussabbruch", "6-2-05 CIM nicht voll ausgeschäumt", "6-2-06 Lippe gerissen", "6-2-07 CIM gerissen", "7-2-01 Nacharbeit am Bauteil (Entgraten, Nachkleben etc.)", "Sonstige"],
@@ -188,3 +118,8 @@ const CODE_DATA = {
         stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-3-01 Messer schleifen", "4-3-02 Ungepl. Inst. Masch", "4-3-04 Silowechsel", "5-3-01 Mat-Mangel", "5-3-05 Feueralarm", "Sonstige"]
     }
 };
+
+// ============================================
+// SUPER MANAGER LISTESI
+// ============================================
+let SUPER_MANAGERS = ["Keskin", "Uzun"];
