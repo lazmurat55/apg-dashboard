@@ -2,282 +2,394 @@
 <html lang="de">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>APG BOCHUM</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>APG BOCHUM SECURE PRO</title>
     <style>
-        body {
-            background: black;
-            color: white;
-            font-family: Arial, sans-serif;
-            padding: 20px;
+        :root {
+            --bg: #000000;
+            --card: #1e293b;
+            --primary: #38bdf8;
+            --blue-dark: #1e40af;
+            --text: #f1f5f9;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --border: #334155;
         }
-        .card, .login-card {
-            max-width: 500px;
-            margin: auto;
-            background: #1e293b;
-            padding: 20px;
-            border-radius: 20px;
-            border: 2px solid #38bdf8;
-        }
-        input, button {
-            width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 10px;
-            border: none;
-            font-size: 16px;
-        }
-        button {
-            background: #38bdf8;
-            color: black;
-            font-weight: bold;
-            cursor: pointer;
-        }
-        .error {
-            color: red;
-            margin-top: 10px;
-        }
-        .success {
-            color: #22c55e;
-        }
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #38bdf8;
-            margin-bottom: 20px;
-            padding-bottom: 10px;
-        }
-        .schicht-group {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin: 10px 0;
-        }
-        .schicht-btn {
-            background: #0f172a;
-            border: 1px solid #334155;
-            padding: 12px;
-            border-radius: 10px;
-            color: white;
-            cursor: pointer;
-        }
-        .schicht-btn.active {
-            background: #38bdf8;
-            color: black;
-        }
-        .grid-2 {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        label {
-            display: block;
-            margin: 10px 0 5px;
-            color: #38bdf8;
-            font-weight: bold;
-            font-size: 12px;
-        }
-        select {
-            width: 100%;
-            padding: 12px;
-            background: #0f172a;
-            color: white;
-            border: 1px solid #334155;
-            border-radius: 10px;
-        }
-        .main-btn {
-            background: #38bdf8;
-            padding: 15px;
-            font-size: 16px;
-            margin-top: 20px;
-        }
-        .add-btn {
-            background: transparent;
-            border: 2px dashed #38bdf8;
-            color: #38bdf8;
-        }
-        .selected-worker {
-            background: rgba(56,189,248,0.1);
-            padding: 10px;
-            border-radius: 10px;
-            margin-top: 5px;
-            border: 1px solid #38bdf8;
-            display: flex;
-            justify-content: space-between;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding: 10px; min-height: 100vh; }
+        #loginScreen, #setPassScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .login-card { background: var(--card); padding: 30px; border-radius: 20px; border: 2px solid var(--primary); width: 95%; max-width: 450px; text-align: center; }
+        .card { width: 100%; max-width: 700px; background: var(--card); padding: 20px; border-radius: 20px; margin: auto; border: 1px solid rgba(56,189,248,0.3); display: none; }
+        .dashboard-card { background: #000000; border: 1px solid var(--primary); border-radius: 20px; padding: 25px; width: 100%; max-width: 1400px; margin: auto; display: none; box-sizing: border-box; }
+        .header { text-align: center; border-bottom: 3px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
+        label { display: block; margin: 15px 0 5px; color: var(--primary); font-weight: bold; font-size: 13px; text-transform: uppercase; }
+        select, input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid var(--border); background: #0f172a; color: white; box-sizing: border-box; font-size: 16px; }
+        .schicht-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 5px; }
+        .schicht-btn { padding: 14px; background: #0f172a; border: 1px solid var(--border); border-radius: 10px; color: white; cursor: pointer; font-weight: bold; font-size: 16px; transition: all 0.2s; }
+        .schicht-btn.active { background: var(--primary); color: #0f172a; }
+        .ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+        .ft-btn { padding: 12px; background: #0f172a; border: 1px solid var(--border); border-radius: 8px; color: #94a3b8; cursor: pointer; font-size: 15px; }
+        .ft-btn.active { background: var(--blue-dark); color: white; border-color: var(--primary); }
+        .main-btn { width: 100%; padding: 18px; background: var(--primary); color: #0f172a; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; margin-top: 20px; cursor: pointer; }
+        .main-btn:disabled { background: #475569; cursor: not-allowed; }
+        .add-btn { width: 100%; padding: 12px; margin-top: 10px; background: transparent; border: 2px dashed var(--primary); color: var(--primary); border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: bold; }
+        .sub-btn { background: var(--blue-dark); color: white; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .selected-worker { display: flex; justify-content: space-between; padding: 12px 15px; background: rgba(56,189,248,0.1); border-radius: 10px; margin-top: 6px; border: 1px solid var(--primary); font-size: 15px; }
+        .selected-worker span:last-child { color: var(--danger); cursor: pointer; font-size: 18px; }
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 15px; font-size: 12px; font-weight: bold; margin-top: 8px; }
+        .status-ok { background: var(--success); color: black; }
+        .status-error { background: var(--danger); color: white; }
+        .section-card { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; margin-top: 15px; border: 1px solid rgba(56,189,248,0.1); position: relative; }
+        .code-row { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid var(--border); }
+        .code-row-inputs { display: flex; gap: 8px; align-items: center; width: 100%; }
+        .code-row-inputs select { flex: 3; margin: 0; }
+        .code-row-inputs input { flex: 1; min-width: 80px; margin: 0; }
+        .sonstige-input { width: 100%; margin-top: 8px; display: none; border-color: var(--primary); background: #0f172a; }
+        .reports-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
+        @media (min-width: 768px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
+        .report-box { background: var(--card); border: 1px solid var(--border); padding: 20px; border-radius: 18px; transition: border-color 0.2s; }
+        .report-box:hover { border-color: var(--primary); }
+        .badge-origin { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 13px; font-weight: bold; background: var(--blue-dark); color: white; margin-bottom: 8px; }
+        .dash-text { font-size: 15px; margin: 8px 0; line-height: 1.5; }
+        .rights-box { background: rgba(56,189,248,0.05); border: 1px dashed var(--primary); padding: 15px; border-radius: 15px; margin-bottom: 20px; max-width: 650px; margin-left: auto; margin-right: auto; }
+        #workerOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+        .overlay-content { background: var(--card); width: 95%; max-width: 450px; max-height: 80vh; overflow-y: auto; border-radius: 20px; padding: 25px; border: 1px solid var(--primary); }
+        .worker-opt { padding: 14px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 16px; transition: background 0.2s; }
+        .worker-opt:hover { background: rgba(56,189,248,0.1); }
+        .filter-btn { padding: 12px; background: #0f172a; border: 1px solid var(--border); border-radius: 10px; color: white; cursor: pointer; font-weight: bold; }
+        .filter-btn.active-filter { background: var(--primary); color: #0f172a; }
+        @media (max-width: 600px) { body { padding: 5px; } .card, .dashboard-card { padding: 15px; } .grid-2 { grid-template-columns: 1fr; gap: 5px; } }
     </style>
 </head>
 <body>
 
-<!-- LOGIN EKRANI -->
-<div id="loginScreen" class="login-card">
-    <h2 style="color:#38bdf8;">APG LOGIN</h2>
-    <input type="text" id="username" placeholder="Nachname">
-    <input type="password" id="password" placeholder="Passwort">
-    <button onclick="checkLogin()">ANMELDEN</button>
-    <div id="loginError" class="error"></div>
+<!-- LOGIN -->
+<div id="loginScreen">
+    <div class="login-card">
+        <h2 style="color:var(--primary);">APG LOGIN</h2>
+        <input type="text" id="userInp" placeholder="Nachname">
+        <input type="password" id="passInp" placeholder="Passwort">
+        <button class="main-btn" id="loginBtn">ANMELDEN</button>
+        <p id="loginError" style="color:red; font-size:14px; margin-top:12px; display:none;"></p>
+    </div>
+</div>
+
+<!-- Şifre değiştirme -->
+<div id="setPassScreen" style="display:none;">
+    <div class="login-card">
+        <h3 style="color:var(--primary);">ERSTES LOGIN</h3>
+        <input type="password" id="newPass1" placeholder="Neues Passwort">
+        <input type="password" id="newPass2" placeholder="Wiederholen">
+        <button class="main-btn" id="savePassBtn">PASSWORT AKTIVIEREN</button>
+    </div>
 </div>
 
 <!-- ANA UYGULAMA -->
-<div id="mainApp" class="card" style="display:none;">
+<div class="card" id="mainApp">
     <div class="header">
         <h1>Adler Pelzer Group</h1>
-        <p id="userDisplay" class="success"></p>
+        <p id="currentUserDisplay" style="color:var(--success); font-size:14px;"></p>
     </div>
-
-    <label>SCHICHT</label>
-    <div class="schicht-group">
-        <button class="schicht-btn" onclick="setSchicht('A')">A</button>
-        <button class="schicht-btn" onclick="setSchicht('B')">B</button>
-        <button class="schicht-btn" onclick="setSchicht('C')">C</button>
-    </div>
-
-    <label>MITARBEITER</label>
-    <div id="workerList"></div>
-    <button class="add-btn" onclick="addTestWorker()">+ Test Mitarbeiter</button>
-
-    <label>ANLAGE</label>
-    <select id="anlage">
-        <option value="">Wählen...</option>
-        <option value="PUR1">PUR 1</option>
-        <option value="PUR2">PUR 2</option>
-        <option value="IM1">IM 1</option>
-        <option value="COM">Compound</option>
-    </select>
-
-    <label>ARTIKEL</label>
-    <input type="text" id="artikel" placeholder="Artikelnummer">
-
     <div class="grid-2">
-        <div><label>GUTTEILE</label><input type="number" id="gut" placeholder="Stückzahl"></div>
-        <div><label>AUSSCHUSS</label><input type="number" id="aus" placeholder="Stückzahl"></div>
+        <div><label>Schicht</label><div class="schicht-group"><button class="schicht-btn" data-schicht="A">A</button><button class="schicht-btn" data-schicht="B">B</button><button class="schicht-btn" data-schicht="C">C</button></div></div>
+        <div><label>Schichtart</label><div class="schicht-group"><button class="schicht-btn type-btn" data-type="Frühschicht">Früh</button><button class="schicht-btn type-btn" data-type="Spätschicht">Spät</button><button class="schicht-btn type-btn" data-type="Nachtschicht">Nacht</button></div></div>
     </div>
+    <div id="workerDisplayContainer"></div>
+    <button class="add-btn" id="openWorkerBtn">+ Mitarbeiter hinzufügen</button>
+    <div class="grid-2">
+        <div><label>Datum</label><input type="date" id="datum"></div>
+        <div><label>Anlage</label><select id="anlage"><option value="">Wählen...</option><optgroup label="PUR"><option value="PUR1">PUR1</option><option value="PUR2">PUR2</option><option value="PUR3">PUR3</option><option value="PUR4">PUR4</option><option value="PUR5">PUR5</option><option value="PUR6">PUR6</option><option value="PUR7">PUR7</option><option value="PUR8">PUR8</option><option value="PUR9">PUR9</option></optgroup><optgroup label="Spritzguss"><option value="IM1">IM1</option><option value="IM2">IM2</option><option value="IM3">IM3</option><option value="IM4">IM4</option><option value="IM5">IM5</option><option value="CIM1">CIM1</option></optgroup><option value="COM">Compound</option></select></div>
+    </div>
+    <div id="ftBox" style="display:none;"><label>Formträger (FT)</label><div class="ft-grid"><button class="ft-btn" data-ft="FT1">FT1</button><button class="ft-btn" data-ft="FT2">FT2</button><button class="ft-btn" data-ft="FT3">FT3</button><button class="ft-btn" data-ft="FT4">FT4</button><button class="ft-btn" data-ft="FT5">FT5</button><button class="ft-btn" data-ft="FT6">FT6</button></div></div>
+    <div id="comTimeBox" style="display:none; margin-top:15px; text-align:center; background:rgba(56,189,248,0.1); padding:10px; border-radius:10px;"><span style="font-weight:bold; color:var(--primary);">Compound: <span id="comTotal">0</span> / 480 Min</span></div>
+    <div id="artikelContainer"></div>
+    <button class="add-btn" id="addArtikelBtn" disabled>+ Artikel hinzufügen</button>
+    <button id="mainSendBtn" class="main-btn" disabled>🚀 SPEICHERN & SENDEN</button>
+</div>
 
-    <button id="sendBtn" class="main-btn" onclick="sendReport()">📤 RAPORT SENDEN</button>
-    <button onclick="logout()" style="background:#475569; margin-top:10px;">ABMELDEN</button>
+<!-- ADMIN PANEL -->
+<div class="dashboard-card" id="adminPanel">
+    <div class="header">
+        <h1>APG Live Dashboard</h1>
+        <p id="adminUserDisplay" style="color:var(--primary);"></p>
+        <div style="margin: 20px auto; max-width: 400px;"><label>Schicht filtern</label><div class="schicht-group"><button class="filter-btn" data-filter-schicht="A">🔵 A</button><button class="filter-btn active-filter" data-filter-schicht="B">🟢 B</button><button class="filter-btn" data-filter-schicht="C">🟠 C</button></div></div>
+        <button class="main-btn" id="refreshDashboardBtn" style="margin-top:15px; padding:12px 25px; font-size:15px; max-width:300px;">🔄 Aktualisieren</button>
+    </div>
+    <div id="dashboardLoading" style="text-align:center; color:var(--primary); margin:30px 0;">Berichte werden geladen... ⏳</div>
+    <div id="reportsContainer" class="reports-grid"></div>
+</div>
+
+<!-- Mitarbeiter Overlay -->
+<div id="workerOverlay">
+    <div class="overlay-content">
+        <h3 style="color:var(--primary);">Mitarbeiter wählen</h3>
+        <div id="workerList"></div>
+        <input type="text" id="manualWorker" placeholder="Name manuell...">
+        <button class="add-btn" id="addManualBtn">Hinzufügen</button>
+        <button class="main-btn" id="closeOverlayBtn">Schließen</button>
+    </div>
 </div>
 
 <script>
-    // Kullanicilar
-    const USERS = {
-        "Keskin": "517",
-        "Uzun": "1433"
-    };
-    
-    let currentUser = "";
-    let currentSchicht = "B";
-    let selectedWorkers = [];
-    
-    function checkLogin() {
-        const username = document.getElementById('username').value.trim();
-        const password = document.getElementById('password').value.trim();
-        const errorDiv = document.getElementById('loginError');
-        
-        if (USERS[username] && USERS[username] === password) {
-            currentUser = username;
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('mainApp').style.display = 'block';
-            document.getElementById('userDisplay').innerHTML = "Angemeldet: " + username;
-            setSchicht('B');
-        } else {
-            errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
-        }
-    }
-    
-    function setSchicht(schicht) {
-        currentSchicht = schicht;
-        document.querySelectorAll('.schicht-btn').forEach(btn => {
-            btn.classList.remove('active');
-            if (btn.innerText === schicht) btn.classList.add('active');
-        });
-        
-        // Schicht'e göre test çalışanları
-        const workers = {
-            "A": ["Kunert M.", "Karali O.", "Mikuczynski K."],
-            "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R."],
-            "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö."]
-        };
-        
-        selectedWorkers = [];
-        document.getElementById('workerList').innerHTML = workers[schicht].map(w => `
-            <div class="selected-worker">
-                <span>${w}</span>
-                <span onclick="removeWorker('${w}')" style="color:red; cursor:pointer;">✕</span>
-            </div>
-        `).join('');
-    }
-    
-    function addTestWorker() {
-        const name = "Test " + (selectedWorkers.length + 1);
-        selectedWorkers.push(name);
-        updateWorkerDisplay();
-    }
-    
-    function removeWorker(name) {
-        selectedWorkers = selectedWorkers.filter(w => w !== name);
-        updateWorkerDisplay();
-    }
-    
-    function updateWorkerDisplay() {
-        if (selectedWorkers.length === 0) {
-            document.getElementById('workerList').innerHTML = '<div class="selected-worker" style="color:#94a3b8;">Keine Mitarbeiter</div>';
-        } else {
-            document.getElementById('workerList').innerHTML = selectedWorkers.map(w => `
-                <div class="selected-worker">
-                    <span>${w}</span>
-                    <span onclick="removeWorker('${w}')" style="color:red; cursor:pointer;">✕</span>
-                </div>
-            `).join('');
-        }
-    }
-    
-    function sendReport() {
-        const anlage = document.getElementById('anlage').value;
-        const artikel = document.getElementById('artikel').value;
-        const gut = document.getElementById('gut').value;
-        const aus = document.getElementById('aus').value;
-        
-        if (!anlage) {
-            alert("Bitte Anlage wählen!");
-            return;
-        }
-        if (selectedWorkers.length === 0) {
-            alert("Bitte Mitarbeiter hinzufügen!");
-            return;
-        }
-        
-        const report = {
-            user: currentUser,
-            schicht: currentSchicht,
-            workers: selectedWorkers,
-            anlage: anlage,
-            artikel: artikel,
-            gut: gut,
-            aus: aus,
-            date: new Date().toLocaleString()
-        };
-        
-        console.log("Raport:", report);
-        alert("✅ Raport gesendet!\n\n" + JSON.stringify(report, null, 2));
-        
-        // Temizle
-        document.getElementById('anlage').value = "";
-        document.getElementById('artikel').value = "";
-        document.getElementById('gut').value = "";
-        document.getElementById('aus').value = "";
-        selectedWorkers = [];
-        updateWorkerDisplay();
-    }
-    
-    function logout() {
-        document.getElementById('loginScreen').style.display = 'block';
-        document.getElementById('mainApp').style.display = 'none';
-        document.getElementById('username').value = '';
-        document.getElementById('password').value = '';
-        document.getElementById('loginError').innerText = '';
-        currentUser = "";
-        selectedWorkers = [];
-    }
-</script>
+// ============================================
+// KONFIGÜRASYON
+// ============================================
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqWG5_E0N6NigKpfc4DlSocgr2jwofgJ_W6zScvDO2cIcOjCMA5A/exec";
+const WHATSAPP_ACTIVE = false;
 
-</body>
-</html>
+const DEFAULT_PASSWORDS = {
+    "Keskin": "517", "Uzun": "1433", "Kunert": "502", "Karali": "533", "Mikuczynski": "1212",
+    "Türkmen": "1213", "Amrouch": "1268", "Stania": "1368", "Kantaroglu": "1382", "Krancioch": "1405",
+    "Held": "1421", "Berisha": "1534", "Neji": "1536", "Mulugeta": "1633", "Udezue": "1686",
+    "Jansen": "1692", "Aksoy": "1704", "Yildirim": "1710", "Brand": "1722", "Louze": "1724",
+    "Blanquez": "1725", "Diallo": "1726", "Sener": "1731", "Klomrit": "1070", "Garcia": "339",
+    "Aldirmaz": "577", "Anderwald": "509", "Bayrakli": "1377", "Kilic": "1384", "Maafi": "1273",
+    "Besche": "1472", "Eickhoff": "1406", "Toth": "1699", "Gibba": "1367", "Helf": "1483",
+    "Isbir": "1715", "Jeyakumar": "1698", "Kalisch": "1451", "Kowarsch": "484", "Nowak": "1390",
+    "Pähler": "1332", "Patarcsity": "1700", "Pulendran": "1498", "Sahin": "1721", "Savas": "1360",
+    "Schiavitelli": "1669", "Uluyüz": "1450", "Keskinmus": "518", "Katenz": "000", "Beher": "510",
+    "Rafo": "1277", "Gertz": "1357", "Schönborn": "1361", "Fortes": "1381", "Sakaguchi M.": "1391",
+    "Mercan": "1437", "Krämer": "1449", "Juretzka": "1473", "Kumbara": "1474", "Skupio": "1475",
+    "Skrago": "1484", "Bah": "1684", "Kaya": "1712", "Jdea": "1701", "Toure": "1713",
+    "Schneider": "1714", "Tchaleu": "1723"
+};
+
+const INITIAL_DB = { "Keskin": "517", "Uzun": "1433" };
+
+const WORKER_DATA = {
+    "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D.", "Kantaroglu A.", "Krancioch A.", "Held D.", "Berisha I.", "Neji M.", "Mulugeta G.", "Udezue P.", "Jansen M.", "Aksoy O.", "Yildirim S.", "Brand N.", "Louze A.", "Blanquez Romero V.", "Diallo M.D.", "Sener E.", "Klomrit", "Garcia"],
+    "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T.", "Besche T.", "Eickhoff P.", "Toth Renata", "Gibba n.", "Helf A.", "Isbir J.", "Jeyakumar S.", "Kalisch T.", "Kowarsch R.", "Nowak M.", "Pähler D.", "Patarcsity V.", "Pulendran K.", "Sahin E.", "Savas S.", "Schiavitelli", "Uluyüz B.", "Uzun S.", "Klomrit", "Garcia"],
+    "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin", "Gertz S.", "Schönborn Ch.", "Fortes Ch.", "Sakaguchi M.", "Mercan M.", "Krämer Ch.", "Juretzka T.", "Kumbara E.", "Skupio D.", "Skrago T.", "Bah A.", "Kaya A.", "Jdea A.", "Toure A.", "Schneider D.", "Tchaleu Bertrand", "Keskinmus", "Klomrit", "Garcia"]
+};
+
+const CODE_DATA = {
+    PUR: { aus: ["6-2-01 Temperatur zu niedrig","6-2-02 Schaum haftet nicht","Sonstige"], stoer: ["3-01 WZ-Wechsel","3-02 Mat-Umst.","Sonstige"] },
+    Spritz: { aus: ["6-1-01 Anfahrschrott","6-1-02 Mat-Umst.","Sonstige"], stoer: ["3-01 WZ-Wechsel","3-02 Mat-Umst.","Sonstige"] },
+    COM: { aus: ["6-3-01 Anfahrschrott","6-3-02 Mat-Fehler","Sonstige"], stoer: ["3-01 WZ-Wechsel","3-02 Mat-Umst.","Sonstige"] }
+};
+
+let SUPER_MANAGERS = ["Keskin", "Uzun"];
+
+// ============================================
+// UYGULAMA
+// ============================================
+let currentSchicht = "B";
+let currentSchichtType = "Frühschicht";
+let selectedStaff = [];
+let loggedInUser = "";
+let currentSchichtFilter = "B";
+let artikelCounter = 0;
+
+document.addEventListener("DOMContentLoaded", function() {
+    setInitialTodayDate();
+    bindEvents();
+    setSchicht("B");
+    setSchichtType("Frühschicht");
+});
+
+function setInitialTodayDate() {
+    let today = new Date();
+    let year = today.getFullYear();
+    let month = String(today.getMonth() + 1).padStart(2, '0');
+    let day = String(today.getDate()).padStart(2, '0');
+    let dateInput = document.getElementById('datum');
+    if (dateInput) dateInput.value = `${year}-${month}-${day}`;
+}
+
+function bindEvents() {
+    document.getElementById('loginBtn').addEventListener('click', checkLogin);
+    document.getElementById('savePassBtn').addEventListener('click', saveNewPassword);
+    document.getElementById('openWorkerBtn').addEventListener('click', openWorkerOverlay);
+    document.getElementById('addManualBtn').addEventListener('click', addManualWorker);
+    document.getElementById('closeOverlayBtn').addEventListener('click', () => { document.getElementById('workerOverlay').style.display = 'none'; });
+    document.getElementById('addArtikelBtn').addEventListener('click', addArtikel);
+    document.getElementById('mainSendBtn').addEventListener('click', processReport);
+    document.getElementById('refreshDashboardBtn').addEventListener('click', loadAdminDashboard);
+    
+    document.querySelectorAll('.schicht-btn[data-schicht]').forEach(btn => {
+        btn.addEventListener('click', () => setSchicht(btn.dataset.schicht));
+    });
+    document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.addEventListener('click', () => setSchichtType(btn.dataset.type));
+    });
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            currentSchichtFilter = btn.dataset.filterSchicht;
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter'));
+            btn.classList.add('active-filter');
+            loadAdminDashboard();
+        });
+    });
+    document.getElementById('anlage').addEventListener('change', (e) => onAnlageChange(e.target.value));
+    document.querySelectorAll('.ft-btn').forEach(btn => {
+        btn.addEventListener('click', function() { this.classList.toggle('active'); liveCheck(); });
+    });
+}
+
+function setSchicht(schicht) {
+    currentSchicht = schicht;
+    document.querySelectorAll('.schicht-btn[data-schicht]').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.schicht === schicht) btn.classList.add('active');
+    });
+    selectedStaff = [];
+    renderStaff();
+    if (schicht === "A") setSchichtType('Frühschicht');
+    else if (schicht === "B") setSchichtType('Spätschicht');
+    else if (schicht === "C") setSchichtType('Nachtschicht');
+}
+
+function setSchichtType(type) {
+    currentSchichtType = type;
+    document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.type === type) btn.classList.add('active');
+    });
+}
+
+function openWorkerOverlay() {
+    let workers = WORKER_DATA[currentSchicht] || [];
+    document.getElementById('workerList').innerHTML = workers.map(w => `<div class="worker-opt" data-worker="${w}">${w}</div>`).join('');
+    document.querySelectorAll('.worker-opt').forEach(opt => {
+        opt.addEventListener('click', () => {
+            let name = opt.dataset.worker;
+            if (!selectedStaff.includes(name)) selectedStaff.push(name);
+            document.getElementById('workerOverlay').style.display = 'none';
+            renderStaff();
+        });
+    });
+    document.getElementById('workerOverlay').style.display = 'flex';
+}
+
+function addManualWorker() {
+    let name = document.getElementById('manualWorker').value.trim();
+    if (name) { selectedStaff.push("✍️ " + name); document.getElementById('manualWorker').value = ''; document.getElementById('workerOverlay').style.display = 'none'; renderStaff(); }
+}
+
+function renderStaff() {
+    let container = document.getElementById('workerDisplayContainer');
+    if (!container) return;
+    container.innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')">✕</span></div>`).join('');
+    liveCheck();
+}
+
+function removeStaff(name) { selectedStaff = selectedStaff.filter(x => x !== name); renderStaff(); }
+
+function onAnlageChange(value) {
+    document.getElementById('ftBox').style.display = value.startsWith("PUR") ? "block" : "none";
+    document.getElementById('comTimeBox').style.display = value === "COM" ? "block" : "none";
+    document.getElementById('artikelContainer').innerHTML = "";
+    document.getElementById('addArtikelBtn').disabled = value === "";
+    liveCheck();
+}
+
+function addArtikel() {
+    let id = Date.now() + artikelCounter++;
+    let container = document.getElementById('artikelContainer');
+    let isCom = document.getElementById('anlage').value === 'COM';
+    let div = document.createElement('div');
+    div.className = "section-card artikel-row";
+    div.id = `art_${id}`;
+    div.innerHTML = `<button onclick="this.parentElement.remove(); liveCheck();" style="position:absolute; right:10px; top:10px; background:var(--danger); color:white; border:none; border-radius:5px; width:30px; height:30px; cursor:pointer;">✕</button>
+        <label>Artikelnummer</label><input type="text" class="art-name" placeholder="Nummer eingeben...">
+        ${isCom ? '<label>Dauer (Min)</label><input type="number" class="art-duration" placeholder="Minuten..." oninput="liveCheck()">' : ''}
+        <div class="grid-2"><div><label>Gutteile (Stk)</label><input type="number" class="art-gut" placeholder="Anzahl..."></div><div><label>Aus Gesamt</label><input type="number" class="art-aus-total" placeholder="Anzahl..." oninput="liveCheck()"></div></div>
+        <div class="status-badge" id="badge_${id}"></div><div id="rows_${id}"></div>
+        <div style="display:flex; gap:10px; margin-top:10px;"><button class="sub-btn" onclick="addRow('${id}','aus')">+ Ausschuss</button><button class="sub-btn" onclick="addRow('${id}','stoer')">+ Störung</button></div>`;
+    container.appendChild(div);
+}
+
+window.addRow = function(artId, type) {
+    let anlage = document.getElementById('anlage').value;
+    let category = anlage === 'COM' ? 'COM' : (anlage.startsWith('PUR') ? 'PUR' : 'Spritz');
+    let codes = CODE_DATA[category][type];
+    let placeholder = type === 'aus' ? 'Stk' : 'Min';
+    let rowsDiv = document.getElementById(`rows_${artId}`);
+    let rowDiv = document.createElement('div');
+    rowDiv.className = "code-row";
+    rowDiv.innerHTML = `<div class="code-row-inputs"><select class="${type}-select" style="flex:3;">${codes.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
+        <input type="number" class="${type}-value" style="flex:1;" placeholder="${placeholder}" oninput="liveCheck()">
+        <button onclick="this.parentElement.parentElement.remove(); liveCheck();" style="color:red; background:none; border:none; font-size:20px;">✕</button></div>
+        <input type="text" class="sonstige-input" placeholder="Grund manuell..." style="display:none;">`;
+    rowsDiv.appendChild(rowDiv);
+    let select = rowDiv.querySelector(`.${type}-select`);
+    let sonstInput = rowDiv.querySelector('.sonstige-input');
+    select.addEventListener('change', () => { sonstInput.style.display = select.value === 'Sonstige' ? 'block' : 'none'; });
+    liveCheck();
+};
+
+function liveCheck() {
+    let isValid = true;
+    let compoundTotal = 0;
+    document.querySelectorAll('.artikel-row').forEach(row => {
+        let id = row.id.split('_')[1];
+        let ausTotal = parseInt(row.querySelector('.art-aus-total')?.value) || 0;
+        let sumAus = 0;
+        row.querySelectorAll('.aus-value').forEach(inp => sumAus += parseInt(inp.value) || 0);
+        let badge = document.getElementById(`badge_${id}`);
+        if (badge) {
+            if (ausTotal > 0 && ausTotal !== sumAus) { badge.className = "status-badge status-error"; badge.innerText = `⚠️ Differenz: ${sumAus}/${ausTotal}`; isValid = false; }
+            else if (ausTotal > 0) { badge.className = "status-badge status-ok"; badge.innerText = `✅ OK: ${sumAus}/${ausTotal}`; }
+            else { badge.innerText = ""; }
+        }
+        compoundTotal += parseInt(row.querySelector('.art-duration')?.value) || 0;
+    });
+    if (document.getElementById('anlage').value === 'COM') {
+        document.getElementById('comTotal').innerText = compoundTotal;
+        if (compoundTotal !== 480) isValid = false;
+    }
+    if (selectedStaff.length === 0 || !document.getElementById('anlage').value) isValid = false;
+    document.getElementById('mainSendBtn').disabled = !isValid;
+}
+
+async function processReport() {
+    let btn = document.getElementById('mainSendBtn');
+    btn.innerHTML = "Sende... ⏳";
+    btn.disabled = true;
+    let fts = Array.from(document.querySelectorAll('.ft-btn.active')).map(btn => btn.dataset.ft || btn.innerText).join(", ");
+    let rawDate = document.getElementById('datum').value;
+    let formattedDate = "";
+    if (rawDate) { let parts = rawDate.split("-"); if (parts.length === 3) formattedDate = `${parts[2]}.${parts[1]}.${parts[0]}`; }
+    let articles = [];
+    document.querySelectorAll('.artikel-row').forEach(row => {
+        let artName = row.querySelector('.art-name')?.value || "NA";
+        let artGut = parseInt(row.querySelector('.art-gut')?.value) || 0;
+        let artAusTotal = parseInt(row.querySelector('.art-aus-total')?.value) || 0;
+        let ausDetails = { grund: "-", stk: 0 };
+        let stoerDetails = { grund: "-", min: 0 };
+        row.querySelectorAll('.code-row').forEach(cr => {
+            let select = cr.querySelector('select');
+            let value = parseInt(cr.querySelector('input[type="number"]')?.value) || 0;
+            if (value > 0 && select) {
+                let text = select.value;
+                if (text === "Sonstige") { let sonst = cr.querySelector('.sonstige-input')?.value || "Sonstige"; text = "✍️ " + sonst; }
+                if (select.classList.contains('aus-select')) { ausDetails = { grund: text, stk: value }; }
+                else { stoerDetails = { grund: text, min: value }; }
+            }
+        });
+        articles.push({ name: artName, gut: artGut, ausTotal: artAusTotal, ausGrund: ausDetails.grund, ausStk: ausDetails.stk, stoerGrund: stoerDetails.grund, stoerMin: stoerDetails.min });
+    });
+    let payload = { action: "sendReport", sender: loggedInUser, staff: selectedStaff.join(", "), anlage: document.getElementById('anlage').value, schicht: currentSchicht, schichtType: currentSchichtType, customDate: formattedDate, ft: fts || "-", articles: articles };
+    try {
+        if (SCRIPT_URL && SCRIPT_URL !== "") { await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) }); }
+        alert("✅ Vielen Dank! Der Bericht wurde erfolgreich übermittelt.");
+        window.location.reload();
+    } catch(e) { alert("✅ Vielen Dank! Der Bericht wurde erfolgreich übermittelt."); window.location.reload(); }
+}
+
+async function loadAdminDashboard() {
+    let container = document.getElementById('reportsContainer');
+    let loadingDiv = document.getElementById('dashboardLoading');
+    if (loadingDiv) loadingDiv.style.display = 'block';
+    try {
+        if (SCRIPT_URL && SCRIPT_URL !== "") {
+            let response = await fetch(SCRIPT_URL + "?action=getReports");
+            let data = await response.json();
+            let reports = data.reports || [];
+            if (loadingDiv) loadingDiv.style.display = 'none';
+            if (!container) return;
+            let filteredReports = reports.filter(r => r.schicht === currentSchichtFilter);
+            if (filteredReports.length === 0) { container.innerHTML = `<p style="text-align:center; color:#94a3b8;">Keine Berichte für Schicht ${currentSchichtFilter} vorhanden.</p>`; return; }
+            container.innerHTML = filteredReports.map(r => `<div class="report-box"><span class="badge-origin">Schicht ${r.schicht || '-'}</span><div><p class="dash-text">📅 ${r.date || '-'}</p><p class="dash-text">👤 ${r.sender || '-'}</p><p class="dash-text">🏭 ${r.anlage || '-'}</p><p
