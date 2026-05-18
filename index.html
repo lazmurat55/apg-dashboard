@@ -40,7 +40,6 @@
             cursor: pointer;
             border: none;
         }
-        button:disabled { background: #475569; cursor: not-allowed; }
         .hidden { display: none; }
         .error { color: #ef4444; margin-top: 10px; }
         .success { color: #22c55e; }
@@ -191,7 +190,7 @@
     <h2>📊 APG Live Dashboard</h2>
     <p id="adminDisplay" class="success"></p>
     
-    <div id="schichtleiterBox" class="rights-box hidden">
+    <div id="schichtleiterBox" class="rights-box">
         <div class="inline-group">
             <select id="schichtleiterSelect"><option value="">👔 Schichtleiter</option><option value="Keskin">Keskin</option><option value="Uzun">Uzun</option><option value="Beher">Beher</option><option value="Brand">Brand</option><option value="Keskin Mur.">Keskin Mur.</option></select>
             <select id="schichtSelect"><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
@@ -223,27 +222,28 @@
 
 <script>
 // ============================================
-// APG BOCHUM - TAM SİSTEM
+// APG BOCHUM - DÜZELTİLMİŞ VERSİYON
 // ============================================
 
-// Google Sheets URL
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqWG5_E0N6NigKpfc4DlSocgr2jwofgJ_W6zScvDO2cIcOjCMA5A/exec";
 
-// Kullanıcılar (Personal Numarası)
-const DEFAULT_PASSWORDS = {
-    "Keskin": "517", "Uzun": "1433", "Kunert": "502", "Aldirmaz": "577", "Beher": "510",
-    "Brand": "1722", "Keskin Mur.": "518", "Naumann": "999", "Schönborn": "1361",
-    "Karali": "533", "Mikuczynski": "1212"
+// Kullanıcılar
+const USERS = {
+    "Keskin": "517",
+    "Uzun": "1433",
+    "Kunert": "502",
+    "Aldirmaz": "577",
+    "Beher": "510"
 };
 
 // Schichtleiter
 let SCHICHTLEITER = { A: "", B: "", C: "" };
 
-// Çalışan listeleri
+// Çalışanlar
 const WORKER_DATA = {
-    A: ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D."],
-    B: ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T."],
-    C: ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin"]
+    A: ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E."],
+    B: ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F."],
+    C: ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R."]
 };
 
 // Kodlar
@@ -253,59 +253,45 @@ const CODE_DATA = {
     COM: { aus: ["6-3-01 Anfahrschrott","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] }
 };
 
-// Global değişkenler
 let currentUser = "";
 let currentSchicht = "B";
 let currentSchichtType = "Frühschicht";
 let selectedStaff = [];
 let artikelCounter = 0;
 let currentFilter = "B";
-let userPasswords = {};
 
 // ========== LOGIN ==========
-async function login() {
+function login() {
     let u = document.getElementById('username').value.trim();
     let p = document.getElementById('password').value.trim();
     let msg = document.getElementById('loginMessage');
     
-    if (!DEFAULT_PASSWORDS[u]) {
+    if (!USERS[u]) {
         msg.innerHTML = "❌ Benutzer nicht gefunden!";
         return;
     }
     
-    try {
-        let res = await fetch(SCRIPT_URL + "?action=getPasswords");
-        let data = await res.json();
-        if (data.passwords) userPasswords = data.passwords;
-    } catch(e) {}
-    
-    let saved = userPasswords[u];
-    let def = DEFAULT_PASSWORDS[u];
-    
-    if (!saved && def === p) {
-        currentUser = u;
-        document.getElementById('loginScreen').classList.add('hidden');
-        document.getElementById('setPassScreen').classList.remove('hidden');
-        return;
-    }
-    
-    if (saved === p) {
+    if (USERS[u] === p) {
         currentUser = u;
         document.getElementById('loginScreen').classList.add('hidden');
         
+        // KESKIN ADMIN OLARAK GİRİŞ YAPAR
         if (u === "Keskin") {
             document.getElementById('adminPanel').classList.remove('hidden');
-            document.getElementById('adminDisplay').innerHTML = "👑 Willkommen, " + u;
-            document.getElementById('schichtleiterBox').classList.remove('hidden');
+            document.getElementById('adminDisplay').innerHTML = "👑 Willkommen, " + u + " (Admin)";
             updateSchichtleiterDisplay();
             loadDashboard();
-        } else if (SCHICHTLEITER.A === u || SCHICHTLEITER.B === u || SCHICHTLEITER.C === u) {
+        }
+        // Schichtleiter
+        else if (SCHICHTLEITER.A === u || SCHICHTLEITER.B === u || SCHICHTLEITER.C === u) {
             document.getElementById('adminPanel').classList.remove('hidden');
             let s = SCHICHTLEITER.A === u ? "A" : (SCHICHTLEITER.B === u ? "B" : "C");
             document.getElementById('adminDisplay').innerHTML = "👔 " + u + " (Schichtleiter " + s + ")";
             currentFilter = s;
             loadDashboard();
-        } else {
+        }
+        // İşçi
+        else {
             document.getElementById('mainApp').classList.remove('hidden');
             document.getElementById('userDisplay').innerHTML = "👤 Angemeldet: " + u;
             setSchicht("B");
@@ -316,34 +302,10 @@ async function login() {
     }
 }
 
-async function saveNewPassword() {
-    let p1 = document.getElementById('newPass1').value;
-    let p2 = document.getElementById('newPass2').value;
-    if (p1.length < 4) { alert("Min. 4 Zeichen!"); return; }
-    if (p1 !== p2) { alert("Passwörter stimmen nicht!"); return; }
-    
-    await fetch(SCRIPT_URL, { method:"POST", mode:"no-cors", body: JSON.stringify({ action:"setPassword", username: currentUser, password: p1 }) });
-    alert("✅ Passwort gespeichert!");
-    document.getElementById('setPassScreen').classList.add('hidden');
-    
-    if (SCHICHTLEITER.A === currentUser || SCHICHTLEITER.B === currentUser || SCHICHTLEITER.C === currentUser) {
-        document.getElementById('adminPanel').classList.remove('hidden');
-        let s = SCHICHTLEITER.A === currentUser ? "A" : (SCHICHTLEITER.B === currentUser ? "B" : "C");
-        document.getElementById('adminDisplay').innerHTML = "👔 " + currentUser + " (Schichtleiter " + s + ")";
-        loadDashboard();
-    } else {
-        document.getElementById('mainApp').classList.remove('hidden');
-        document.getElementById('userDisplay').innerHTML = "👤 Angemeldet: " + currentUser;
-        setSchicht("B");
-        setTodayDate();
-    }
-}
-
 function logout() {
     document.getElementById('loginScreen').classList.remove('hidden');
     document.getElementById('mainApp').classList.add('hidden');
     document.getElementById('adminPanel').classList.add('hidden');
-    document.getElementById('setPassScreen').classList.add('hidden');
     document.getElementById('username').value = '';
     document.getElementById('password').value = '';
     document.getElementById('loginMessage').innerHTML = '';
