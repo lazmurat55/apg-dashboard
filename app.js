@@ -124,15 +124,264 @@ function bindEvents() {
 // LOGIN SİSTEMİ
 // ============================================
 
-async function checkLogin() {
-    const btn = document.getElementById('loginBtn');
-    const username = document.getElementById('userInp').value.trim();
-    const password = document.getElementById('passInp').value.trim();
-    
-    if (!INITIAL_DB[username]) {
-        showLoginError("Benutzer nicht gefunden!");
-        return;
+// ============================================
+// APG BOCHUM - ŞİFRE YÖNETİMLİ TAM FONKSİYONEL
+// ============================================
+
+const SPREADSHEET_ID = "1i7p-dQGC0m5j2TLBq31TIAyjqt6vfRi0YboIRJCKyi0";
+const PASSWORD_SHEET = "Passwörter";  // Şifrelerin kaydedileceği sayfa
+
+// Varsayılan şifreler (personal numarası)
+const DEFAULT_PASSWORDS = {
+    "Keskin": "517",
+    "Uzun": "1433",
+    "Kunert": "502",
+    "Karali": "533",
+    "Mikuczynski": "1212",
+    "Türkmen": "1213",
+    "Amrouch": "1268",
+    "Stania": "1368",
+    "Kantaroglu": "1382",
+    "Krancioch": "1405",
+    "Held": "1421",
+    "Berisha": "1534",
+    "Neji": "1536",
+    "Mulugeta": "1633",
+    "Udezue": "1686",
+    "Jansen": "1692",
+    "Aksoy": "1704",
+    "Yildirim": "1710",
+    "Brand": "1722",
+    "Louze": "1724",
+    "Blanquez": "1725",
+    "Diallo": "1726",
+    "Sener": "1731",
+    "Klomrit": "1070",
+    "Garcia": "339",
+    "Aldirmaz": "577",
+    "Anderwald": "509",
+    "Bayrakli": "1377",
+    "Kilic": "1384",
+    "Maafi": "1273",
+    "Besche": "1472",
+    "Eickhoff": "1406",
+    "Toth": "1699",
+    "Gibba": "1367",
+    "Helf": "1483",
+    "Isbir": "1715",
+    "Jeyakumar": "1698",
+    "Kalisch": "1451",
+    "Kowarsch": "484",
+    "Nowak": "1390",
+    "Pähler": "1332",
+    "Patarcsity": "1700",
+    "Pulendran": "1498",
+    "Sahin": "1721",
+    "Savas": "1360",
+    "Schiavitelli": "1669",
+    "Uluyüz": "1450",
+    "Keskinmus": "518",
+    "Katenz": "000",
+    "Beher": "510",
+    "Rafo": "1277",
+    "Gertz": "1357",
+    "Schönborn": "1361",
+    "Fortes": "1381",
+    "Sakaguchi M.": "1391",
+    "Mercan": "1437",
+    "Krämer": "1449",
+    "Juretzka": "1473",
+    "Kumbara": "1474",
+    "Skupio": "1475",
+    "Skrago": "1484",
+    "Bah": "1684",
+    "Kaya": "1712",
+    "Jdea": "1701",
+    "Toure": "1713",
+    "Schneider": "1714",
+    "Tchaleu": "1723"
+};
+
+// Kullanıcı şifrelerini yükle
+function loadPasswords() {
+    try {
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+        let sheet = ss.getSheetByName(PASSWORD_SHEET);
+        
+        if (!sheet) {
+            sheet = ss.insertSheet(PASSWORD_SHEET);
+            sheet.getRange(1, 1, 1, 3).setValues([["Benutzername", "Passwort", "LetzteÄnderung"]]);
+            sheet.getRange(1, 1, 1, 3).setFontWeight("bold");
+            
+            // Varsayılan şifreleri kaydet
+            const defaultData = Object.entries(DEFAULT_PASSWORDS).map(([user, pass]) => [user, pass, new Date().toLocaleString("de-DE")]);
+            if (defaultData.length > 0) {
+                sheet.getRange(2, 1, defaultData.length, 3).setValues(defaultData);
+            }
+        }
+        
+        const data = sheet.getDataRange().getValues();
+        const passwords = {};
+        for (let i = 1; i < data.length; i++) {
+            if (data[i][0]) {
+                passwords[data[i][0]] = data[i][1];
+            }
+        }
+        return passwords;
+        
+    } catch(e) {
+        return DEFAULT_PASSWORDS;
     }
+}
+
+// Şifre kaydet
+function savePassword(username, newPassword) {
+    try {
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+        let sheet = ss.getSheetByName(PASSWORD_SHEET);
+        
+        if (!sheet) {
+            sheet = ss.insertSheet(PASSWORD_SHEET);
+            sheet.getRange(1, 1, 1, 3).setValues([["Benutzername", "Passwort", "LetzteÄnderung"]]);
+        }
+        
+        // Mevcut satırı bul
+        const data = sheet.getDataRange().getValues();
+        let foundRow = -1;
+        for (let i = 1; i < data.length; i++) {
+            if (data[i][0] === username) {
+                foundRow = i + 1;
+                break;
+            }
+        }
+        
+        const now = new Date().toLocaleString("de-DE");
+        
+        if (foundRow > 0) {
+            sheet.getRange(foundRow, 2, 1, 2).setValues([[newPassword, now]]);
+        } else {
+            sheet.appendRow([username, newPassword, now]);
+        }
+        
+        return true;
+    } catch(e) {
+        return false;
+    }
+}
+
+function doGet(e) {
+    try {
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+        let allReports = [];
+        const schichten = ["A", "B", "C"];
+        
+        for (const s of schichten) {
+            const sheet = ss.getSheetByName("Schicht " + s);
+            if (!sheet) continue;
+            
+            const data = sheet.getDataRange().getValues();
+            for (let i = 1; i < data.length; i++) {
+                const row = data[i];
+                if (!row[0]) continue;
+                allReports.push({
+                    schicht: s,
+                    date: row[0],
+                    sender: row[1] || "",
+                    staff: row[2] || "",
+                    anlage: row[3] || "",
+                    ft: row[4] || "-",
+                    artikel: row[5] || "",
+                    gut: row[6] || 0,
+                    ausTotal: row[7] || 0,
+                    ausGrund: row[8] || "-",
+                    stoerung: row[9] || "-",
+                    dauer: row[10] || 0
+                });
+            }
+        }
+        
+        // Şifreleri de gönder (sadece Keskin için tam liste)
+        const currentUser = e?.parameter?.user || "";
+        const allPasswords = loadPasswords();
+        
+        let passwordsToSend = {};
+        if (currentUser === "Keskin") {
+            passwordsToSend = allPasswords;
+        }
+        
+        return ContentService.createTextOutput(JSON.stringify({
+            status: "ok",
+            reports: allReports,
+            managers: ["Keskin", "Uzun"],
+            passwords: passwordsToSend,
+            defaultPasswords: DEFAULT_PASSWORDS
+        })).setMimeType(ContentService.MimeType.JSON);
+        
+    } catch(error) {
+        return ContentService.createTextOutput(JSON.stringify({
+            status: "error",
+            message: error.toString()
+        })).setMimeType(ContentService.MimeType.JSON);
+    }
+}
+
+function doPost(e) {
+    try {
+        const data = JSON.parse(e.postData.contents);
+        
+        if (data.action === "sendReport") {
+            return saveToSheet(data);
+        }
+        
+        if (data.action === "setPassword") {
+            const success = savePassword(data.username, data.password);
+            return ContentService.createTextOutput(success ? "OK" : "ERROR");
+        }
+        
+        return ContentService.createTextOutput("OK");
+        
+    } catch(error) {
+        return ContentService.createTextOutput("ERROR: " + error.toString());
+    }
+}
+
+function saveToSheet(data) {
+    try {
+        const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+        const sheetName = "Schicht " + data.schicht;
+        let sheet = ss.getSheetByName(sheetName);
+        
+        if (!sheet) {
+            sheet = ss.insertSheet(sheetName);
+            const headers = ["Datum","Sender","Mitarbeiter","Anlage","Formträger","Artikelnummer","Stückzahl","Ausschuss","Grund","Störung","min"];
+            sheet.getRange(1, 1, 1, headers.length).setValues([headers]);
+        }
+        
+        const reportDate = data.customDate || new Date().toLocaleDateString("de-DE");
+        const articles = data.articles || [];
+        
+        for (const art of articles) {
+            sheet.appendRow([
+                reportDate,
+                data.sender || "",
+                data.staff || "",
+                data.anlage || "",
+                data.ft || "-",
+                art.name || "-",
+                art.gut || 0,
+                art.ausTotal || 0,
+                art.ausGrund !== "-" ? art.ausGrund : "",
+                art.stoerGrund !== "-" ? art.stoerGrund : "",
+                art.stoerMin || 0
+            ]);
+        }
+        
+        return ContentService.createTextOutput("OK");
+        
+    } catch(error) {
+        return ContentService.createTextOutput("ERROR: " + error.toString());
+    }
+}
     
     btn.innerHTML = "Check... ⏳";
     hideLoginError();
