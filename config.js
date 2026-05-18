@@ -3,7 +3,7 @@
 // ============================================
 
 // Google Apps Script URL (Web App linki - DOĞRU)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqWG5_E0N6NigKpfc4DlSocgr2jwofgJ_W6zScvDO2cIcOjCMA5A/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyubhD3zQme2Vu_OLbi75a4F4oUeOJHvzrIkhBqhKABNsUJV50a4tX7zDALEKOcVnZiKQ/exec";
 
 // Google Sheets ID (doküman kimliği)
 const SPREADSHEET_ID = "1i7p-dQGC0m5j2TLBq31TIAyjqt6vfRi0YboIRJCKyi0";
