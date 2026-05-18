@@ -24,7 +24,6 @@ body {
     min-height: 100vh;
 }
 
-/* Login Ekranı */
 #loginScreen, #setPassScreen {
     position: fixed;
     top: 0;
@@ -53,7 +52,6 @@ body {
     margin-top: 15px;
 }
 
-/* Ana Kart */
 .card {
     width: 100%;
     max-width: 700px;
@@ -65,7 +63,6 @@ body {
     display: none;
 }
 
-/* Admin Dashboard */
 .dashboard-card {
     background: #000000;
     border: 1px solid var(--primary);
@@ -78,7 +75,6 @@ body {
     box-sizing: border-box;
 }
 
-/* Başlık */
 .header {
     text-align: center;
     border-bottom: 3px solid var(--primary);
@@ -91,7 +87,6 @@ body {
     letter-spacing: 1px;
 }
 
-/* Label ve Input */
 label {
     display: block;
     margin: 15px 0 5px;
@@ -119,7 +114,6 @@ select:focus, input:focus {
     box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.2);
 }
 
-/* Schicht Butonları */
 .schicht-group {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -145,7 +139,6 @@ select:focus, input:focus {
     border-color: var(--primary);
 }
 
-/* FT Butonları */
 .ft-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -170,7 +163,6 @@ select:focus, input:focus {
     border-color: var(--primary);
 }
 
-/* Ana Buton */
 .main-btn {
     width: 100%;
     padding: 18px;
@@ -196,7 +188,6 @@ select:focus, input:focus {
     opacity: 0.6;
 }
 
-/* Add Butonu */
 .add-btn {
     width: 100%;
     padding: 12px;
@@ -215,7 +206,6 @@ select:focus, input:focus {
     background: rgba(56, 189, 248, 0.1);
 }
 
-/* Alt Buton */
 .sub-btn {
     background: var(--blue-dark);
     color: white;
@@ -232,14 +222,12 @@ select:focus, input:focus {
     background: #2563eb;
 }
 
-/* Grid sistem */
 .grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 15px;
 }
 
-/* Seçili Çalışan */
 .selected-worker {
     display: flex;
     justify-content: space-between;
@@ -260,7 +248,6 @@ select:focus, input:focus {
     padding: 0 8px;
 }
 
-/* Status Badge */
 .status-badge {
     display: inline-block;
     padding: 6px 12px;
@@ -280,7 +267,6 @@ select:focus, input:focus {
     color: white;
 }
 
-/* Artikel ve Kod Satırları */
 .section-card {
     background: rgba(255, 255, 255, 0.03);
     padding: 15px;
@@ -327,7 +313,6 @@ select:focus, input:focus {
     background: #0f172a;
 }
 
-/* Rapor Kutuları (Admin) */
 .reports-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -394,7 +379,6 @@ select:focus, input:focus {
     margin-right: auto;
 }
 
-/* Overlay */
 #workerOverlay {
     display: none;
     position: fixed;
@@ -431,7 +415,20 @@ select:focus, input:focus {
     background: rgba(56, 189, 248, 0.1);
 }
 
-/* Mobil Düzenlemeler */
+.filter-btn {
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    transform: translateY(-2px);
+}
+
+.active-filter {
+    background: var(--primary) !important;
+    color: #0f172a !important;
+    border-color: var(--primary) !important;
+}
+
 @media (max-width: 600px) {
     body {
         padding: 5px;
