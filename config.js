@@ -2,18 +2,16 @@
 // APG BOCHUM - KONFIGÜRASYON DOSYASI
 // ============================================
 
-// Google Apps Script URL (boş bırakırsan demo modunda çalışır)
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx-dqYPZHIk7RjesakFlUfY0A57MsD3dW3eflhJalnYm-STAHKP12OOEFvXac74wQZr-Q/exec";
+// Google Apps Script URL
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxJEKtTlwsoe41B_6qmxgz6fF605tvuggHbLyztalMG1KBkacJRzrx7B9xtOC1wMUeMIg/exec";
 
-// ============================================
-// WHATSAPP GÖNDERME AYARI (KAPALI)
-// ============================================
+// WhatsApp gönderme kapalı
 const WHATSAPP_ACTIVE = false;
 
 // ============================================
-// KULLANICILAR (Nachname + Şifre)
+// VARSAYILAN ŞİFRELER (PERSONAL NUMARASI)
 // ============================================
-const INITIAL_DB = {
+const DEFAULT_PASSWORDS = {
     "Keskin": "517",
     "Uzun": "1433",
     "Kunert": "502",
@@ -83,12 +81,22 @@ const INITIAL_DB = {
     "Tchaleu": "1723"
 };
 
+// ============================================
+// KULLANICILAR (yedek - local için)
+// ============================================
+const INITIAL_DB = {
+    "Keskin": "517",
+    "Uzun": "1433"
+};
+
+// ÇALIŞAN LİSTELERİ
 const WORKER_DATA = {
     "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D.", "Kantaroglu A.", "Krancioch A.", "Held D.", "Berisha I.", "Neji M.", "Mulugeta G.", "Udezue P.", "Jansen M.", "Aksoy O.", "Yildirim S.", "Brand N.", "Louze A.", "Blanquez Romero V.", "Diallo M.D.", "Sener E.", "Klomrit", "Garcia"],
     "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T.", "Besche T.", "Eickhoff P.", "Toth Renata", "Gibba n.", "Helf A.", "Isbir J.", "Jeyakumar S.", "Kalisch T.", "Kowarsch R.", "Nowak M.", "Pähler D.", "Patarcsity V.", "Pulendran K.", "Sahin E.", "Savas S.", "Schiavitelli", "Uluyüz B.", "Uzun S.", "Klomrit", "Garcia"],
     "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin", "Gertz S.", "Schönborn Ch.", "Fortes Ch.", "Sakaguchi M.", "Mercan M.", "Krämer Ch.", "Juretzka T.", "Kumbara E.", "Skupio D.", "Skrago T.", "Bah A.", "Kaya A.", "Jdea A.", "Toure A.", "Schneider D.", "Tchaleu Bertrand", "Keskinmus", "Klomrit", "Garcia"]
 };
 
+// KODLAR
 const CODE_DATA = {
     PUR: {
         aus: ["6-2-01 Temperatur zu niedrig", "6-2-02 Schaum haftet nicht am Bauteil", "6-2-03 Einlegefehler", "6-2-04 Schussabbruch", "6-2-05 CIM nicht voll ausgeschäumt", "6-2-06 Lippe gerissen", "6-2-07 CIM gerissen", "7-2-01 Nacharbeit am Bauteil (Entgraten, Nachkleben etc.)", "Sonstige"],
@@ -103,5 +111,3 @@ const CODE_DATA = {
         stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-3-01 Messer schleifen", "4-3-02 Ungepl. Inst. Masch", "4-3-04 Silowechsel", "5-3-01 Mat-Mangel", "5-3-05 Feueralarm", "Sonstige"]
     }
 };
-
-let SUPER_MANAGERS = ["Keskin", "Uzun"];
