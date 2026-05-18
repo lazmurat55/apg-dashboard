@@ -17,7 +17,7 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding: 10px; min-height: 100vh; }
-        #loginScreen, #setPassScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; }
         .login-card { background: var(--card); padding: 30px; border-radius: 20px; border: 2px solid var(--primary); width: 95%; max-width: 450px; text-align: center; }
         .card { width: 100%; max-width: 700px; background: var(--card); padding: 20px; border-radius: 20px; margin: auto; border: 1px solid rgba(56,189,248,0.3); display: none; }
         .dashboard-card { background: #000000; border: 1px solid var(--primary); border-radius: 20px; padding: 25px; width: 100%; max-width: 1400px; margin: auto; display: none; box-sizing: border-box; }
@@ -75,7 +75,50 @@
         <input type="text" id="userInp" placeholder="Nachname">
         <input type="password" id="passInp" placeholder="Passwort">
         <button class="main-btn" onclick="checkLogin()">ANMELDEN</button>
-        <p id="loginError" class="error" style="color:red; margin-top:12px; display:none;"></p>
+        <p id="loginError" style="color:red; margin-top:12px; display:none;"></p>
+    </div>
+</div>
+
+<!-- ANA UYGULAMA -->
+<div class="card" id="mainApp" style="display:none;">
+    <div class="header"><h1>Adler Pelzer Group</h1><p id="currentUserDisplay" style="color:var(--success); font-size:12px;"></p></div>
+    <div class="grid-2">
+        <div><label>Schicht</label><div class="schicht-group"><button class="schicht-btn" onclick="setSchicht('A')">A</button><button class="schicht-btn" onclick="setSchicht('B')">B</button><button class="schicht-btn" onclick="setSchicht('C')">C</button></div></div>
+        <div><label>Schichtart</label><div class="schicht-group"><button class="schicht-btn type-btn" onclick="setSchichtType('Frühschicht')">Früh</button><button class="schicht-btn type-btn" onclick="setSchichtType('Spätschicht')">Spät</button><button class="schicht-btn type-btn" onclick="setSchichtType('Nachtschicht')">Nacht</button></div></div>
+    </div>
+    <div id="workerDisplayContainer"></div>
+    <button class="add-btn" onclick="openWorkerOverlay()">+ Mitarbeiter</button>
+    <div class="grid-2">
+        <div><label>Datum</label><input type="date" id="datum"></div>
+        <div><label>Anlage</label><select id="anlage" onchange="onAnlageChange(this.value)"><option value="">Wählen...</option><optgroup label="PUR"><option value="PUR1">PUR1</option><option value="PUR2">PUR2</option><option value="PUR3">PUR3</option><option value="PUR4">PUR4</option><option value="PUR5">PUR5</option><option value="PUR6">PUR6</option><option value="PUR7">PUR7</option><option value="PUR8">PUR8</option><option value="PUR9">PUR9</option></optgroup><optgroup label="Spritzguss"><option value="IM1">IM1</option><option value="IM2">IM2</option><option value="IM3">IM3</option><option value="IM4">IM4</option><option value="IM5">IM5</option><option value="CIM1">CIM1</option></optgroup><option value="COM">Compound</option></select></div>
+    </div>
+    <div id="ftBox" style="display:none;"><label>FT</label><div class="ft-grid"><button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT1</button><button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT2</button><button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT3</button><button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT4</button><button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT5</button><button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT6</button></div></div>
+    <div id="comTimeBox" style="display:none; text-align:center; background:rgba(56,189,248,0.1); padding:8px; border-radius:8px; margin-top:8px;"><span style="font-size:13px;">Compound: <span id="comTotal">0</span> / 480 Min</span></div>
+    <div id="artikelContainer"></div>
+    <button class="add-btn" id="addArtikelBtn" disabled onclick="addArtikel()">+ Artikel</button>
+    <button id="mainSendBtn" class="main-btn" disabled onclick="processReport()">📤 SPEICHERN & SENDEN</button>
+</div>
+
+<!-- ADMIN PANEL -->
+<div class="dashboard-card" id="adminPanel" style="display:none;">
+    <div class="header"><h1>APG Dashboard</h1><p id="adminUserDisplay" style="font-size:12px;"></p></div>
+    <div class="filter-group">
+        <button class="filter-btn" onclick="filterSchicht('A')">🔵 A</button>
+        <button class="filter-btn active-filter" onclick="filterSchicht('B')">🟢 B</button>
+        <button class="filter-btn" onclick="filterSchicht('C')">🟠 C</button>
+    </div>
+    <button class="main-btn" onclick="loadAdminDashboard()" style="margin-top:5px; padding:10px; font-size:14px;">🔄 Aktualisieren</button>
+    <div id="reportsContainer" class="reports-grid"></div>
+</div>
+
+<!-- Mitarbeiter Overlay -->
+<div id="workerOverlay">
+    <div class="overlay-content">
+        <h3 style="color:var(--primary); font-size:18px;">Mitarbeiter</h3>
+        <div id="workerList"></div>
+        <input type="text" id="manualWorker" placeholder="Name manuell..." style="margin-top:10px;">
+        <button class="add-btn" onclick="addManualWorker()" style="margin-top:5px;">Hinzufügen</button>
+        <button class="main-btn" onclick="document.getElementById('workerOverlay').style.display='none'" style="margin-top:10px;">Schließen</button>
     </div>
 </div>
 
@@ -86,22 +129,217 @@
 const USERS = {
     "Keskin": "517",
     "Uzun": "1433",
-    "Kunert": "502"
+    "Kunert": "502",
+    "Aldirmaz": "577",
+    "Beher": "510"
 };
 
+const WORKER_DATA = {
+    "A": ["Kunert M.", "Karali O.", "Mikuczynski K."],
+    "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R."],
+    "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö."]
+};
+
+const CODE_DATA = {
+    PUR: { aus: ["6-2-01 Temperatur zu niedrig","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] },
+    Spritz: { aus: ["6-1-01 Anfahrschrott","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] },
+    COM: { aus: ["6-3-01 Anfahrschrott","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] }
+};
+
+// GLOBAL
+let currentUser = "";
+let currentSchicht = "B";
+let currentSchichtType = "Frühschicht";
+let selectedStaff = [];
+let artikelCounter = 0;
+let currentFilter = "B";
+
+// ============================================
+// LOGIN
+// ============================================
 function checkLogin() {
     let username = document.getElementById('userInp').value.trim();
     let password = document.getElementById('passInp').value.trim();
     let errorDiv = document.getElementById('loginError');
     
     if (USERS[username] && USERS[username] === password) {
-        alert("✅ Login erfolgreich! " + username);
-        // Buraya ana uygulama gelecek
+        currentUser = username;
+        document.getElementById('loginScreen').style.display = 'none';
+        
+        if (username === "Keskin" || username === "Uzun") {
+            document.getElementById('adminPanel').style.display = 'block';
+            document.getElementById('adminUserDisplay').innerHTML = "Willkommen, " + username + " (Admin)";
+            loadAdminDashboard();
+        } else {
+            document.getElementById('mainApp').style.display = 'block';
+            document.getElementById('currentUserDisplay').innerHTML = "Angemeldet: " + username;
+            setSchicht("B");
+        }
     } else {
         errorDiv.style.display = 'block';
         errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
     }
 }
+
+function setSchicht(schicht) {
+    currentSchicht = schicht;
+    document.querySelectorAll('.schicht-btn[onclick*="setSchicht"]').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.innerText === schicht) btn.classList.add('active');
+    });
+    selectedStaff = [];
+    renderStaff();
+    if (schicht === "A") setSchichtType('Frühschicht');
+    else if (schicht === "B") setSchichtType('Spätschicht');
+    else if (schicht === "C") setSchichtType('Nachtschicht');
+}
+
+function setSchichtType(type) {
+    currentSchichtType = type;
+    document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.innerText === type || (type === "Frühschicht" && btn.innerText === "Früh") ||
+            (type === "Spätschicht" && btn.innerText === "Spät") ||
+            (type === "Nachtschicht" && btn.innerText === "Nacht")) {
+            btn.classList.add('active');
+        }
+    });
+}
+
+function openWorkerOverlay() {
+    let workers = WORKER_DATA[currentSchicht] || [];
+    document.getElementById('workerList').innerHTML = workers.map(w => `<div class="worker-opt" onclick="addStaff('${w}')">${w}</div>`).join('');
+    document.getElementById('workerOverlay').style.display = 'flex';
+}
+
+function addStaff(name) {
+    if (!selectedStaff.includes(name)) selectedStaff.push(name);
+    document.getElementById('workerOverlay').style.display = 'none';
+    renderStaff();
+}
+
+function addManualWorker() {
+    let name = document.getElementById('manualWorker').value.trim();
+    if (name) {
+        selectedStaff.push("✍️ " + name);
+        document.getElementById('manualWorker').value = '';
+        document.getElementById('workerOverlay').style.display = 'none';
+        renderStaff();
+    }
+}
+
+function renderStaff() {
+    let container = document.getElementById('workerDisplayContainer');
+    if (!container) return;
+    container.innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')">✕</span></div>`).join('');
+    liveCheck();
+}
+
+function removeStaff(name) {
+    selectedStaff = selectedStaff.filter(x => x !== name);
+    renderStaff();
+}
+
+function onAnlageChange(value) {
+    document.getElementById('ftBox').style.display = value.startsWith("PUR") ? "block" : "none";
+    document.getElementById('comTimeBox').style.display = value === "COM" ? "block" : "none";
+    document.getElementById('artikelContainer').innerHTML = "";
+    document.getElementById('addArtikelBtn').disabled = value === "";
+    artikelCounter = 0;
+    liveCheck();
+}
+
+function addArtikel() {
+    let id = Date.now() + artikelCounter++;
+    let container = document.getElementById('artikelContainer');
+    let isCom = document.getElementById('anlage').value === 'COM';
+    let div = document.createElement('div');
+    div.className = "section-card artikel-row";
+    div.id = `art_${id}`;
+    div.innerHTML = `<button onclick="this.parentElement.remove(); liveCheck();" style="position:absolute; right:5px; top:5px; background:var(--danger); color:white; border:none; border-radius:4px; width:25px; height:25px; cursor:pointer;">✕</button>
+        <label>Artikel</label><input type="text" class="art-name" placeholder="Nummer">
+        ${isCom ? '<label>Dauer (Min)</label><input type="number" class="art-duration" placeholder="Min" oninput="liveCheck()">' : ''}
+        <div class="grid-2"><div><label>Gut</label><input type="number" class="art-gut" placeholder="Stk"></div><div><label>Aus Gesamt</label><input type="number" class="art-aus-total" placeholder="Stk" oninput="liveCheck()"></div></div>
+        <div class="status-badge" id="badge_${id}"></div><div id="rows_${id}"></div>
+        <div style="display:flex; gap:8px; margin-top:8px;"><button class="sub-btn" onclick="addRow('${id}','aus')">+ Ausschuss</button><button class="sub-btn" onclick="addRow('${id}','stoer')">+ Störung</button></div>`;
+    container.appendChild(div);
+}
+
+function addRow(artId, type) {
+    let anlage = document.getElementById('anlage').value;
+    let category = anlage === 'COM' ? 'COM' : (anlage.startsWith('PUR') ? 'PUR' : 'Spritz');
+    let codes = CODE_DATA[category][type];
+    let placeholder = type === 'aus' ? 'Stk' : 'Min';
+    let rowsDiv = document.getElementById(`rows_${artId}`);
+    let rowDiv = document.createElement('div');
+    rowDiv.className = "code-row";
+    rowDiv.innerHTML = `<div class="code-row-inputs"><select class="${type}-select">${codes.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
+        <input type="number" class="${type}-value" placeholder="${placeholder}" oninput="liveCheck()">
+        <button onclick="this.parentElement.parentElement.remove(); liveCheck();" style="color:red; background:none; border:none; font-size:18px;">✕</button></div>
+        <input type="text" class="sonstige-input" placeholder="Grund manuell..." style="display:none;">`;
+    rowsDiv.appendChild(rowDiv);
+    let select = rowDiv.querySelector(`.${type}-select`);
+    let sonstInput = rowDiv.querySelector('.sonstige-input');
+    select.onchange = () => { sonstInput.style.display = select.value === 'Sonstige' ? 'block' : 'none'; };
+    liveCheck();
+}
+
+function liveCheck() {
+    let isValid = true;
+    let compoundTotal = 0;
+    document.querySelectorAll('.artikel-row').forEach(row => {
+        let id = row.id.split('_')[1];
+        let ausTotal = parseInt(row.querySelector('.art-aus-total')?.value) || 0;
+        let sumAus = 0;
+        row.querySelectorAll('.aus-value').forEach(inp => sumAus += parseInt(inp.value) || 0);
+        let badge = document.getElementById(`badge_${id}`);
+        if (badge) {
+            if (ausTotal > 0 && ausTotal !== sumAus) {
+                badge.className = "status-badge status-error";
+                badge.innerText = `⚠️ ${sumAus}/${ausTotal}`;
+                isValid = false;
+            } else if (ausTotal > 0) {
+                badge.className = "status-badge status-ok";
+                badge.innerText = `✅ ${sumAus}/${ausTotal}`;
+            } else { badge.innerText = ""; }
+        }
+        compoundTotal += parseInt(row.querySelector('.art-duration')?.value) || 0;
+    });
+    if (document.getElementById('anlage').value === 'COM') {
+        document.getElementById('comTotal').innerText = compoundTotal;
+        if (compoundTotal !== 480) isValid = false;
+    }
+    if (selectedStaff.length === 0 || !document.getElementById('anlage').value) isValid = false;
+    document.getElementById('mainSendBtn').disabled = !isValid;
+}
+
+function processReport() {
+    alert("✅ Bericht wurde gesendet!");
+    window.location.reload();
+}
+
+function loadAdminDashboard() {
+    let container = document.getElementById('reportsContainer');
+    container.innerHTML = '<p style="text-align:center; color:#94a3b8;">📊 Keine Berichte vorhanden</p>';
+}
+
+function filterSchicht(schicht) {
+    currentFilter = schicht;
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active-filter');
+        btn.style.background = "#0f172a";
+    });
+    event.target.classList.add('active-filter');
+    event.target.style.background = "#38bdf8";
+    loadAdminDashboard();
+}
+
+// Tarih bugün
+let today = new Date();
+let year = today.getFullYear();
+let month = String(today.getMonth() + 1).padStart(2, '0');
+let day = String(today.getDate()).padStart(2, '0');
+if (document.getElementById('datum')) document.getElementById('datum').value = `${year}-${month}-${day}`;
 </script>
 
 </body>
