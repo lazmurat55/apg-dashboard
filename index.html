@@ -409,14 +409,51 @@ function processReport() {
     window.location.reload();
 }
 
-function loadAdminDashboard() {
+async function loadAdminDashboard() {
     let container = document.getElementById('reportsContainer');
-    let userSchicht = "";
-    if (SCHICHTLEITER["A"] === currentUser) userSchicht = "A";
-    else if (SCHICHTLEITER["B"] === currentUser) userSchicht = "B";
-    else if (SCHICHTLEITER["C"] === currentUser) userSchicht = "C";
-    let showSchicht = userSchicht ? userSchicht : currentFilter;
-    container.innerHTML = `<p style="text-align:center; color:#94a3b8;">📊 Keine Berichte für Schicht ${showSchicht}</p>`;
+    if (!container) return;
+    
+    container.innerHTML = '<p style="text-align:center;">📊 Berichte werden geladen...</p>';
+    
+    try {
+        let response = await fetch(SCRIPT_URL + "?action=getReports");
+        let data = await response.json();
+        let reports = data.reports || [];
+        
+        let userSchicht = "";
+        if (SCHICHTLEITER["A"] === currentUser) userSchicht = "A";
+        else if (SCHICHTLEITER["B"] === currentUser) userSchicht = "B";
+        else if (SCHICHTLEITER["C"] === currentUser) userSchicht = "C";
+        
+        let showSchicht = userSchicht ? userSchicht : currentFilter;
+        let filteredReports = reports.filter(r => r.schicht === showSchicht);
+        
+        if (filteredReports.length === 0) {
+            container.innerHTML = `<p style="text-align:center; color:#94a3b8;">📊 Keine Berichte für Schicht ${showSchicht}</p>`;
+            return;
+        }
+        
+        container.innerHTML = filteredReports.map(r => `
+            <div class="report-box">
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid var(--border); padding-bottom:5px; margin-bottom:10px;">
+                    <span style="color:var(--primary); font-weight:bold;">📅 ${r.date || '-'}</span>
+                    <span>👤 ${r.sender || '-'}</span>
+                </div>
+                <div style="font-size:13px;">
+                    <p>🏭 <b>${r.anlage || '-'}</b> ${r.ft && r.ft !== '-' ? `[FT: ${r.ft}]` : ''}</p>
+                    <p>📦 Artikel: ${r.artikel || '-'}</p>
+                    <p>✅ Gut: <b style="color:var(--success);">${r.gut || 0}</b> | ❌ Aus: <b style="color:var(--danger);">${r.ausTotal || 0}</b></p>
+                    ${r.ausGrund && r.ausGrund !== '-' ? `<p>↳ Grund: ${r.ausGrund} (${r.ausStk || 0} Stk)</p>` : ''}
+                    ${r.stoerung && r.stoerung !== '-' ? `<p>⚙️ Störung: ${r.stoerung} (${r.dauer || 0} Min)</p>` : ''}
+                    <p style="margin-top:8px; font-size:11px; color:#94a3b8;">👥 Team: ${r.staff || '-'}</p>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch(error) {
+        container.innerHTML = `<p style="text-align:center; color:var(--danger);">❌ Fehler beim Laden: ${error.message}</p>`;
+        console.error("Dashboard Error:", error);
+    }
 }
 
 // Tarih bugün
