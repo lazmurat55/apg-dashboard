@@ -3,188 +3,428 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APG BOCHUM</title>
+    <title>APG BOCHUM SECURE PRO</title>
     <style>
-        body { background: black; color: white; font-family: Arial, sans-serif; padding: 20px; }
-        .card, .login-card { max-width: 500px; margin: auto; background: #1e293b; padding: 20px; border-radius: 20px; border: 2px solid #38bdf8; text-align: center; }
-        input, button { width: 100%; padding: 12px; margin: 8px 0; border-radius: 10px; border: none; font-size: 16px; }
-        button { background: #38bdf8; color: black; font-weight: bold; cursor: pointer; }
-        .error { color: red; margin-top: 10px; }
-        .success { color: #22c55e; }
-        label { display: block; margin: 10px 0 5px; color: #38bdf8; font-weight: bold; }
-        select { width: 100%; padding: 12px; background: #0f172a; color: white; border: 1px solid #334155; border-radius: 10px; }
-        .schicht-group { display: flex; gap: 10px; margin: 10px 0; }
-        .schicht-btn { background: #0f172a; border: 1px solid #334155; }
-        .schicht-btn.active { background: #38bdf8; color: black; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .main-btn { background: #38bdf8; padding: 15px; font-size: 16px; margin-top: 20px; }
-        .add-btn { background: transparent; border: 2px dashed #38bdf8; color: #38bdf8; }
-        .selected-worker { background: rgba(56,189,248,0.1); padding: 10px; border-radius: 10px; margin-top: 5px; border: 1px solid #38bdf8; display: flex; justify-content: space-between; }
+        :root {
+            --bg: #000000;
+            --card: #1e293b;
+            --primary: #38bdf8;
+            --blue-dark: #1e40af;
+            --text: #f1f5f9;
+            --danger: #ef4444;
+            --success: #22c55e;
+            --border: #334155;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding: 10px; min-height: 100vh; }
+        #loginScreen, #setPassScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .login-card { background: var(--card); padding: 30px; border-radius: 20px; border: 2px solid var(--primary); width: 95%; max-width: 450px; text-align: center; }
+        .card { width: 100%; max-width: 700px; background: var(--card); padding: 20px; border-radius: 20px; margin: auto; border: 1px solid rgba(56,189,248,0.3); display: none; }
+        .dashboard-card { background: #000000; border: 1px solid var(--primary); border-radius: 20px; padding: 25px; width: 100%; max-width: 1400px; margin: auto; display: none; box-sizing: border-box; }
+        .header { text-align: center; border-bottom: 3px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
+        .header h1 { font-size: 22px; }
+        label { display: block; margin: 10px 0 5px; color: var(--primary); font-weight: bold; font-size: 12px; text-transform: uppercase; }
+        select, input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: #0f172a; color: white; box-sizing: border-box; font-size: 14px; }
+        .schicht-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 5px; }
+        .schicht-btn { padding: 12px; background: #0f172a; border: 1px solid var(--border); border-radius: 10px; color: white; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .schicht-btn.active { background: var(--primary); color: #0f172a; }
+        .ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+        .ft-btn { padding: 8px; background: #0f172a; border: 1px solid var(--border); border-radius: 6px; color: #94a3b8; cursor: pointer; font-size: 13px; }
+        .ft-btn.active { background: var(--blue-dark); color: white; }
+        .main-btn { width: 100%; padding: 14px; background: var(--primary); color: #0f172a; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; }
+        .main-btn:disabled { background: #475569; cursor: not-allowed; }
+        .add-btn { width: 100%; padding: 10px; margin-top: 8px; background: transparent; border: 2px dashed var(--primary); color: var(--primary); border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .sub-btn { background: var(--blue-dark); color: white; padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .selected-worker { display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(56,189,248,0.1); border-radius: 8px; margin-top: 5px; border: 1px solid var(--primary); font-size: 13px; }
+        .selected-worker span:last-child { color: var(--danger); cursor: pointer; font-size: 16px; }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-top: 6px; }
+        .status-ok { background: var(--success); color: black; }
+        .status-error { background: var(--danger); color: white; }
+        .section-card { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-top: 12px; position: relative; }
+        .code-row { margin-top: 8px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--border); }
+        .code-row-inputs { display: flex; gap: 6px; align-items: center; }
+        .code-row-inputs select { flex: 3; margin: 0; padding: 8px; font-size: 12px; }
+        .code-row-inputs input { flex: 1; min-width: 60px; margin: 0; padding: 8px; font-size: 12px; }
+        .sonstige-input { width: 100%; margin-top: 6px; display: none; padding: 8px; font-size: 12px; }
+        .reports-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
+        @media (min-width: 768px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
+        .report-box { background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 15px; }
+        .rights-box { background: rgba(56,189,248,0.05); border: 1px dashed var(--primary); padding: 10px; border-radius: 10px; margin-bottom: 15px; }
+        .inline-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .inline-group select { flex: 1; margin: 0; }
+        .inline-group button { margin: 0; width: auto; padding: 8px 15px; }
+        .small-text { font-size: 11px; color: #94a3b8; }
+        #workerOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+        .overlay-content { background: var(--card); width: 95%; max-width: 400px; max-height: 70vh; overflow-y: auto; border-radius: 20px; padding: 20px; border: 1px solid var(--primary); }
+        .worker-opt { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; }
+        .worker-opt:hover { background: rgba(56,189,248,0.1); }
+        .filter-group { display: flex; gap: 8px; justify-content: center; margin: 15px 0; }
+        .filter-btn { padding: 8px 20px; background: #0f172a; border: 1px solid var(--border); border-radius: 20px; color: white; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .filter-btn.active-filter { background: var(--primary); color: #0f172a; }
+        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; gap: 5px; } body { padding: 5px; } .inline-group { flex-direction: column; } .inline-group button { width: 100%; } }
     </style>
 </head>
 <body>
 
 <!-- LOGIN -->
-<div id="loginScreen" class="login-card">
-    <h2 style="color:#38bdf8;">APG LOGIN</h2>
-    <input type="text" id="username" placeholder="Nachname">
-    <input type="password" id="password" placeholder="Passwort">
-    <button onclick="checkLogin()">ANMELDEN</button>
-    <div id="loginError" class="error"></div>
+<div id="loginScreen">
+    <div class="login-card">
+        <h2 style="color:var(--primary);">APG LOGIN</h2>
+        <input type="text" id="userInp" placeholder="Nachname">
+        <input type="password" id="passInp" placeholder="Passwort">
+        <button class="main-btn" onclick="checkLogin()">ANMELDEN</button>
+        <p id="loginError" style="color:red; margin-top:12px; display:none;"></p>
+    </div>
 </div>
 
 <!-- ANA UYGULAMA -->
-<div id="mainApp" class="card" style="display:none;">
-    <h2>Adler Pelzer Group</h2>
-    <p id="userDisplay" class="success"></p>
-
-    <label>SCHICHT</label>
-    <div class="schicht-group">
-        <button class="schicht-btn" onclick="setSchicht('A')">A</button>
-        <button class="schicht-btn" onclick="setSchicht('B')">B</button>
-        <button class="schicht-btn" onclick="setSchicht('C')">C</button>
-    </div>
-
-    <label>MITARBEITER</label>
-    <div id="workerListArea"></div>
-    <button class="add-btn" onclick="addTestWorker()">+ Mitarbeiter hinzufügen</button>
-
+<div class="card" id="mainApp" style="display:none;">
+    <div class="header"><h1>Adler Pelzer Group</h1><p id="currentUserDisplay" style="color:var(--success); font-size:12px;"></p></div>
     <div class="grid-2">
-        <div><label>ANLAGE</label><select id="anlage"><option value="">Wählen...</option><option value="PUR1">PUR 1</option><option value="PUR2">PUR 2</option><option value="IM1">IM 1</option><option value="COM">Compound</option></select></div>
-        <div><label>ARTIKEL</label><input type="text" id="artikel" placeholder="Nummer"></div>
+        <div><label>Schicht</label><div class="schicht-group"><button class="schicht-btn" onclick="setSchicht('A')">A</button><button class="schicht-btn" onclick="setSchicht('B')">B</button><button class="schicht-btn" onclick="setSchicht('C')">C</button></div></div>
+        <div><label>Schichtart</label><div class="schicht-group"><button class="schicht-btn type-btn" onclick="setSchichtType('Frühschicht')">Früh</button><button class="schicht-btn type-btn" onclick="setSchichtType('Spätschicht')">Spät</button><button class="schicht-btn type-btn" onclick="setSchichtType('Nachtschicht')">Nacht</button></div></div>
     </div>
-
+    <div id="workerDisplayContainer"></div>
+    <button class="add-btn" onclick="openWorkerOverlay()">+ Mitarbeiter</button>
     <div class="grid-2">
-        <div><label>GUTTEILE</label><input type="number" id="gut" placeholder="Stückzahl"></div>
-        <div><label>AUSSCHUSS</label><input type="number" id="aus" placeholder="Stückzahl"></div>
+        <div><label>Datum</label><input type="date" id="datum"></div>
+        <div><label>Anlage</label><select id="anlage" onchange="onAnlageChange(this.value)"><option value="">Wählen...</option><optgroup label="PUR"><option value="PUR1">PUR1</option><option value="PUR2">PUR2</option><option value="PUR3">PUR3</option><option value="PUR4">PUR4</option><option value="PUR5">PUR5</option><option value="PUR6">PUR6</option><option value="PUR7">PUR7</option><option value="PUR8">PUR8</option><option value="PUR9">PUR9</option></optgroup><optgroup label="Spritzguss"><option value="IM1">IM1</option><option value="IM2">IM2</option><option value="IM3">IM3</option><option value="IM4">IM4</option><option value="IM5">IM5</option><option value="CIM1">CIM1</option></optgroup><option value="COM">Compound</option></select></div>
     </div>
+    <div id="ftBox" style="display:none;"><label>FT</label><div class="ft-grid"><button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT1</button><button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT2</button><button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT3</button><button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT4</button><button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT5</button><button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT6</button></div></div>
+    <div id="comTimeBox" style="display:none; text-align:center; background:rgba(56,189,248,0.1); padding:8px; border-radius:8px; margin-top:8px;"><span style="font-size:13px;">Compound: <span id="comTotal">0</span> / 480 Min</span></div>
+    <div id="artikelContainer"></div>
+    <button class="add-btn" id="addArtikelBtn" disabled onclick="addArtikel()">+ Artikel</button>
+    <button id="mainSendBtn" class="main-btn" disabled onclick="processReport()">📤 SPEICHERN & SENDEN</button>
+</div>
 
-    <button class="main-btn" onclick="sendReport()">📤 RAPORT SENDEN</button>
-    <button onclick="logout()" style="background:#475569; margin-top:10px;">ABMELDEN</button>
+<!-- ADMIN PANEL -->
+<div class="dashboard-card" id="adminPanel" style="display:none;">
+    <div class="header"><h1>APG Dashboard</h1><p id="adminUserDisplay" style="font-size:12px;"></p></div>
+    
+    <!-- KLEINE RECHTE & SCHICHTLEITER ZEILE -->
+    <div class="rights-box">
+        <div class="inline-group" style="justify-content: space-between; flex-wrap: wrap;">
+            <div class="inline-group" style="flex:2;">
+                <select id="rightsSelect" style="width:auto; min-width:120px;"><option value="">Admin geben</option></select>
+                <button class="sub-btn" onclick="grantSuperManagerRights()">➕</button>
+                <span id="currentManagersList" class="small-text" style="margin-left:5px;"></span>
+            </div>
+            <div class="inline-group">
+                <select id="schichtleiterSelect" style="width:auto; min-width:140px;">
+                    <option value="">Schichtleiter</option>
+                    <option value="Keskin">Keskin</option>
+                    <option value="Uzun">Uzun</option>
+                    <option value="Beher">Beher</option>
+                    <option value="Brand">Brand</option>
+                    <option value="Keskin Mur.">Keskin Mur.</option>
+                    <option value="Naumann">Naumann</option>
+                    <option value="Schönborn">Schönborn</option>
+                </select>
+                <select id="schichtSelect" style="width:auto; min-width:60px;">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                </select>
+                <button class="sub-btn" onclick="assignSchichtleiter()">👔 Zuweisen</button>
+            </div>
+        </div>
+        <div id="schichtleiterDisplay" class="small-text" style="margin-top:6px; text-align:center;"></div>
+    </div>
+    
+    <div class="filter-group">
+        <button class="filter-btn" onclick="filterSchicht('A')">🔵 A</button>
+        <button class="filter-btn active-filter" onclick="filterSchicht('B')">🟢 B</button>
+        <button class="filter-btn" onclick="filterSchicht('C')">🟠 C</button>
+    </div>
+    <button class="main-btn" onclick="loadAdminDashboard()" style="margin-top:5px; padding:10px; font-size:14px;">🔄 Aktualisieren</button>
+    <div id="reportsContainer" class="reports-grid"></div>
+</div>
+
+<!-- Mitarbeiter Overlay -->
+<div id="workerOverlay">
+    <div class="overlay-content">
+        <h3 style="color:var(--primary); font-size:18px;">Mitarbeiter</h3>
+        <div id="workerList"></div>
+        <input type="text" id="manualWorker" placeholder="Name manuell..." style="margin-top:10px;">
+        <button class="add-btn" onclick="addManualWorker()" style="margin-top:5px;">Hinzufügen</button>
+        <button class="main-btn" onclick="document.getElementById('workerOverlay').style.display='none'" style="margin-top:10px;">Schließen</button>
+    </div>
 </div>
 
 <script>
-// KULLANICILAR
+// ============================================
+// KONFIGÜRASYON
+// ============================================
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqWG5_E0N6NigKpfc4DlSocgr2jwofgJ_W6zScvDO2cIcOjCMA5A/exec";
+
+// Kullanıcılar
 const USERS = {
-    "Keskin": "517",
-    "Uzun": "1433",
-    "Kunert": "502",
-    "Aldirmaz": "577",
-    "Beher": "510"
+    "Keskin": "517", "Uzun": "1433", "Kunert": "502", "Aldirmaz": "577", "Beher": "510",
+    "Brand": "1722", "Keskin Mur.": "518", "Naumann": "999", "Schönborn": "1361"
 };
 
-// ÇALIŞANLAR
-const WORKERS = {
-    "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E."],
-    "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F."],
-    "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R."]
+// Super Manager
+let SUPER_MANAGERS = ["Keskin", "Uzun"];
+
+// Schichtleiter
+let SCHICHTLEITER = {"A": "", "B": "", "C": ""};
+
+// Çalışanlar
+const WORKER_DATA = {
+    "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D."],
+    "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T."],
+    "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin"]
 };
 
+// Kodlar
+const CODE_DATA = {
+    PUR: { aus: ["6-2-01 Temperatur zu niedrig","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] },
+    Spritz: { aus: ["6-1-01 Anfahrschrott","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] },
+    COM: { aus: ["6-3-01 Anfahrschrott","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] }
+};
+
+// ============================================
+// GLOBAL
+// ============================================
 let currentUser = "";
 let currentSchicht = "B";
-let selectedWorkers = [];
+let currentSchichtType = "Frühschicht";
+let selectedStaff = [];
+let artikelCounter = 0;
+let currentFilter = "B";
 
+// ============================================
+// LOGIN
+// ============================================
 function checkLogin() {
-    let username = document.getElementById('username').value.trim();
-    let password = document.getElementById('password').value.trim();
+    let username = document.getElementById('userInp').value.trim();
+    let password = document.getElementById('passInp').value.trim();
     let errorDiv = document.getElementById('loginError');
     
     if (USERS[username] && USERS[username] === password) {
         currentUser = username;
         document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('userDisplay').innerHTML = "Angemeldet: " + username;
-        setSchicht('B');
+        document.getElementById('adminPanel').style.display = 'block';
+        document.getElementById('adminUserDisplay').innerHTML = "👤 " + username + (SUPER_MANAGERS.includes(username) ? " (Admin)" : "");
+        
+        loadUserSelect();
+        updateManagersList();
+        updateSchichtleiterDisplay();
+        loadAdminDashboard();
     } else {
+        errorDiv.style.display = 'block';
         errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
     }
 }
 
+function loadUserSelect() {
+    let select = document.getElementById('rightsSelect');
+    let users = Object.keys(USERS);
+    select.innerHTML = '<option value="">Admin geben</option>' + users.map(u => `<option value="${u}">${u}</option>`).join('');
+}
+
+function updateManagersList() {
+    let span = document.getElementById('currentManagersList');
+    if (span) span.innerHTML = "👑 " + SUPER_MANAGERS.join(', ');
+}
+
+function grantSuperManagerRights() {
+    let select = document.getElementById('rightsSelect');
+    let name = select.value;
+    if (!name) { alert("Bitte Benutzer wählen!"); return; }
+    if (!SUPER_MANAGERS.includes(name)) {
+        SUPER_MANAGERS.push(name);
+        updateManagersList();
+        alert(name + " ist jetzt Super-Manager!");
+    } else { alert(name + " ist bereits Super-Manager!"); }
+}
+
+function assignSchichtleiter() {
+    let name = document.getElementById('schichtleiterSelect').value;
+    let schicht = document.getElementById('schichtSelect').value;
+    if (!name) { alert("Bitte Schichtleiter wählen!"); return; }
+    SCHICHTLEITER[schicht] = name;
+    updateSchichtleiterDisplay();
+    alert("✅ " + name + " ist jetzt Schichtleiter für Schicht " + schicht);
+}
+
+function updateSchichtleiterDisplay() {
+    let div = document.getElementById('schichtleiterDisplay');
+    if (div) div.innerHTML = `👔 A: ${SCHICHTLEITER.A || "-"} | B: ${SCHICHTLEITER.B || "-"} | C: ${SCHICHTLEITER.C || "-"}`;
+}
+
+function filterSchicht(schicht) {
+    currentFilter = schicht;
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active-filter');
+        btn.style.background = "#0f172a";
+    });
+    event.target.classList.add('active-filter');
+    event.target.style.background = "#38bdf8";
+    loadAdminDashboard();
+}
+
+// ============================================
+// SCHICHT & MITARBEITER
+// ============================================
 function setSchicht(schicht) {
     currentSchicht = schicht;
-    document.querySelectorAll('.schicht-btn').forEach(btn => {
+    document.querySelectorAll('.schicht-btn[onclick*="setSchicht"]').forEach(btn => {
         btn.classList.remove('active');
         if (btn.innerText === schicht) btn.classList.add('active');
     });
-    selectedWorkers = [];
-    updateWorkerDisplay();
+    selectedStaff = [];
+    renderStaff();
+    if (schicht === "A") setSchichtType('Frühschicht');
+    else if (schicht === "B") setSchichtType('Spätschicht');
+    else if (schicht === "C") setSchichtType('Nachtschicht');
 }
 
-function addTestWorker() {
-    let workers = WORKERS[currentSchicht] || [];
-    if (workers.length > 0) {
-        let newWorker = workers[Math.floor(Math.random() * workers.length)];
-        if (!selectedWorkers.includes(newWorker)) {
-            selectedWorkers.push(newWorker);
-        } else {
-            selectedWorkers.push(workers[0]);
+function setSchichtType(type) {
+    currentSchichtType = type;
+    document.querySelectorAll('.type-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.innerText === type || (type === "Frühschicht" && btn.innerText === "Früh") ||
+            (type === "Spätschicht" && btn.innerText === "Spät") ||
+            (type === "Nachtschicht" && btn.innerText === "Nacht")) {
+            btn.classList.add('active');
         }
-    } else {
-        selectedWorkers.push("Test " + (selectedWorkers.length + 1));
+    });
+}
+
+function openWorkerOverlay() {
+    let workers = WORKER_DATA[currentSchicht] || [];
+    document.getElementById('workerList').innerHTML = workers.map(w => `<div class="worker-opt" onclick="addStaff('${w}')">${w}</div>`).join('');
+    document.getElementById('workerOverlay').style.display = 'flex';
+}
+
+function addStaff(name) {
+    if (!selectedStaff.includes(name)) selectedStaff.push(name);
+    document.getElementById('workerOverlay').style.display = 'none';
+    renderStaff();
+}
+
+function addManualWorker() {
+    let name = document.getElementById('manualWorker').value.trim();
+    if (name) {
+        selectedStaff.push("✍️ " + name);
+        document.getElementById('manualWorker').value = '';
+        document.getElementById('workerOverlay').style.display = 'none';
+        renderStaff();
     }
-    updateWorkerDisplay();
 }
 
-function removeWorker(name) {
-    selectedWorkers = selectedWorkers.filter(w => w !== name);
-    updateWorkerDisplay();
+function renderStaff() {
+    let container = document.getElementById('workerDisplayContainer');
+    if (!container) return;
+    container.innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')">✕</span></div>`).join('');
+    liveCheck();
 }
 
-function updateWorkerDisplay() {
-    let container = document.getElementById('workerListArea');
-    if (selectedWorkers.length === 0) {
-        container.innerHTML = '<div class="selected-worker" style="color:#94a3b8;">Keine Mitarbeiter</div>';
-    } else {
-        container.innerHTML = selectedWorkers.map(w => `
-            <div class="selected-worker">
-                <span>${w}</span>
-                <span onclick="removeWorker('${w}')" style="color:red; cursor:pointer;">✕</span>
-            </div>
-        `).join('');
-    }
+function removeStaff(name) {
+    selectedStaff = selectedStaff.filter(x => x !== name);
+    renderStaff();
 }
 
-function sendReport() {
+// ============================================
+// ANLAGE & ARTIKEL (Kompakt)
+// ============================================
+function onAnlageChange(value) {
+    document.getElementById('ftBox').style.display = value.startsWith("PUR") ? "block" : "none";
+    document.getElementById('comTimeBox').style.display = value === "COM" ? "block" : "none";
+    document.getElementById('artikelContainer').innerHTML = "";
+    document.getElementById('addArtikelBtn').disabled = value === "";
+    artikelCounter = 0;
+    liveCheck();
+}
+
+function addArtikel() {
+    let id = Date.now() + artikelCounter++;
+    let container = document.getElementById('artikelContainer');
+    let isCom = document.getElementById('anlage').value === 'COM';
+    let div = document.createElement('div');
+    div.className = "section-card artikel-row";
+    div.id = `art_${id}`;
+    div.innerHTML = `<button onclick="this.parentElement.remove(); liveCheck();" style="position:absolute; right:5px; top:5px; background:var(--danger); color:white; border:none; border-radius:4px; width:25px; height:25px; cursor:pointer;">✕</button>
+        <label>Artikel</label><input type="text" class="art-name" placeholder="Nummer" style="padding:8px;">
+        ${isCom ? '<label>Dauer (Min)</label><input type="number" class="art-duration" placeholder="Min" oninput="liveCheck()" style="padding:8px;">' : ''}
+        <div class="grid-2"><div><label>Gut</label><input type="number" class="art-gut" placeholder="Stk" style="padding:8px;"></div><div><label>Aus Gesamt</label><input type="number" class="art-aus-total" placeholder="Stk" oninput="liveCheck()" style="padding:8px;"></div></div>
+        <div class="status-badge" id="badge_${id}"></div><div id="rows_${id}"></div>
+        <div style="display:flex; gap:8px; margin-top:8px;"><button class="sub-btn" onclick="addRow('${id}','aus')">+ Ausschuss</button><button class="sub-btn" onclick="addRow('${id}','stoer')">+ Störung</button></div>`;
+    container.appendChild(div);
+}
+
+function addRow(artId, type) {
     let anlage = document.getElementById('anlage').value;
-    let artikel = document.getElementById('artikel').value;
-    let gut = document.getElementById('gut').value;
-    let aus = document.getElementById('aus').value;
-    
-    if (!anlage) { alert("Bitte Anlage wählen!"); return; }
-    if (selectedWorkers.length === 0) { alert("Bitte Mitarbeiter hinzufügen!"); return; }
-    
-    let report = {
-        user: currentUser,
-        schicht: currentSchicht,
-        workers: selectedWorkers,
-        anlage: anlage,
-        artikel: artikel,
-        gut: gut,
-        aus: aus,
-        date: new Date().toLocaleString()
-    };
-    
-    console.log("Raport:", report);
-    alert("✅ Raport gesendet!\n\n" + JSON.stringify(report, null, 2));
-    
-    // Temizle
-    document.getElementById('anlage').value = "";
-    document.getElementById('artikel').value = "";
-    document.getElementById('gut').value = "";
-    document.getElementById('aus').value = "";
-    selectedWorkers = [];
-    updateWorkerDisplay();
+    let category = anlage === 'COM' ? 'COM' : (anlage.startsWith('PUR') ? 'PUR' : 'Spritz');
+    let codes = CODE_DATA[category][type];
+    let placeholder = type === 'aus' ? 'Stk' : 'Min';
+    let rowsDiv = document.getElementById(`rows_${artId}`);
+    let rowDiv = document.createElement('div');
+    rowDiv.className = "code-row";
+    rowDiv.innerHTML = `<div class="code-row-inputs"><select class="${type}-select">${codes.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
+        <input type="number" class="${type}-value" placeholder="${placeholder}" oninput="liveCheck()">
+        <button onclick="this.parentElement.parentElement.remove(); liveCheck();" style="color:red; background:none; border:none; font-size:18px;">✕</button></div>
+        <input type="text" class="sonstige-input" placeholder="Grund manuell..." style="display:none;">`;
+    rowsDiv.appendChild(rowDiv);
+    let select = rowDiv.querySelector(`.${type}-select`);
+    let sonstInput = rowDiv.querySelector('.sonstige-input');
+    select.onchange = () => { sonstInput.style.display = select.value === 'Sonstige' ? 'block' : 'none'; };
+    liveCheck();
 }
 
-function logout() {
-    document.getElementById('loginScreen').style.display = 'block';
-    document.getElementById('mainApp').style.display = 'none';
-    document.getElementById('username').value = '';
-    document.getElementById('password').value = '';
-    document.getElementById('loginError').innerText = '';
-    currentUser = "";
-    selectedWorkers = [];
+function liveCheck() {
+    let isValid = true;
+    let compoundTotal = 0;
+    document.querySelectorAll('.artikel-row').forEach(row => {
+        let id = row.id.split('_')[1];
+        let ausTotal = parseInt(row.querySelector('.art-aus-total')?.value) || 0;
+        let sumAus = 0;
+        row.querySelectorAll('.aus-value').forEach(inp => sumAus += parseInt(inp.value) || 0);
+        let badge = document.getElementById(`badge_${id}`);
+        if (badge) {
+            if (ausTotal > 0 && ausTotal !== sumAus) {
+                badge.className = "status-badge status-error";
+                badge.innerText = `⚠️ ${sumAus}/${ausTotal}`;
+                isValid = false;
+            } else if (ausTotal > 0) {
+                badge.className = "status-badge status-ok";
+                badge.innerText = `✅ ${sumAus}/${ausTotal}`;
+            } else { badge.innerText = ""; }
+        }
+        compoundTotal += parseInt(row.querySelector('.art-duration')?.value) || 0;
+    });
+    if (document.getElementById('anlage').value === 'COM') {
+        document.getElementById('comTotal').innerText = compoundTotal;
+        if (compoundTotal !== 480) isValid = false;
+    }
+    if (selectedStaff.length === 0 || !document.getElementById('anlage').value) isValid = false;
+    document.getElementById('mainSendBtn').disabled = !isValid;
 }
+
+function processReport() {
+    alert("✅ Bericht wurde gesendet!");
+    window.location.reload();
+}
+
+function loadAdminDashboard() {
+    let container = document.getElementById('reportsContainer');
+    let userSchicht = "";
+    if (SCHICHTLEITER["A"] === currentUser) userSchicht = "A";
+    else if (SCHICHTLEITER["B"] === currentUser) userSchicht = "B";
+    else if (SCHICHTLEITER["C"] === currentUser) userSchicht = "C";
+    let showSchicht = userSchicht ? userSchicht : currentFilter;
+    container.innerHTML = `<p style="text-align:center; color:#94a3b8;">📊 Keine Berichte für Schicht ${showSchicht}</p>`;
+}
+
+// Tarih bugün
+let today = new Date();
+let year = today.getFullYear();
+let month = String(today.getMonth() + 1).padStart(2, '0');
+let day = String(today.getDate()).padStart(2, '0');
+if (document.getElementById('datum')) document.getElementById('datum').value = `${year}-${month}-${day}`;
 </script>
 
 </body>
