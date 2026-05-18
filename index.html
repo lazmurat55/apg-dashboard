@@ -10,24 +10,23 @@
             background: #0f172a;
             font-family: 'Segoe UI', sans-serif;
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
+            padding: 20px;
         }
-        .login-card {
+        .login-card, .card, .dashboard-card {
             background: #1e293b;
-            padding: 40px 30px;
+            padding: 30px;
             border-radius: 32px;
             border: 2px solid #38bdf8;
-            width: 90%;
-            max-width: 400px;
+            max-width: 500px;
+            margin: 0 auto;
             text-align: center;
         }
-        h2 { color: #38bdf8; margin-bottom: 20px; font-size: 28px; }
-        input {
+        .dashboard-card { max-width: 1200px; }
+        h2, h3 { color: #38bdf8; margin-bottom: 20px; }
+        input, select, button {
             width: 100%;
-            padding: 14px;
-            margin: 10px 0;
+            padding: 12px;
+            margin: 8px 0;
             border-radius: 24px;
             border: 1px solid #334155;
             background: #0f172a;
@@ -35,86 +34,256 @@
             font-size: 16px;
         }
         button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 20px;
-            border-radius: 24px;
-            border: none;
             background: #38bdf8;
             color: #0f172a;
             font-weight: bold;
-            font-size: 18px;
             cursor: pointer;
-        }
-        .error { color: #ef4444; margin-top: 15px; }
-        .success { color: #22c55e; margin-top: 15px; }
-        .card {
-            background: #1e293b;
-            border-radius: 32px;
-            padding: 24px;
-            width: 90%;
-            max-width: 500px;
-            text-align: center;
-            border: 1px solid #38bdf8;
+            border: none;
         }
         .hidden { display: none; }
+        .error { color: #ef4444; margin-top: 10px; }
+        .success { color: #22c55e; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .schicht-group { display: flex; gap: 10px; margin: 10px 0; }
+        .schicht-btn { background: #0f172a; border: 1px solid #334155; }
+        .schicht-btn.active { background: #38bdf8; color: #0f172a; }
+        .selected-worker {
+            background: rgba(56,189,248,0.1);
+            padding: 10px;
+            border-radius: 20px;
+            margin-top: 5px;
+            border: 1px solid #38bdf8;
+            display: flex;
+            justify-content: space-between;
+        }
+        .add-btn { background: transparent; border: 2px dashed #38bdf8; color: #38bdf8; }
+        .reports-grid { display: grid; gap: 15px; margin-top: 20px; }
+        @media (min-width: 800px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
+        .report-box { background: #0f172a; padding: 15px; border-radius: 20px; border: 1px solid #334155; }
+        .filter-group { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
+        .filter-btn { padding: 8px 20px; border-radius: 30px; background: #0f172a; border: 1px solid #334155; }
+        .filter-btn.active-filter { background: #38bdf8; color: #0f172a; }
     </style>
 </head>
 <body>
 
-<!-- LOGIN EKRANI -->
+<!-- LOGIN -->
 <div id="loginScreen" class="login-card">
     <h2>⚡ APG LOGIN</h2>
     <input type="text" id="username" placeholder="Nachname">
     <input type="password" id="password" placeholder="Passwort">
     <button onclick="login()">ANMELDEN</button>
-    <div id="loginMessage"></div>
+    <div id="loginMessage" class="error"></div>
 </div>
 
-<!-- ANA EKRAN -->
-<div id="mainScreen" class="card hidden">
-    <h2 style="color:#38bdf8;">APG Bochum</h2>
-    <p id="welcomeText" style="margin: 20px 0; color: #22c55e;"></p>
-    <p style="margin: 20px 0;">✅ Sie sind erfolgreich eingeloggt!</p>
-    <button onclick="logout()">ABMELDEN</button>
+<!-- İŞÇİ EKRANI -->
+<div id="mainApp" class="card hidden">
+    <h2>📋 APG Produktion</h2>
+    <p id="userDisplay" class="success"></p>
+    
+    <label>SCHICHT</label>
+    <div class="schicht-group">
+        <button class="schicht-btn" onclick="setSchicht('A')">A</button>
+        <button class="schicht-btn" onclick="setSchicht('B')">B</button>
+        <button class="schicht-btn" onclick="setSchicht('C')">C</button>
+    </div>
+    
+    <div id="workerList"></div>
+    <button class="add-btn" onclick="addTestWorker()">+ Mitarbeiter</button>
+    
+    <div class="grid-2">
+        <div><label>DATUM</label><input type="date" id="datum"></div>
+        <div><label>ANLAGE</label><select id="anlage"><option value="">Wählen</option><option value="PUR1">PUR1</option><option value="IM1">IM1</option></select></div>
+    </div>
+    
+    <div class="grid-2">
+        <div><label>ARTIKEL</label><input type="text" id="artikel" placeholder="Nummer"></div>
+        <div><label>GUTTEILE</label><input type="number" id="gut" placeholder="Stk"></div>
+    </div>
+    
+    <button class="add-btn" onclick="addArtikel()">+ Artikel</button>
+    <button class="main-btn" onclick="sendReport()">📤 SPEICHERN & SENDEN</button>
+    <button onclick="logout()" style="margin-top:10px; background:#475569;">ABMELDEN</button>
+</div>
+
+<!-- ADMIN PANEL -->
+<div id="adminPanel" class="dashboard-card hidden">
+    <h2>📊 APG Live Dashboard</h2>
+    <p id="adminDisplay" class="success"></p>
+    
+    <div class="filter-group">
+        <button class="filter-btn" onclick="filterSchicht('A')">🔵 A</button>
+        <button class="filter-btn active-filter" onclick="filterSchicht('B')">🟢 B</button>
+        <button class="filter-btn" onclick="filterSchicht('C')">🟠 C</button>
+    </div>
+    
+    <button class="main-btn" onclick="loadDashboard()">🔄 AKTUALISIEREN</button>
+    <div id="reportsContainer" class="reports-grid"></div>
+    <button onclick="logout()" style="margin-top:20px; background:#475569;">ABMELDEN</button>
 </div>
 
 <script>
-    // KULLANICILAR (Nachname : Passwort)
-    const USERS = {
-        "Keskin": "517",
-        "Uzun": "1433",
-        "Kunert": "502",
-        "Aldirmaz": "577",
-        "Beher": "510",
-        "Brand": "1722",
-        "Keskin Mur.": "518",
-        "Naumann": "999",
-        "Schönborn": "1361"
-    };
+// ============================================
+// KULLANICILAR
+// ============================================
+const USERS = {
+    "Keskin": "517", "Uzun": "1433", "Kunert": "502",
+    "Aldirmaz": "577", "Beher": "510"
+};
 
-    function login() {
-        let username = document.getElementById('username').value.trim();
-        let password = document.getElementById('password').value.trim();
-        let msgDiv = document.getElementById('loginMessage');
+// Çalışanlar
+const WORKERS = {
+    "A": ["Kunert M.", "Karali O.", "Mikuczynski K."],
+    "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R."],
+    "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö."]
+};
+
+let currentUser = "";
+let currentSchicht = "B";
+let selectedWorkers = [];
+
+// ============================================
+// LOGIN
+// ============================================
+function login() {
+    let username = document.getElementById('username').value.trim();
+    let password = document.getElementById('password').value.trim();
+    let msg = document.getElementById('loginMessage');
+    
+    if (USERS[username] && USERS[username] === password) {
+        currentUser = username;
+        document.getElementById('loginScreen').classList.add('hidden');
         
-        if (USERS[username] && USERS[username] === password) {
-            document.getElementById('loginScreen').classList.add('hidden');
-            document.getElementById('mainScreen').classList.remove('hidden');
-            document.getElementById('welcomeText').innerHTML = "👤 Willkommen, " + username;
-            msgDiv.innerHTML = '';
+        if (username === "Keskin") {
+            document.getElementById('adminPanel').classList.remove('hidden');
+            document.getElementById('adminDisplay').innerHTML = "👑 Willkommen, " + username;
+            loadDashboard();
         } else {
-            msgDiv.innerHTML = '<span class="error">❌ Falscher Benutzername oder Passwort!</span>';
+            document.getElementById('mainApp').classList.remove('hidden');
+            document.getElementById('userDisplay').innerHTML = "👤 Angemeldet: " + username;
+            setSchicht('B');
+            setTodayDate();
+        }
+        msg.innerHTML = "";
+    } else {
+        msg.innerHTML = "❌ Falscher Benutzername oder Passwort!";
+    }
+}
+
+function logout() {
+    document.getElementById('loginScreen').classList.remove('hidden');
+    document.getElementById('mainApp').classList.add('hidden');
+    document.getElementById('adminPanel').classList.add('hidden');
+    document.getElementById('username').value = '';
+    document.getElementById('password').value = '';
+    document.getElementById('loginMessage').innerHTML = '';
+    selectedWorkers = [];
+}
+
+// ============================================
+// İŞÇİ EKRANI
+// ============================================
+function setTodayDate() {
+    let today = new Date();
+    let year = today.getFullYear();
+    let month = String(today.getMonth() + 1).padStart(2, '0');
+    let day = String(today.getDate()).padStart(2, '0');
+    document.getElementById('datum').value = `${year}-${month}-${day}`;
+}
+
+function setSchicht(schicht) {
+    currentSchicht = schicht;
+    document.querySelectorAll('.schicht-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.innerText === schicht) btn.classList.add('active');
+    });
+    selectedWorkers = [];
+    updateWorkerDisplay();
+}
+
+function addTestWorker() {
+    let workers = WORKERS[currentSchicht] || [];
+    if (workers.length > 0) {
+        let newWorker = workers[Math.floor(Math.random() * workers.length)];
+        if (!selectedWorkers.includes(newWorker)) {
+            selectedWorkers.push(newWorker);
         }
     }
+    updateWorkerDisplay();
+}
 
-    function logout() {
-        document.getElementById('loginScreen').classList.remove('hidden');
-        document.getElementById('mainScreen').classList.add('hidden');
-        document.getElementById('username').value = '';
-        document.getElementById('password').value = '';
-        document.getElementById('loginMessage').innerHTML = '';
+function removeWorker(name) {
+    selectedWorkers = selectedWorkers.filter(w => w !== name);
+    updateWorkerDisplay();
+}
+
+function updateWorkerDisplay() {
+    let container = document.getElementById('workerList');
+    if (selectedWorkers.length === 0) {
+        container.innerHTML = '<div class="selected-worker" style="color:#94a3b8;">Keine Mitarbeiter</div>';
+    } else {
+        container.innerHTML = selectedWorkers.map(w => `
+            <div class="selected-worker">
+                <span>${w}</span>
+                <span onclick="removeWorker('${w}')" style="color:#ef4444; cursor:pointer;">✕</span>
+            </div>
+        `).join('');
     }
+}
+
+function addArtikel() {
+    alert("✅ Artikel wurde hinzugefügt");
+}
+
+function sendReport() {
+    let anlage = document.getElementById('anlage').value;
+    let artikel = document.getElementById('artikel').value;
+    let gut = document.getElementById('gut').value;
+    
+    if (!anlage) { alert("Bitte Anlage wählen!"); return; }
+    if (selectedWorkers.length === 0) { alert("Bitte Mitarbeiter hinzufügen!"); return; }
+    
+    let report = {
+        user: currentUser,
+        schicht: currentSchicht,
+        workers: selectedWorkers,
+        anlage: anlage,
+        artikel: artikel,
+        gut: gut,
+        date: new Date().toLocaleString()
+    };
+    
+    console.log("Report:", report);
+    alert("✅ Bericht wurde gesendet!\n\n" + JSON.stringify(report, null, 2));
+    
+    // Temizle
+    document.getElementById('anlage').value = "";
+    document.getElementById('artikel').value = "";
+    document.getElementById('gut').value = "";
+    selectedWorkers = [];
+    updateWorkerDisplay();
+}
+
+// ============================================
+// ADMIN DASHBOARD
+// ============================================
+let currentFilter = "B";
+
+function filterSchicht(schicht) {
+    currentFilter = schicht;
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active-filter');
+        btn.style.background = "#0f172a";
+    });
+    event.target.classList.add('active-filter');
+    event.target.style.background = "#38bdf8";
+    loadDashboard();
+}
+
+function loadDashboard() {
+    let container = document.getElementById('reportsContainer');
+    container.innerHTML = `<p style="text-align:center; color:#94a3b8;">📊 Keine Berichte für Schicht ${currentFilter}</p>`;
+}
 </script>
 
 </body>
