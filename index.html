@@ -9,6 +9,7 @@
             --bg: #000000;
             --card: #1e293b;
             --primary: #38bdf8;
+            --blue-dark: #1e40af;
             --text: #f1f5f9;
             --danger: #ef4444;
             --success: #22c55e;
@@ -16,7 +17,7 @@
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; padding: 10px; min-height: 100vh; }
-        #loginScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        #loginScreen, #setPassScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; }
         .login-card { background: var(--card); padding: 30px; border-radius: 20px; border: 2px solid var(--primary); width: 95%; max-width: 450px; text-align: center; }
         .card { width: 100%; max-width: 700px; background: var(--card); padding: 20px; border-radius: 20px; margin: auto; border: 1px solid rgba(56,189,248,0.3); display: none; }
         .dashboard-card { background: #000000; border: 1px solid var(--primary); border-radius: 20px; padding: 25px; width: 100%; max-width: 1400px; margin: auto; display: none; box-sizing: border-box; }
@@ -24,10 +25,45 @@
         .header h1 { font-size: 22px; }
         label { display: block; margin: 10px 0 5px; color: var(--primary); font-weight: bold; font-size: 12px; text-transform: uppercase; }
         select, input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: #0f172a; color: white; box-sizing: border-box; font-size: 14px; }
+        .schicht-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 5px; }
+        .schicht-btn { padding: 12px; background: #0f172a; border: 1px solid var(--border); border-radius: 10px; color: white; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .schicht-btn.active { background: var(--primary); color: #0f172a; }
+        .ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 6px; margin-top: 8px; }
+        .ft-btn { padding: 8px; background: #0f172a; border: 1px solid var(--border); border-radius: 6px; color: #94a3b8; cursor: pointer; font-size: 13px; }
+        .ft-btn.active { background: var(--blue-dark); color: white; }
         .main-btn { width: 100%; padding: 14px; background: var(--primary); color: #0f172a; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 15px; cursor: pointer; }
-        .error { color: var(--danger); margin-top: 10px; }
+        .main-btn:disabled { background: #475569; cursor: not-allowed; }
+        .add-btn { width: 100%; padding: 10px; margin-top: 8px; background: transparent; border: 2px dashed var(--primary); color: var(--primary); border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .sub-btn { background: var(--blue-dark); color: white; padding: 8px 12px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; font-weight: bold; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; } }
+        .selected-worker { display: flex; justify-content: space-between; padding: 8px 12px; background: rgba(56,189,248,0.1); border-radius: 8px; margin-top: 5px; border: 1px solid var(--primary); font-size: 13px; }
+        .selected-worker span:last-child { color: var(--danger); cursor: pointer; font-size: 16px; }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: bold; margin-top: 6px; }
+        .status-ok { background: var(--success); color: black; }
+        .status-error { background: var(--danger); color: white; }
+        .section-card { background: rgba(255,255,255,0.03); padding: 12px; border-radius: 12px; margin-top: 12px; position: relative; }
+        .code-row { margin-top: 8px; padding: 10px; background: rgba(0,0,0,0.2); border-radius: 8px; border: 1px solid var(--border); }
+        .code-row-inputs { display: flex; gap: 6px; align-items: center; }
+        .code-row-inputs select { flex: 3; margin: 0; padding: 8px; font-size: 12px; }
+        .code-row-inputs input { flex: 1; min-width: 60px; margin: 0; padding: 8px; font-size: 12px; }
+        .sonstige-input { width: 100%; margin-top: 6px; display: none; padding: 8px; font-size: 12px; }
+        .reports-grid { display: grid; grid-template-columns: 1fr; gap: 15px; margin-top: 15px; }
+        @media (min-width: 768px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
+        .report-box { background: var(--card); border: 1px solid var(--border); padding: 15px; border-radius: 15px; }
+        .rights-box { background: rgba(56,189,248,0.05); border: 1px dashed var(--primary); padding: 10px; border-radius: 10px; margin-bottom: 15px; }
+        .inline-group { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .inline-group select { flex: 1; margin: 0; }
+        .inline-group button { margin: 0; width: auto; padding: 8px 15px; }
+        .small-text { font-size: 11px; color: #94a3b8; }
+        #workerOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; justify-content: center; align-items: center; }
+        .overlay-content { background: var(--card); width: 95%; max-width: 400px; max-height: 70vh; overflow-y: auto; border-radius: 20px; padding: 20px; border: 1px solid var(--primary); }
+        .worker-opt { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; }
+        .worker-opt:hover { background: rgba(56,189,248,0.1); }
+        .filter-group { display: flex; gap: 8px; justify-content: center; margin: 15px 0; }
+        .filter-btn { padding: 8px 20px; background: #0f172a; border: 1px solid var(--border); border-radius: 20px; color: white; cursor: pointer; font-weight: bold; font-size: 14px; }
+        .filter-btn.active-filter { background: var(--primary); color: #0f172a; }
+        @media (max-width: 600px) { .grid-2 { grid-template-columns: 1fr; gap: 5px; } body { padding: 5px; } .inline-group { flex-direction: column; } .inline-group button { width: 100%; } }
     </style>
 </head>
 <body>
@@ -39,20 +75,14 @@
         <input type="text" id="userInp" placeholder="Nachname">
         <input type="password" id="passInp" placeholder="Passwort">
         <button class="main-btn" onclick="checkLogin()">ANMELDEN</button>
-        <p id="loginError" class="error" style="display:none;"></p>
+        <p id="loginError" class="error" style="color:red; margin-top:12px; display:none;"></p>
     </div>
 </div>
 
-<!-- ANA UYGULAMA -->
-<div class="card" id="mainApp" style="display:none;">
-    <div class="header"><h1>Adler Pelzer Group</h1><p id="currentUserDisplay" style="color:var(--success);"></p></div>
-    <p>✅ Erfolgreich eingeloggt!</p>
-    <p id="infoText"></p>
-    <button class="main-btn" onclick="logout()">ABMELDEN</button>
-</div>
-
 <script>
-// Kullanıcılar
+// ============================================
+// KONFIGÜRASYON
+// ============================================
 const USERS = {
     "Keskin": "517",
     "Uzun": "1433",
@@ -65,23 +95,12 @@ function checkLogin() {
     let errorDiv = document.getElementById('loginError');
     
     if (USERS[username] && USERS[username] === password) {
-        // Login başarılı
-        document.getElementById('loginScreen').style.display = 'none';
-        document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('currentUserDisplay').innerHTML = "Angemeldet: " + username;
-        document.getElementById('infoText').innerHTML = "Willkommen " + username + "!";
+        alert("✅ Login erfolgreich! " + username);
+        // Buraya ana uygulama gelecek
     } else {
         errorDiv.style.display = 'block';
         errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
     }
-}
-
-function logout() {
-    document.getElementById('loginScreen').style.display = 'flex';
-    document.getElementById('mainApp').style.display = 'none';
-    document.getElementById('userInp').value = '';
-    document.getElementById('passInp').value = '';
-    document.getElementById('loginError').style.display = 'none';
 }
 </script>
 
