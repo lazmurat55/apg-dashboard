@@ -3,7 +3,7 @@
 // ============================================
 
 // Google Apps Script URL
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxJEKtTlwsoe41B_6qmxgz6fF605tvuggHbLyztalMG1KBkacJRzrx7B9xtOC1wMUeMIg/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqWG5_E0N6NigKpfc4DlSocgr2jwofgJ_W6zScvDO2cIcOjCMA5A/exec";
 
 // WhatsApp gönderme kapalı
 const WHATSAPP_ACTIVE = false;
