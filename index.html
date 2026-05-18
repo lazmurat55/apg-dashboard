@@ -1,1 +1,155 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>APG BOCHUM SECURE PRO</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="APG Report">
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
+<!-- LOGIN EKRANI -->
+<div id="loginScreen">
+    <div class="login-card">
+        <h2 style="color:var(--primary); margin-top:0; font-size: 28px;">APG LOGIN</h2>
+        <p style="font-size:14px; color:#94a3b8;">Bitte Nachname und Passwort eingeben</p>
+        <input type="text" id="userInp" placeholder="Nachname">
+        <input type="password" id="passInp" placeholder="Passwort" style="margin-top:12px;">
+        <button class="main-btn" id="loginBtn">ANMELDEN</button>
+        <p id="loginError" style="color:red; font-size:14px; margin-top:12px; display:none;">⚠️ Zugangsdaten falsch!</p>
+    </div>
+</div>
+
+<!-- ŞİFRE DEĞİŞTİRME EKRANI -->
+<div id="setPassScreen" style="display:none;">
+    <div class="login-card">
+        <h3 style="color:var(--primary); font-size:24px;">ERSTES LOGIN</h3>
+        <p style="font-size:14px;">Bitte ein neues, privates Passwort festlegen:</p>
+        <input type="password" id="newPass1" placeholder="Neues Passwort (min. 4 Zeichen)">
+        <input type="password" id="newPass2" placeholder="Wiederholen" style="margin-top:12px;">
+        <button class="main-btn" id="savePassBtn">PASSWORT AKTIVIEREN</button>
+    </div>
+</div>
+
+<!-- ANA UYGULAMA -->
+<div class="card" id="mainApp">
+    <div class="header">
+        <h1>Adler Pelzer Group</h1>
+        <p id="currentUserDisplay" style="color:var(--success); font-size:14px; font-weight:bold;"></p>
+    </div>
+
+    <!-- Schicht ve Schichtart -->
+    <div class="grid-2">
+        <div>
+            <label>Schicht wählen</label>
+            <div class="schicht-group">
+                <button class="schicht-btn" data-schicht="A">A</button>
+                <button class="schicht-btn" data-schicht="B">B</button>
+                <button class="schicht-btn" data-schicht="C">C</button>
+            </div>
+        </div>
+        <div>
+            <label>Schichtart</label>
+            <div class="schicht-group">
+                <button class="schicht-btn type-btn" data-type="Frühschicht">Früh</button>
+                <button class="schicht-btn type-btn" data-type="Spätschicht">Spät</button>
+                <button class="schicht-btn type-btn" data-type="Nachtschicht">Nacht</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Mitarbeiter -->
+    <div id="workerDisplayContainer"></div>
+    <button class="add-btn" id="openWorkerBtn">+ Mitarbeiter hinzufügen</button>
+    
+    <!-- Tarih ve Anlage -->
+    <div class="grid-2" style="margin-top:20px;">
+        <div>
+            <label>Datum auswählen</label>
+            <input type="date" id="datum">
+        </div>
+        <div>
+            <label>Anlage</label>
+            <select id="anlage">
+                <option value="">Wählen...</option>
+                <optgroup label="PUR">
+                    <option value="PUR1">PUR 1</option><option value="PUR2">PUR 2</option>
+                    <option value="PUR3">PUR 3</option><option value="PUR4">PUR 4</option>
+                    <option value="PUR5">PUR 5</option><option value="PUR6">PUR 6</option>
+                    <option value="PUR7">PUR 7</option><option value="PUR8">PUR 8</option>
+                    <option value="PUR9">PUR 9</option>
+                </optgroup>
+                <optgroup label="Spritzguss">
+                    <option value="IM1">IM 1</option><option value="IM2">IM 2</option>
+                    <option value="IM3">IM 3</option><option value="IM4">IM 4</option>
+                    <option value="IM5">IM 5</option><option value="CIM1">CIM 1</option>
+                </optgroup>
+                <option value="COM">Compound</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- FT (Formträger) -->
+    <div id="ftBox" style="display:none;">
+        <label>Formträger (FT)</label>
+        <div class="ft-grid">
+            <button class="ft-btn" data-ft="FT1">FT1</button>
+            <button class="ft-btn" data-ft="FT2">FT2</button>
+            <button class="ft-btn" data-ft="FT3">FT3</button>
+            <button class="ft-btn" data-ft="FT4">FT4</button>
+            <button class="ft-btn" data-ft="FT5">FT5</button>
+            <button class="ft-btn" data-ft="FT6">FT6</button>
+        </div>
+    </div>
+
+    <!-- Compound Süre -->
+    <div id="comTimeBox" style="display:none; margin-top:15px; text-align:center; background:rgba(56,189,248,0.1); padding:10px; border-radius:10px;">
+        <span style="font-weight:bold; color:var(--primary); font-size:16px;">Compound: <span id="comTotal">0</span> / 480 Min</span>
+    </div>
+
+    <!-- Artikel Listesi -->
+    <div id="artikelContainer"></div>
+    <button class="add-btn" id="addArtikelBtn" disabled>+ Artikel hinzufügen</button>
+    <button id="mainSendBtn" class="main-btn" disabled>🚀 SPEICHERN & SENDEN</button>
+</div>
+
+<!-- ADMIN PANELİ -->
+<div class="dashboard-card" id="adminPanel">
+    <div class="header">
+        <h1 style="font-size:28px; margin-bottom:5px;">APG Live Dashboard</h1>
+        <p id="adminUserDisplay" style="color:var(--primary); font-size:16px; font-weight:bold;"></p>
+        <div id="rightsManagementBox" class="rights-box" style="display:none; margin-top:15px; text-align:left;">
+            <label style="margin-top:0; font-size:13px;">Rechte verwalten (Super-Manager)</label>
+            <div style="display:flex; gap:10px; margin-top:5px;">
+                <select id="rightsSelect" style="padding:8px; font-size:14px; flex:2;"></select>
+                <button class="sub-btn" id="grantRightsBtn">Berechtigung geben</button>
+            </div>
+            <div id="currentManagersList" style="margin-top:8px; font-size:12px; color:#94a3b8;"></div>
+        </div>
+        <button class="main-btn" id="refreshDashboardBtn" style="margin-top:15px; padding:12px 25px; font-size:15px; max-width:300px;">🔄 Aktualisieren</button>
+    </div>
+    <div id="dashboardLoading" style="text-align:center; color:var(--primary); margin:30px 0; font-size:18px; font-weight:bold;">Berichte werden geladen... ⏳</div>
+    <div id="reportsContainer" class="reports-grid"></div>
+</div>
+
+<!-- ÇALIŞAN SEÇME POPUP -->
+<div id="workerOverlay">
+    <div class="overlay-content">
+        <h3 style="color:var(--primary); font-size:20px; margin-top:0;">Mitarbeiter wählen</h3>
+        <div id="workerList"></div>
+        <div style="margin-top:15px; border-top:1px solid #444; padding-top:10px;">
+            <input type="text" id="manualWorker" placeholder="Name manuell...">
+            <button class="add-btn" id="addManualBtn">Hinzufügen</button>
+        </div>
+        <button class="main-btn" id="closeOverlayBtn">Schließen</button>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
