@@ -3,7 +3,85 @@
 // ============================================
 
 // Google Apps Script URL
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqWG5_E0N6NigKpfc4DlSocgr2jwofgJ_W6zScvDO2cIcOjCMA5A/exec";
+const SCRIPT_URL = "const SPREADSHEET_ID = "1i7p-dQGC0m5j2TLBq31TIAyjqt6vfRi0YboIRJCKyi0"; // kendi ID'n ile değiştir
+
+function doGet() {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  let allReports = [];
+
+  ["A", "B", "C"].forEach(s => {
+    const sheet = ss.getSheetByName(`Schicht ${s}`);
+    if (!sheet) return;
+    const data = sheet.getDataRange().getValues();
+    for (let i = 1; i < data.length; i++) {
+      const row = data[i];
+      if (!row[0]) continue;
+      allReports.push({
+        schicht: s,
+        date: row[0],
+        sender: row[1] || "",
+        staff: row[2] || "",
+        anlage: row[3] || "",
+        ft: row[4] || "-",
+        artikel: row[5] || "",
+        gut: row[6] || 0,
+        ausTotal: row[7] || 0,
+        ausGrund: row[8] || "-",
+        stoerung: row[9] || "-",
+        dauer: row[10] || 0
+      });
+    }
+  });
+
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "ok",
+    reports: allReports,
+    managers: ["Keskin", "Uzun"]
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  try {
+    const data = JSON.parse(e.postData.contents);
+    if (data.action === "sendReport") return saveReport(data);
+    return ContentService.createTextOutput("OK");
+  } catch (err) {
+    return ContentService.createTextOutput("ERROR: " + err.toString());
+  }
+}
+
+function saveReport(data) {
+  const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
+  const sheetName = `Schicht ${data.schicht}`;
+  let sheet = ss.getSheetByName(sheetName);
+
+  if (!sheet) {
+    sheet = ss.insertSheet(sheetName);
+    sheet.getRange(1, 1, 1, 11).setValues([[
+      "Datum", "Sender", "Mitarbeiter", "Anlage", "Formträger",
+      "Artikelnummer", "Stückzahl", "Ausschuss", "Grund", "Störung", "min"
+    ]]);
+  }
+
+  const date = data.customDate || new Date().toLocaleDateString("de-DE");
+  (data.articles || []).forEach(art => {
+    sheet.appendRow([
+      date,
+      data.sender,
+      data.staff,
+      data.anlage,
+      data.ft || "-",
+      art.name || "-",
+      art.gut || 0,
+      art.ausTotal || 0,
+      art.ausGrund !== "-" ? art.ausGrund : "",
+      art.stoerGrund !== "-" ? art.stoerGrund : "",
+      art.stoerMin || 0
+    ]);
+  });
+
+  return ContentService.createTextOutput("OK");
+}";
 
 // WhatsApp gönderme kapalı
 const WHATSAPP_ACTIVE = false;
