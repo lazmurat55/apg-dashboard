@@ -106,13 +106,38 @@
     <!-- KLEINE RECHTE & SCHICHTLEITER ZEILE -->
     <div class="rights-box">
         <div class="inline-group" style="justify-content: space-between; flex-wrap: wrap;">
-            <div class="inline-group" style="flex:2;"><select id="rightsSelect" style="width:auto; min-width:120px;"><option value="">Admin geben</option></select><button class="sub-btn" onclick="grantSuperManagerRights()">➕</button><span id="currentManagersList" class="small-text" style="margin-left:5px;"></span></div>
-            <div class="inline-group"><select id="schichtleiterSelect" style="width:auto;"><option value="">Schichtleiter</option></select><select id="schichtSelect" style="width:auto;"><option value="A">A</option><option value="B">B</option><option value="C">C</option></select><button class="sub-btn" onclick="assignSchichtleiter()">👔 Zuweisen</button></div>
+            <div class="inline-group" style="flex:2;">
+                <select id="rightsSelect" style="width:auto; min-width:120px;"><option value="">Admin geben</option></select>
+                <button class="sub-btn" onclick="grantSuperManagerRights()">➕</button>
+                <span id="currentManagersList" class="small-text" style="margin-left:5px;"></span>
+            </div>
+            <div class="inline-group">
+                <select id="schichtleiterSelect" style="width:auto; min-width:140px;">
+                    <option value="">Schichtleiter</option>
+                    <option value="Keskin">Keskin</option>
+                    <option value="Uzun">Uzun</option>
+                    <option value="Beher">Beher</option>
+                    <option value="Brand">Brand</option>
+                    <option value="Keskin Mur.">Keskin Mur.</option>
+                    <option value="Naumann">Naumann</option>
+                    <option value="Schönborn">Schönborn</option>
+                </select>
+                <select id="schichtSelect" style="width:auto; min-width:60px;">
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                </select>
+                <button class="sub-btn" onclick="assignSchichtleiter()">👔 Zuweisen</button>
+            </div>
         </div>
         <div id="schichtleiterDisplay" class="small-text" style="margin-top:6px; text-align:center;"></div>
     </div>
     
-    <div class="filter-group"><button class="filter-btn" onclick="filterSchicht('A')">🔵 A</button><button class="filter-btn active-filter" onclick="filterSchicht('B')">🟢 B</button><button class="filter-btn" onclick="filterSchicht('C')">🟠 C</button></div>
+    <div class="filter-group">
+        <button class="filter-btn" onclick="filterSchicht('A')">🔵 A</button>
+        <button class="filter-btn active-filter" onclick="filterSchicht('B')">🟢 B</button>
+        <button class="filter-btn" onclick="filterSchicht('C')">🟠 C</button>
+    </div>
     <button class="main-btn" onclick="loadAdminDashboard()" style="margin-top:5px; padding:10px; font-size:14px;">🔄 Aktualisieren</button>
     <div id="reportsContainer" class="reports-grid"></div>
 </div>
