@@ -3,8 +3,7 @@
 // ============================================
 
 // Google Apps Script URL
-const SCRIPT_URL = "const SPREADSHEET_ID = "1i7p-dQGC0m5j2TLBq31TIAyjqt6vfRi0YboIRJCKyi0"; // kendi ID'n ile değiştir
-
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqWG5_E0N6NigKpfc4DlSocgr2jwofgJ_W6zScvDO2cIcOjCMA5A/exec
 function doGet() {
   const ss = SpreadsheetApp.openById(SPREADSHEET_ID);
   let allReports = [];
