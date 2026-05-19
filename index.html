@@ -218,7 +218,7 @@ async function checkLogin() {
 
         loggedInUser = data.user;
 
-        // 🔐 İlk giriş kontrolü
+        // 🔐 İlk giriş zorunlu şifre değişimi
         if (data.firstLogin === "Hayır") {
 
             document.getElementById('loginScreen').style.display = 'none';
@@ -230,6 +230,8 @@ async function checkLogin() {
         enterApp(data.user);
 
     } catch(err) {
+
+        console.error(err);
 
         errorDiv.innerText = "❌ Serverfehler!";
         errorDiv.style.display = 'block';
