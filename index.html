@@ -137,7 +137,6 @@
 </div>
 
 <script>
-// ========== YENİ URL (SENİN VERDİĞİN) ==========
 const scriptURL = "https://script.google.com/macros/s/AKfycbxs_wARtaU5MTZ3c1JZ1AkVEDeKFMYlS_XvezpELSnsPlGIR7MiHNeJhFPSitV1D9BGNg/exec";
 
 let currentSchicht = "B";
@@ -201,6 +200,7 @@ function enterApp(u) {
     document.getElementById('setPassScreen').style.display = 'none'; 
     setInitialTodayDate();
 
+    // Admin: Keskin veya Uzun
     if (u === "Keskin" || u === "Uzun") {
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerText = "Willkommen, " + u + " (Admin Mode)";
@@ -209,13 +209,19 @@ function enterApp(u) {
             document.getElementById('currentManagersList').innerText = "Berechtigte Manager: " + superManagersList.join(', ');
         }
         loadAdminDashboard();
-    } else {
+    } 
+    // İşçi: Diğer tüm kullanıcılar
+    else {
         document.getElementById('mainApp').style.display = 'block'; 
         document.getElementById('currentUserDisplay').innerText = "Angemeldet: " + u; 
         
+        // Kullanıcının schicht'ini bul
         let foundSchicht = "B";
-        if(workerData["A"].includes(u)) foundSchicht = "A";
-        if(workerData["C"].includes(u)) foundSchicht = "C";
+        // Schicht A kontrolü
+        if(workerData["A"].some(w => w.includes(u) || u.includes(w.split(" ")[0]))) foundSchicht = "A";
+        // Schicht C kontrolü
+        if(workerData["C"].some(w => w.includes(u) || u.includes(w.split(" ")[0]))) foundSchicht = "C";
+        
         setSchicht(foundSchicht); 
     }
 }
@@ -367,4 +373,4 @@ function processReport() {
 }
 </script>
 </body>
-</html>
+</html>s
