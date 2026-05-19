@@ -174,8 +174,8 @@
 </div>
 
 <script>
-// Google Script Web App Bağlantı Linkiniz
-const scriptURL = "https://script.google.com/macros/s/AKfycbzyT86w9jtxJB7zgiZFv7s9_fNbBD_GdnTzRcwB0q89_YJTZOPhliitMry_TUDlAX8Lsw/exec";
+// ⚠️ 1. ADIMDA ALDIĞINIZ EN GÜNCEL DAĞITIM (EXEC) LİNKİNİ BURAYA YAPIŞTIRIN!
+const scriptURL = "https://script.google.com/macros/s/AKfycbxIY5RwgP3Ld6uz92a4vdN5WJSla7cvcud9XqRLY8SFORW10Rnu52_GDhc3Pbxdj7m5wg/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Frühschicht";
@@ -184,7 +184,7 @@ let loggedInUser = "";
 let autoRefreshInterval = null; 
 let superAdmin = "Keskin";
 let schichtLeiterDb = {};
-let activeFilterSchicht = "B"; // Hangi vardiyanın filtrelendiğini tutar
+let activeFilterSchicht = "B"; 
 
 if(localStorage.getItem('apg_schichtleiter_db')) {
     try { schichtLeiterDb = JSON.parse(localStorage.getItem('apg_schichtleiter_db')); } catch(e){}
@@ -283,32 +283,25 @@ function enterApp(u) {
     }
 }
 
-// ⏱️ GÜVENLİ VE AKILLI ZAMANLANMIŞ OTOMATİK YENİLEME FONKSİYONU
 function startAutoRefresh() {
     if(autoRefreshInterval) clearInterval(autoRefreshInterval);
-    
     autoRefreshInterval = setInterval(() => {
         const now = new Date();
         const hrs = now.getHours();
         const mins = now.getMinutes();
-        
-        // Zamanı tek bir sayıya çeviriyoruz (Örn: 13:30 -> 1330)
         const currentTimeNum = (hrs * 100) + mins;
         
-        // Belirttiğin vardiya geçiş aralıkları
-        const isVardiya1 = (currentTimeNum >= 1330 && currentTimeNum <= 1400); // 13:30 - 14:00
-        const isVardiya2 = (currentTimeNum >= 2130 && currentTimeNum <= 2210); // 21:30 - 22:10
-        const isVardiya3 = (currentTimeNum >= 530  && currentTimeNum <= 610);  // 05:30 - 06:10
+        const isVardiya1 = (currentTimeNum >= 1330 && currentTimeNum <= 1400); 
+        const isVardiya2 = (currentTimeNum >= 2130 && currentTimeNum <= 2210); 
+        const isVardiya3 = (currentTimeNum >= 530  && currentTimeNum <= 610);  
 
-        // Belirtilen saat dilimlerinden birindeysek tetikle
         if (isVardiya1 || isVardiya2 || isVardiya3) {
-            // Son yenilenmeden bu yana 90 saniye (90000 ms) geçmiş mi kontrolü
             if (!window.lastRefreshTime || (now - window.lastRefreshTime >= 90000)) {
                 window.lastRefreshTime = now;
                 loadAdminDashboard(); 
             }
         }
-    }, 10000); // Saati her 10 saniyede bir milimetrik kontrol eder
+    }, 10000); 
 }
 
 function saveNewPassword() { alert("Passwort geändert"); enterApp(loggedInUser); }
@@ -402,7 +395,7 @@ function addArtikel() {
     div.innerHTML = `<button onclick="this.parentElement.remove(); liveCheck();" style="position:absolute; right:10px; top:10px; background:var(--danger); color:white; border:none; border-radius:5px; width:26px; height:26px; cursor:pointer;">✕</button>
         <label>📌 Artikelnummer</label><input type="text" class="art-name" placeholder="z.B. 123456">
         ${document.getElementById('anlage').value==='COM' ? '<label>⏱️ Dauer (Min)</label><input type="number" class="art-duration" placeholder="Minuten" oninput="liveCheck()">' : ''}
-        <div class="grid-2"><div><label>✅ Gutteile</label><input type="number" class="art-gut" placeholder="Stk"></div><div><label>❌ Aus Gesamt</label><input type="number" class="art-aus-total" placeholder="Stk" oninput="liveCheck()"></div></div>
+        <div class="grid-2"><div><label>✅ Gutteile</label><input type="number" class="art-gut" placeholder="Stk (Boş kalabilir)"></div><div><label>❌ Aus Gesamt</label><input type="number" class="art-aus-total" placeholder="Stk (Boş kalabilir)" oninput="liveCheck()"></div></div>
         <div class="status-badge" id="badge_${id}"></div><div id="rows_${id}"></div>
         <div style="display:flex; gap:10px; margin-top:10px;"><button class="sub-btn" onclick="addRow('${id}','aus')">+ Ausschuss</button><button class="sub-btn" onclick="addRow('${id}','stoer')">+ Störung</button></div>`;
     document.getElementById('artikelContainer').appendChild(div);
@@ -427,16 +420,38 @@ function addRow(artId, type) {
     liveCheck();
 }
 
-// 🟢 KODUNUN SENİN GÖNDERDİĞİN YERDE YARIM KALAN ASIL DEVAMI (TAMİR EDİLDİ)
+// 🎛️ ESNEK VE ZORLAMAYAN LIVECHECK FONKSİYONU
 function liveCheck() {
-    let v = true; let cT = 0;
+    let isValid = true; 
+    let cT = 0;
+    const sendBtn = document.getElementById('mainSendBtn');
+    
     document.querySelectorAll('.artikel-row').forEach(row => {
-        const id = row.id.split('_')[1]; const t = parseInt(row.querySelector('.art-aus-total').value) || 0;
-        let s = 0; row.querySelectorAll('.aus-value').forEach(i => s += parseInt(i.value) || 0);
+        const id = row.id.split('_')[1]; 
+        
+        // Boş bırakılırsa 0 kabul et
+        const t = parseInt(row.querySelector('.art-aus-total').value) || 0;
+        
+        let s = 0; 
+        row.querySelectorAll('.aus-value').forEach(i => s += parseInt(i.value) || 0);
         const b = document.getElementById('badge_' + id);
-        if(t > 0 && t !== s) { b.className="status-badge status-error"; b.innerText = "⚠️ Differenz: " + s + "/" + t; v=false; }
-        else if(t > 0) { b.className="status-badge status-ok"; b.innerText = "✅ OK: " + s + "/" + t; }
-        else { b.innerText=""; }
+        
+        // Eğer detaylı hata girilmiş ama üstteki toplam girilmemişse otomatik eşitle, engelleme!
+        if (s > 0 && t === 0) {
+            b.className="status-badge status-ok"; 
+            b.innerText = "✅ Wird angepasst: " + s;
+        } 
+        // Eğer el ile yazılan toplam, detayların toplamıyla eşleşmiyorsa uyar
+        else if(t > 0 && t !== s) { 
+            b.className="status-badge status-error"; 
+            b.innerText = "⚠️ Differenz: " + s + "/" + t; 
+            isValid = false; 
+        } else if(t > 0) { 
+            b.className="status-badge status-ok"; 
+            b.innerText = "✅ OK: " + s + "/" + t; 
+        } else { 
+            b.innerText=""; 
+        }
         
         if(document.getElementById('anlage').value === 'COM') {
             cT += (parseInt(row.querySelector('.art-duration').value) || 0);
@@ -451,10 +466,24 @@ function liveCheck() {
     const hasAnlage = document.getElementById('anlage').value !== "";
     const hasRows = document.querySelectorAll('.artikel-row').length > 0;
     
-    document.getElementById('mainSendBtn').disabled = !(v && hasWorkers && hasAnlage && hasRows);
+    if(!hasWorkers) {
+        sendBtn.innerText = "👥 MITARBEITER WÄHLEN";
+        sendBtn.disabled = true;
+    } else if(!hasAnlage) {
+        sendBtn.innerText = "🏭 ANLAGE WÄHLEN";
+        sendBtn.disabled = true;
+    } else if(!hasRows) {
+        sendBtn.innerText = "📦 ARTIKEL HINZUFÜGEN";
+        sendBtn.disabled = true;
+    } else if(!isValid) {
+        sendBtn.innerText = "⚠️ AUSSCHUSS KORRIGIEREN";
+        sendBtn.disabled = true;
+    } else {
+        sendBtn.innerText = "🚀 SPEICHERN & SENDEN";
+        sendBtn.disabled = false;
+    }
 }
 
-// 🌐 LIVE DASHBOARD'DAN GOOGLE SUNUCUSUNA BAĞLANAN ORİJİNAL FONKSİYONLAR
 function filterSchicht(s) {
     activeFilterSchicht = s;
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
@@ -467,11 +496,12 @@ async function loadAdminDashboard() {
     if(!container) return;
     
     try {
-        // Canlı yenileme esnasında kullanıcının gözünü yormayan şık bir yükleniyor simgesi
         const refreshBtn = document.querySelector('#adminPanel .main-btn[onclick="loadAdminDashboard()"]');
         if(refreshBtn) refreshBtn.innerText = "⏳ Lädt...";
 
-        const response = await fetch(`${scriptURL}?action=getReports&schicht=${activeFilterSchicht}`);
+        const response = await fetch(`${scriptURL}?action=getReports&schicht=${activeFilterSchicht}&_cb=${Date.now()}`);
+        
+        if (!response.ok) throw new Error("Server error: " + response.status);
         const data = await response.json();
         
         if(refreshBtn) refreshBtn.innerText = "🔄 Jetzt Aktualisieren";
@@ -482,11 +512,9 @@ async function loadAdminDashboard() {
             return;
         }
         
-        // Google'dan gelen verileri kutular halinde ekrana basıyoruz
         data.forEach(r => {
             const box = document.createElement('div');
             box.className = "report-box";
-            
             let ftText = r.formtraeger ? `<div style="font-size:12px; color:var(--primary); margin-bottom:5px;">🧩 FT: ${r.formtraeger}</div>` : '';
             let durationText = r.dauer ? `<span style="color:var(--text-muted)"> (${r.dauer} Min)</span>` : '';
             
@@ -505,8 +533,8 @@ async function loadAdminDashboard() {
             container.appendChild(box);
         });
     } catch (error) {
-        console.error("Dashboard yüklenirken hata oluştu:", error);
-        container.innerHTML = `<p style="text-align:center; color:var(--danger); grid-column: 1/-1;">❌ Fehler beim Laden der Daten.</p>`;
+        console.error("Dashboard error:", error);
+        container.innerHTML = `<p style="text-align:center; color:var(--danger); grid-column: 1/-1;">❌ Veriler yüklenemedi.</p>`;
     }
 }
 
@@ -535,20 +563,31 @@ async function processReport() {
     
     document.querySelectorAll('.artikel-row').forEach(row => {
         const id = row.id.split('_')[1];
-        const artName = row.querySelector('.art-name').value.trim();
+        const artName = row.querySelector('.art-name').value.trim() || "Unbekannt";
+        
+        // Boş bırakılan alanları burası otomatik olarak "0" yapar
         const artGut = row.querySelector('.art-gut').value || "0";
-        const artAusTotal = row.querySelector('.art-aus-total').value || "0";
+        let artAusTotal = parseInt(row.querySelector('.art-aus-total').value) || 0;
         const duration = row.querySelector('.art-duration')?.value || "";
         
         let ausDetails = [];
+        let totalAusFromRows = 0;
+        
         row.querySelectorAll('.code-row').forEach(r => {
             const sel = r.querySelector('.aus-select');
             const val = r.querySelector('.aus-value');
             if(sel && val && val.value) {
+                let pieceCount = parseInt(val.value) || 0;
+                totalAusFromRows += pieceCount;
                 let txt = sel.value === 'Sonstige' ? r.querySelector('.sonstige-input').value.trim() : sel.value;
-                ausDetails.push(`${txt} (${val.value} Stk)`);
+                ausDetails.push(`${txt} (${pieceCount} Stk)`);
             }
         });
+        
+        // Eğer el ile toplam yazılmadıysa alt detayların toplamını otomatik üste eşitle
+        if(artAusTotal === 0 && totalAusFromRows > 0) {
+            artAusTotal = totalAusFromRows;
+        }
         
         let stoerDetails = [];
         row.querySelectorAll('.code-row').forEach(r => {
@@ -564,21 +603,22 @@ async function processReport() {
             artikelNummer: artName,
             dauer: duration,
             gutteile: artGut,
-            ausschussGesamt: artAusTotal,
-            ausschussDetails: ausDetails.join(" | "),
-            stoerungDetails: stoerDetails.join(" | ")
+            ausschussGesamt: artAusTotal.toString(),
+            ausschussDetails: ausDetails.join(" | ") || "Keine",
+            stoerungDetails: stoerDetails.join(" | ") || "Keine"
         });
     });
     
     try {
-        const response = await fetch(scriptURL, {
+        await fetch(scriptURL, {
             method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
+            mode: "no-cors", 
+            headers: { "Content-Type": "text/plain" }, 
             body: JSON.stringify(reportData)
         });
+        
         alert("🚀 Daten erfolgreich an Google Sheets gesendet!");
-        // Formu temizle ve sıfırla
+        
         document.getElementById('artikelContainer').innerHTML = "";
         selectedStaff = [];
         renderStaff();
