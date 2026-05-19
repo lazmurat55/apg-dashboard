@@ -175,7 +175,7 @@
 
 <script>
 // Google Script Web App Bağlantı Linkiniz
-const scriptURL = "https://script.google.com/macros/s/AKfycbzmB0ABcSLrq0tmfya2As1oZW7HbXy-pL-zWucCsm2k4rGYO1RtydfXBDmBnF2KEPll/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbyC_1dwZVjtsAI_W-ELm4bTL7_Iamzx_PDVEvz2scYAiaW3cO8QEcTFZmRivpckCFb2sw/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Frühschicht";
@@ -233,7 +233,7 @@ const codeData = {
         stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-2-01 Ungepl. Inst. WZ", "4-2-02 Ungepl. Inst. Masch", "4-2-03 Poly/Iso Überdruck", "4-2-04 Mischkopf nio", "4-2-05 Fehler Lichtschr.", "4-2-06 Trennmittelpist.", "4-2-07 Formträger Prob.", "4-2-08 Reinigung WZ", "4-2-09 Not Aus", "5-2-01 Logistik Mangel", "5-2-02 Keine Teile IM/CIM", "5-2-04 Wartezeit Einrichter", "5-2-10 Poly/Iso leer", "Sonstige"]
     },
     Spritz: {
-        aus: ["6-1-01 Anfahrschrott", "6-1-02 Mat-Umst.", "6-1-03 CIM n.voll", "6-1-04 CIM gerissen", "6-1-05 Überspritzung", "6-1-06 Einfallstellen", "6-1-07 Brandstellen", "6-1-08 Silberstreifen", "Sonstige"],
+        aus: ["6-1-01 Anfahrschrott", "6-1-02 Mat-Umst.", "6-1-03 CIM n.voll", "6-1-04 CIM gerissen", "6-1-06 Einfallstellen", "6-1-07 Brandstellen", "6-1-08 Silberstreifen", "Sonstige"],
         stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-1-01 Ungepl. Inst. WZ", "4-1-02 Ungepl. Inst. Masch", "4-1-03 Mat-Förderung Prob.", "4-1-04 Probleme Dosier.", "4-1-05 Probleme Schließeinh.", "4-1-06 Teileentnahme Prob.", "4-1-07 Probleme WZ-Heizung", "4-1-08 Probleme Beflamm.", "5-1-01 Mat-Mangel", "5-1-03 Wartezeit Einrichter", "Sonstige"]
     },
     COM: {
@@ -474,12 +474,20 @@ async function processReport() {
     }
 
     const payload = { action: "sendReport", records: rowsToPost };
+    
     try {
-        await fetch(scriptURL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
+        const response = await fetch(scriptURL, { 
+            method: "POST", 
+            headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+            body: JSON.stringify(payload) 
+        });
+        
+        const resText = await response.text();
         alert("Vielen Dank! Der Bericht wurde erfolgreich übermittelt. ✅");
         window.location.reload();
     } catch(e) {
-        alert("Fehler beim Senden. Bitte Verbindung prüfen!");
+        console.error("Gönderim Hatası:", e);
+        alert("Fehler beim Senden. Bitte Verbindung oder Google Script prüfen! " + e.message);
         mainBtn.disabled = false; mainBtn.innerText = "🚀 SPEICHERN & SENDEN";
     }
 }
