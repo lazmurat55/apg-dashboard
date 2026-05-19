@@ -6,7 +6,7 @@
     <title>APG BOCHUM SECURE PRO</title>
     <style>
         :root { 
-            --bg-gradient: linear-gradient(135deg, #0f172a, #1e293b); /* Gözü yormayan, çok koyu olmayan antrasit arka plan */
+            --bg-gradient: linear-gradient(135deg, #0f172a, #1e293b);
             --card: #1e293b; 
             --card-inner: #334155;
             --primary: #38bdf8; 
@@ -144,7 +144,8 @@
 // APG BOCHUM - TAM VERSİYON (GÜNCELLEMELER DAHİL)
 // ============================================
 
-const scriptURL = "https://script.google.com/macros/s/AKfycbzyi2HzTCP2AimXDNQSMD4DqxgHxjOhxxsY6GeyDtGtAgjlGoHhMeCPOsqgF8zesGLxbg/exec";
+// Sizin verdiğiniz en yeni Apps Script Linki buraya entegre edildi:
+const scriptURL = "https://script.google.com/macros/s/AKfycbyC_1dwZVjtsAI_W-ELm4bTL7_Iamzx_PDVEvz2scYAiaW3cO8QEcTFZmRivpckCFb2sw/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Frühschicht";
@@ -302,7 +303,6 @@ function addRow(artId, type) {
     
     document.getElementById(`rows_${artId}`).appendChild(div);
     
-    // GÖRDÜĞÜM ÇİFT TETİKLEME HATASI BURADA DÜZELTİLDİ
     const select = div.querySelector(`.${type}-select`);
     const sonstInput = div.querySelector('.sonstige-input');
     select.onchange = () => { 
@@ -327,13 +327,12 @@ function liveCheck() {
     document.getElementById('mainSendBtn').disabled = !v;
 }
 
-// ARTIK EXCEL TABLONUZLA UYUMLU GERÇEK VERİ TRANSFERİ VE EKSTRA SAAT BİLGİSİ SAĞLAR
+// ARTIK EXCEL TABLONUZLA UYUMLU GERÇEK VERİ TRANSFERİ (DÜZELTİLDİ)
 async function processReport() {
     const mainBtn = document.getElementById('mainSendBtn');
     mainBtn.disabled = true;
-    mainBtn.innerText = "⏳ GEHD GESENDET...";
+    mainBtn.innerText = "⏳ GEHT GESENDET...";
 
-    // TARİH VE GÖNDERİM SAATİNİ BİRLEŞTİRME (İSTEDİĞİNİZ ÖZELLİK)
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
@@ -343,39 +342,35 @@ async function processReport() {
     const seconds = String(now.getSeconds()).padStart(2, '0');
     const fullTimestamp = `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 
-    // Aktif form verilerini toparla
     const anlage = document.getElementById('anlage').value;
     let selectedFT = [];
     if (anlage.startsWith("PUR")) {
         document.querySelectorAll('#ftBox .ft-btn.active').forEach(b => selectedFT.push(b.innerText));
     }
 
-    // Her makine veya duruş satırı için excel tablonuza sıralı veri gönderme döngüsü
     const rowsToPost = [];
     const artikelRows = document.querySelectorAll('.artikel-row');
     
     if(artikelRows.length === 0) {
-        // Eğer makine veya hata girilmeden düz rapor atılıyorsa ana şablon
         rowsToPost.push({
-            datum: fullTimestamp,
-            sender: loggedInUser,
-            mitarbeiter: selectedStaff.join(', '),
-            anlage: anlage,
-            formtraeger: selectedFT.join(', '),
-            artikelnummer: '', stueckzahl: '', ausschuss: '', grund: '', stoerung: '', min: ''
+            Datum: fullTimestamp,
+            Sender: loggedInUser,
+            Mitarbeiter: selectedStaff.join(', '),
+            Anlage: anlage,
+            Formträger: selectedFT.join(', '),
+            Artikelnummer: '', Stückzahl: '', Ausschuss: '', Grund: '', Störung: '', min: ''
         });
     } else {
         artikelRows.forEach(row => {
             const artNum = row.querySelector('.art-name').value;
             const gutTeile = row.querySelector('.art-gut').value;
             
-            // Satırın altındaki tüm alt hata ve duruş kayıtlarını yakala
             const ausRows = row.querySelectorAll('.code-row');
             if(ausRows.length === 0) {
                 rowsToPost.push({
-                    datum: fullTimestamp, sender: loggedInUser, mitarbeiter: selectedStaff.join(', '),
-                    anlage: anlage, formtraeger: selectedFT.join(', '),
-                    artikelnummer: artNum, stueckzahl: gutTeile, ausschuss: '', grund: '', stoerung: '', min: ''
+                    Datum: fullTimestamp, Sender: loggedInUser, Mitarbeiter: selectedStaff.join(', '),
+                    Anlage: anlage, Formträger: selectedFT.join(', '),
+                    Artikelnummer: artNum, Stückzahl: gutTeile, Ausschuss: '', Grund: '', Störung: '', min: ''
                 });
             } else {
                 ausRows.forEach(subRow => {
@@ -391,17 +386,18 @@ async function processReport() {
                     if(stoerSelect && stoerSelect.value === 'Sonstige') grundText = sonstInput.value;
                     else if(stoerSelect && grundText === '') grundText = stoerSelect.value;
 
+                    // BURASI EXCEL TABLONUZUN ÜST SATIRIYLA BİREBİR EŞİTLENDİ (Büyük Harfler ve ü-ö harfleri düzeltildi)
                     rowsToPost.push({
-                        datum: fullTimestamp,
-                        sender: loggedInUser,
-                        mitarbeiter: selectedStaff.join(', '),
-                        anlage: anlage,
-                        formtraeger: selectedFT.join(', '),
-                        artikelnummer: artNum,
-                        stueckzahl: gutTeile,
-                        ausschuss: ausVal ? ausVal.value : '',
-                        grund: grundText,
-                        stoerung: stoerSelect ? stoerSelect.value : '',
+                        Datum: fullTimestamp,
+                        Sender: loggedInUser,
+                        Mitarbeiter: selectedStaff.join(', '),
+                        Anlage: anlage,
+                        Formträger: selectedFT.join(', '),
+                        Artikelnummer: artNum,
+                        Stückzahl: gutTeile,
+                        Ausschuss: ausVal ? ausVal.value : '',
+                        Grund: grundText,
+                        Störung: stoerSelect ? stoerSelect.value : '',
                         min: stoerVal ? stoerVal.value : ''
                     });
                 });
@@ -409,13 +405,13 @@ async function processReport() {
         });
     }
 
-    // Google Sheets Apps Script API'sine veriyi tek tek veya toplu gönderme simülasyonu
+    // GÜVENLİ CORS AYARLARIYLA VERİ GÖNDERME DÖNGÜSÜ
     try {
         for(let data of rowsToPost) {
             await fetch(scriptURL, {
                 method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
+                mode: "cors", // no-cors engeli kaldırıldı
+                headers: { "Content-Type": "text/plain" }, // Apps Script postData için en kararlı format
                 body: JSON.stringify(data)
             });
         }
