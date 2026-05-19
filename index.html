@@ -16,11 +16,9 @@
             --danger: #f43f5e; 
             --success: #4ade80; 
             --border: #475569; 
-            /* Yeni Kontrast Renkleri */
-            --orange-bright: #fb923c; /* Zor okunan Störung mavisi yerine parlak turuncu */
-            --text-bright: #ffffff;    /* Gizlenen işçi isimleri için net beyaz */
-            /* Ausschuss İyileştirmesi İçin Yeni Renk */
-            --yellow-bright: #e9f838; /* Koyu kırmızı yerine parlak neon sarısı */
+            --orange-bright: #fb923c; 
+            --text-bright: #ffffff;    
+            --yellow-bright: #e9f838; 
         }
         body { background: var(--bg-gradient); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; min-height: 100vh; box-sizing: border-box; }
         #loginScreen, #setPassScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-gradient); z-index: 9999; display: flex; justify-content: center; align-items: center; }
@@ -57,7 +55,6 @@
         .sonstige-input { width: 100%; margin-top: 6px; display: none; border-color: var(--primary); }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
-        /* Dashboard ve Canlı Rapor Kutusu Alanları */
         .dashboard-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; width: 100%; max-width: 1400px; margin: auto; display: none; box-sizing: border-box; }
         .reports-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
         @media(min-width: 768px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
@@ -67,13 +64,9 @@
         .report-box:hover { border-color: var(--primary); }
         .badge-origin { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; background: var(--primary); color: #0f172a; margin-bottom: 8px; }
         
-        /* Yenilenen Açık Renkli Rapor Yazı Stilleri (Görsel İyileştirmeler) */
         .report-box .report-date { font-size: 12px; color: #e2e8f0; font-weight: 500; margin-bottom: 8px; } 
         .report-box .report-artikel { font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #ffffff; }
-        
-        /* Ausschuss: Koyu Kırmızı Yerine Parlak Neon Sarısı (Net Okunurluk) */
         .report-box .report-ausschuss { font-size: 13px; color: var(--yellow-bright); font-weight: bold; margin-bottom: 4px; }
-        
         .report-box .report-störung { font-size: 13px; color: var(--orange-bright); font-weight: bold; } 
         .report-box .report-workers { font-size: 13px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; color: var(--text-bright); font-weight: bold; } 
 
@@ -84,6 +77,9 @@
         .filter-btn { padding: 10px 16px; background: #334155; border: 1px solid var(--border); border-radius: 8px; color: var(--text); cursor: pointer; font-weight: bold; }
         .filter-btn.active-filter { border-color: var(--primary); background: var(--blue-dark); }
         optgroup { background: var(--card-inner); color: var(--text); }
+        
+        .delete-manager-btn { color: var(--danger); margin-left: 4px; cursor: pointer; font-weight: bold; padding: 0 4px; border-radius: 4px; transition: background 0.2s; }
+        .delete-manager-btn:hover { background: rgba(244, 63, 94, 0.2); }
     </style>
 </head>
 <body>
@@ -139,7 +135,7 @@
         <div id="rightsManagementBox" class="rights-box-compact" style="display:none;">
             <div class="rights-controls">
                 <span style="font-size: 13px; font-weight: bold; color: var(--primary); white-space: nowrap;">🔐 Schichtleiter zuweisen:</span>
-                <select id="rightsSelect"></select>
+                <select id="rightsSelect" onchange="handleRightsSelectChange(this.value)"></select>
                 <select id="assignedSchichtSelect">
                     <option value="A">Schicht A</option>
                     <option value="B" selected>Schicht B</option>
@@ -172,7 +168,7 @@
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbw1Zm1ly6IU6djLDc5-uH1aNnMyJvMhK6vcOKuQXz-JJEsRCyBSZqPA0ZLqYXoXvBrf1Q/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbyC_1dwZVjtsAI_W-ELm4bTL7_Iamzx_PDVEvz2scYAiaW3cO8QEcTFZmRivpckCFb2sw/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Frühschicht";
@@ -281,21 +277,47 @@ function saveNewPassword() { alert("Passwort ändern"); enterApp(loggedInUser); 
 
 function loadUserSelect() {
     const select = document.getElementById('rightsSelect');
-    select.innerHTML = '<option value="">Mitarbeiter wählen...</option>' + Object.keys(initialDB).filter(x => x !== superAdmin).map(u => `<option value="${u}">${u}</option>`).join('');
+    select.innerHTML = '<option value="">Mitarbeiter wählen...</option>' + 
+                       '<option value="__CLEAR_ALL__" style="color:var(--danger); font-weight:bold;">⚠️ Alle Berechtigungen löschen</option>' +
+                       Object.keys(initialDB).filter(x => x !== superAdmin).map(u => `<option value="${u}">${u}</option>`).join('');
+}
+
+function handleRightsSelectChange(value) {
+    if (value === "__CLEAR_ALL__") {
+        if (confirm("Möchten Sie wirklich ALLE Schichtleiter-Berechtigungen löschen?")) {
+            schichtLeiterDb = {};
+            localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
+            updateManagersList();
+            alert("🗑️ Alle Berechtigungen wurden gelöscht.");
+        }
+        document.getElementById('rightsSelect').value = "";
+    }
+}
+
+function removeSchichtleiterRight(name) {
+    if (confirm(`Möchten Sie die Berechtigung für ${name} wirklich löschen?`)) {
+        delete schichtLeiterDb[name];
+        localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
+        updateManagersList();
+        alert(`❌ Berechtigung für ${name} wurde aufgehoben.`);
+    }
 }
 
 function updateManagersList() { 
     let listText = "Aktiv: ";
     const entries = Object.entries(schichtLeiterDb);
-    if(entries.length === 0) listText += "Keine Leiter zugewiesen";
-    else listText += entries.map(([name, schicht]) => `${name} (${schicht})`).join(', ');
+    if(entries.length === 0) {
+        listText += "Keine Leiter zugewiesen";
+    } else {
+        listText += entries.map(([name, schicht]) => `${name} (${schicht})<span class="delete-manager-btn" onclick="removeSchichtleiterRight('${name}')" title="Berechtigung löschen">✕</span>`).join(', ');
+    }
     document.getElementById('currentManagersList').innerHTML = listText; 
 }
 
 function grantSchichtleiterRights() {
     const name = document.getElementById('rightsSelect').value;
     const schicht = document.getElementById('assignedSchichtSelect').value;
-    if(!name) { alert("Bitte wählen Sie einen Mitarbeiter!"); return; }
+    if(!name || name === "__CLEAR_ALL__") { alert("Bitte wählen Sie einen gültigen Mitarbeiter!"); return; }
     
     schichtLeiterDb[name] = schicht;
     localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
@@ -455,7 +477,8 @@ async function processReport() {
             body: JSON.stringify({ action: "append", rows: rowsToPost })
         });
         const resText = await response.text();
-        alert("✅ " + resText);
+        // Almanca teşekkür mesajı entegre edildi
+        alert("Vielen Dank, dass Sie dieses System nutzen!");
         location.reload();
     } catch(err) {
         alert("❌ Fehler beim Senden: " + err);
@@ -490,9 +513,7 @@ async function loadAdminDashboard() {
                 <span class="badge-origin">${item.Anlage} ${item.Formträger ? '('+item.Formträger+')' : ''}</span>
                 <div class="report-date">📅 ${item.Datum} | 👤 ${item.Sender}</div>
                 <div class="report-artikel">📦 Art: ${item.Artikelnummer || '-'} | Gut: ${item.Stückzahl || '0'} Stk</div>
-                
                 <div class="report-ausschuss">❌ Ausschuss: ${item.Ausschuss || '0'} Stk (${item.Grund || '-'})</div>
-                
                 <div class="report-störung">⚠️ Störung: ${item.min ? item.min+' Min' : '-'} (${item.Störung || '-'})</div>
                 <div class="report-workers">👥 ${item.Mitarbeiter}</div>
             </div>
