@@ -52,19 +52,23 @@
         .error { color: #ef4444; margin-top: 10px; }
         .success { color: #22c55e; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .schicht-group { display: flex; gap: 10px; margin: 10px 0; }
-        .schicht-btn, .type-btn {
-            background: #0f172a;
-            border: 1px solid #38bdf8;
-            padding: 10px;
+        .schicht-group, .ft-grid { display: flex; gap: 10px; margin: 10px 0; flex-wrap: wrap; }
+        .schicht-btn, .type-btn, .ft-btn, .filter-btn {
+            background: #38bdf8;
+            color: #0f172a;
+            border: none;
+            padding: 10px 16px;
             border-radius: 30px;
             cursor: pointer;
             text-align: center;
+            font-weight: bold;
         }
-        .schicht-btn.active, .type-btn.active {
-            background: #38bdf8;
+        .schicht-btn.active, .type-btn.active, .ft-btn.active, .filter-btn.active-filter {
+            background: #7dd3fc;
             color: #0f172a;
+            box-shadow: 0 0 5px #38bdf8;
         }
+        .ft-grid { display: flex; gap: 8px; flex-wrap: wrap; }
         .selected-worker {
             background: rgba(56,189,248,0.15);
             padding: 10px;
@@ -75,15 +79,24 @@
             justify-content: space-between;
         }
         .add-btn { background: transparent; border: 2px dashed #38bdf8; color: #38bdf8; }
+        .sub-btn { background: #1e40af; padding: 8px 16px; width: auto; display: inline-block; margin: 5px; color: white; }
+        .section-card { background: rgba(15, 23, 42, 0.7); padding: 15px; border-radius: 24px; margin-top: 15px; position: relative; }
+        .code-row { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 20px; margin-top: 10px; }
+        .code-row-inputs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+        .code-row-inputs select { flex: 2; margin: 0; }
+        .code-row-inputs input { flex: 1; margin: 0; }
+        .sonstige-input { margin-top: 8px; display: none; }
+        .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; margin-top: 8px; }
+        .status-ok { background: #22c55e; color: black; }
+        .status-error { background: #ef4444; color: white; }
+        .reports-grid { display: grid; gap: 15px; margin-top: 20px; }
+        @media (min-width: 800px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
+        .report-box { background: rgba(15, 23, 42, 0.8); padding: 15px; border-radius: 20px; border: 1px solid #38bdf8; }
         .filter-group { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
-        .filter-btn {
-            background: #0f172a;
-            border: 1px solid #38bdf8;
-            padding: 8px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-        }
-        .filter-btn.active-filter { background: #38bdf8; color: #0f172a; }
+        .rights-box { background: rgba(56,189,248,0.1); border: 1px dashed #38bdf8; border-radius: 24px; padding: 15px; margin-bottom: 20px; }
+        .inline-group { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .inline-group select, .inline-group button { width: auto; flex: 1; }
         #workerOverlay {
             display: none;
             position: fixed;
@@ -151,9 +164,30 @@
     
     <div class="grid-2">
         <div><label>DATUM</label><input type="date" id="datum"></div>
-        <div><label>ANLAGE</label><select id="anlage"><option value="">Wählen</option><option value="PUR1">PUR1</option><option value="IM1">IM1</option><option value="COM">Compound</option></select></div>
+        <div><label>ANLAGE</label><select id="anlage" onchange="onAnlageChange()">
+            <option value="">Wählen</option>
+            <optgroup label="PUR"><option value="PUR1">PUR1</option><option value="PUR2">PUR2</option><option value="PUR3">PUR3</option><option value="PUR4">PUR4</option><option value="PUR5">PUR5</option><option value="PUR6">PUR6</option><option value="PUR7">PUR7</option><option value="PUR8">PUR8</option><option value="PUR9">PUR9</option></optgroup>
+            <optgroup label="Spritzguss"><option value="IM1">IM1</option><option value="IM2">IM2</option><option value="IM3">IM3</option><option value="IM4">IM4</option><option value="IM5">IM5</option><option value="CIM1">CIM1</option></optgroup>
+            <option value="COM">Compound</option>
+        </select></div>
     </div>
     
+    <div id="ftBox" style="display:none;">
+        <label>FORMTRAEGER (FT)</label>
+        <div class="ft-grid">
+            <button class="ft-btn" onclick="this.classList.toggle('active')">FT1</button>
+            <button class="ft-btn" onclick="this.classList.toggle('active')">FT2</button>
+            <button class="ft-btn" onclick="this.classList.toggle('active')">FT3</button>
+            <button class="ft-btn" onclick="this.classList.toggle('active')">FT4</button>
+            <button class="ft-btn" onclick="this.classList.toggle('active')">FT5</button>
+            <button class="ft-btn" onclick="this.classList.toggle('active')">FT6</button>
+        </div>
+    </div>
+    
+    <div id="comTimeBox" style="display:none; background:rgba(0,0,0,0.3); border-radius:24px; padding:10px; text-align:center; margin-top:10px;">⏱️ Compound: <span id="comTotal">0</span> / 480 Min</div>
+    
+    <div id="artikelContainer"></div>
+    <button class="add-btn" id="addArtikelBtn" disabled onclick="addArtikel()">📦 + Artikel hinzufügen</button>
     <button id="sendBtn" class="main-btn" onclick="sendReport()">📤 SPEICHERN & SENDEN</button>
     <button onclick="logout()" style="margin-top:10px; background:#475569;">ABMELDEN</button>
 </div>
@@ -185,27 +219,26 @@
 
 <script>
 // ============================================
-// APG BOCHUM - ADIM 1
+// APG BOCHUM - ADIM 2 (Artikel, FT, Compound)
 // ============================================
 
-// Kullanıcılar
 const USERS = {
     "Keskin": "517",
     "Kunert": "502",
     "Aldirmaz": "577"
 };
 
-// Çalışan listeleri
 const WORKER_DATA = {
-    A: ["Kunert M.", "Karali O.", "Mikuczynski K."],
-    B: ["Keskin Mur.", "Aldirmaz P.", "Anderwald R."],
-    C: ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö."]
+    A: ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E."],
+    B: ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F."],
+    C: ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R."]
 };
 
 let currentUser = "";
 let currentSchicht = "B";
 let currentSchichtType = "Frühschicht";
 let selectedStaff = [];
+let artikelCounter = 0;
 
 // ========== LOGIN ==========
 function login() {
@@ -213,15 +246,10 @@ function login() {
     let p = document.getElementById('password').value.trim();
     let msg = document.getElementById('loginError');
     
-    if (!USERS[u]) {
-        msg.innerHTML = "❌ Benutzer nicht gefunden!";
-        return;
-    }
-    
+    if (!USERS[u]) { msg.innerHTML = "❌ Benutzer nicht gefunden!"; return; }
     if (USERS[u] === p) {
         currentUser = u;
         document.getElementById('loginScreen').classList.add('hidden');
-        
         if (u === "Keskin") {
             document.getElementById('adminPanel').classList.remove('hidden');
             document.getElementById('adminDisplay').innerHTML = "👑 Willkommen, " + u;
@@ -231,9 +259,7 @@ function login() {
             document.getElementById('userDisplay').innerHTML = "👤 Angemeldet: " + u;
             setTodayDate();
         }
-    } else {
-        msg.innerHTML = "❌ Falsches Passwort!";
-    }
+    } else { msg.innerHTML = "❌ Falsches Passwort!"; }
 }
 
 function logout() {
@@ -304,16 +330,56 @@ function updateWorkerDisplay() {
 
 function removeStaff(name) { selectedStaff = selectedStaff.filter(x => x !== name); updateWorkerDisplay(); }
 
+function onAnlageChange() {
+    let v = document.getElementById('anlage').value;
+    document.getElementById('ftBox').style.display = v.startsWith("PUR") ? "flex" : "none";
+    document.getElementById('comTimeBox').style.display = v === "COM" ? "block" : "none";
+    document.getElementById('addArtikelBtn').disabled = v === "";
+    document.getElementById('artikelContainer').innerHTML = "";
+    artikelCounter = 0;
+}
+
+function addArtikel() {
+    let id = Date.now() + artikelCounter++;
+    let container = document.getElementById('artikelContainer');
+    let isCom = document.getElementById('anlage').value === 'COM';
+    let div = document.createElement('div'); div.className = "section-card artikel-row"; div.id = `art_${id}`;
+    div.innerHTML = `<button onclick="this.parentElement.remove();" style="position:absolute; right:10px; top:10px; background:#ef4444; border:none; color:white; border-radius:30px; width:26px; height:26px; cursor:pointer;">✕</button>
+        <label>ARTIKELNUMMER</label><input type="text" class="art-name" placeholder="z.B. 123456">
+        ${isCom ? '<label>DAUER (Min)</label><input type="number" class="art-duration" placeholder="Minuten">' : ''}
+        <div class="grid-2"><div><label>GUTTEILE</label><input type="number" class="art-gut" placeholder="Stk"></div>
+        <div><label>AUS GESAMT</label><input type="number" class="art-aus-total" placeholder="Stk"></div></div>
+        <div style="display:flex; gap:8px; margin-top:8px;"><button class="sub-btn" onclick="addRow('${id}','aus')">+ Ausschuss</button><button class="sub-btn" onclick="addRow('${id}','stoer')">+ Störung</button></div>`;
+    container.appendChild(div);
+}
+
+function addRow(artId, type) {
+    let rowsDiv = document.getElementById(`rows_${artId}`);
+    if(!rowsDiv) {
+        let rowDiv = document.createElement('div'); rowDiv.id = `rows_${artId}`;
+        document.getElementById(`art_${artId}`).appendChild(rowDiv);
+    }
+    let targetDiv = document.getElementById(`rows_${artId}`);
+    let rowDiv = document.createElement('div'); rowDiv.className = "code-row";
+    rowDiv.innerHTML = `<div class="code-row-inputs">
+        <input type="text" placeholder="${type === 'aus' ? 'Grund' : 'Störung'}" style="flex:2;">
+        <input type="number" placeholder="${type === 'aus' ? 'Stk' : 'Min'}" style="flex:1;">
+        <button onclick="this.parentElement.parentElement.remove();" style="background:#ef4444; border:none; color:white; border-radius:30px; width:26px; cursor:pointer;">✕</button>
+    </div>`;
+    targetDiv.appendChild(rowDiv);
+}
+
 function sendReport() {
     let anlage = document.getElementById('anlage').value;
+    let artikelRows = document.querySelectorAll('.artikel-row');
     if (!anlage) { alert("Bitte Anlage wählen!"); return; }
     if (selectedStaff.length === 0) { alert("Bitte Mitarbeiter hinzufügen!"); return; }
+    if (artikelRows.length === 0) { alert("Bitte mindestens einen Artikel hinzufügen!"); return; }
     alert("✅ Bericht wurde gesendet!\n\nSchicht: " + currentSchicht + "\nMitarbeiter: " + selectedStaff.join(", ") + "\nAnlage: " + anlage);
 }
 
 // ========== ADMIN DASHBOARD ==========
 let currentFilter = "B";
-
 function filterSchicht(s) {
     currentFilter = s;
     document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -324,7 +390,6 @@ function filterSchicht(s) {
     event.target.style.background = "#38bdf8";
     loadDashboard();
 }
-
 function loadDashboard() {
     let container = document.getElementById('reportsContainer');
     container.innerHTML = `<p style="text-align:center; color:#94a3b8;">📊 Keine Berichte für Schicht ${currentFilter}</p>`;
