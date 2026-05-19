@@ -174,8 +174,8 @@
 </div>
 
 <script>
-// ⚠️ HIER RECHTS DEINEN DETEKTIERTEN APPS SCRIPT EXEC LINK EINTRAGEN!
-const scriptURL = "BURAYA_YENI_LINKI_YAPISTIRIN";
+// ⚠️ HIER DEINEN DETEKTIRTEN SCRIPT URL GENAU SO LASSEN ODER ERSETZEN
+const scriptURL = "https://script.google.com/macros/s/AKfycbxIY5RwgP3Ld6uz92a4vdN5WJSla7cvcud9XqRLY8SFORW10Rnu52_GDhc3Pbxdj7m5wg/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Spätschicht";
@@ -352,7 +352,6 @@ function updateManagersList() {
     document.getElementById('currentManagersList').innerHTML = listText; 
 }
 
-// 🔀 SCHICHT/VARDİYA ATAMA MANTIĞI DÜZELTİLDİ
 function setSchicht(s) { 
     currentSchicht = s; 
     document.querySelectorAll('.schicht-btn').forEach(btn => btn.classList.remove('active'));
@@ -361,7 +360,6 @@ function setSchicht(s) {
     selectedStaff = []; 
     renderStaff(); 
     
-    // Sabit hatalı atamalar düzeltildi, eşleşmeler doğru yapıldı.
     if (s === "A") setSchichtType('Frühschicht');
     else if (s === "B") setSchichtType('Spätschicht');
     else if (s === "C") setSchichtType('Nachtschicht');
@@ -400,10 +398,11 @@ function addArtikel() {
     div.innerHTML = `<button onclick="this.parentElement.remove(); liveCheck();" style="position:absolute; right:10px; top:10px; background:var(--danger); color:white; border:none; border-radius:5px; width:26px; height:26px; cursor:pointer;">✕</button>
         <label>📌 Artikelnummer</label><input type="text" class="art-name" placeholder="z.B. 123456">
         ${document.getElementById('anlage').value==='COM' ? '<label>⏱️ Dauer (Min)</label><input type="number" class="art-duration" placeholder="Minuten" oninput="liveCheck()">' : ''}
-        <div class="grid-2"><div><label>✅ Gutteile</label><input type="number" class="art-gut" placeholder="Stk. (Optional)"></div><div><label>❌ Aus Gesamt</label><input type="number" class="art-aus-total" placeholder="Stk. (Optional)" oninput="liveCheck()"></div></div>
+        <div class="grid-2"><div><label>✅ Gutteile</label><input type="number" class="art-gut" placeholder="Stk. (Optional)" oninput="liveCheck()"></div><div><label>❌ Aus Gesamt</label><input type="number" class="art-aus-total" placeholder="Stk. (Optional)" oninput="liveCheck()"></div></div>
         <div class="status-badge" id="badge_${id}"></div><div id="rows_${id}"></div>
         <div style="display:flex; gap:10px; margin-top:10px;"><button class="sub-btn" onclick="addRow('${id}','aus')">+ Ausschuss</button><button class="sub-btn" onclick="addRow('${id}','stoer')">+ Störung</button></div>`;
     document.getElementById('artikelContainer').appendChild(div);
+    liveCheck();
 }
 
 function addRow(artId, type) {
@@ -425,7 +424,7 @@ function addRow(artId, type) {
     liveCheck();
 }
 
-// 🔓 ZORUNLULUK ORTADAN KALKTI, RAKAM YAZILMASA DA SENDEN AKTİF OLUR
+// 🔓 STRIKTE RAKAM KONTROLLERİ VE BLOKAJLAR KALDIRILDI!
 function liveCheck() {
     let isValid = true; 
     let cT = 0;
@@ -433,22 +432,21 @@ function liveCheck() {
     
     document.querySelectorAll('.artikel-row').forEach(row => {
         const id = row.id.split('_')[1]; 
-        
-        // Boş bırakılırsa arka planda 0 kabul et, kilitleme
         const t = parseInt(row.querySelector('.art-aus-total').value) || 0;
         
         let s = 0; 
         row.querySelectorAll('.aus-value').forEach(i => s += parseInt(i.value) || 0);
         const b = document.getElementById('badge_' + id);
         
+        // Sadece alt detay girilmiş ama üst toplam 0 ise otomatik eşitleme uyarısı ver (Engelleme!)
         if (s > 0 && t === 0) {
             b.className="status-badge status-ok"; 
             b.innerText = "✅ Auto-Anpassung: " + s;
         } 
+        // Eğer alt kodların toplamı, girilen üst toplama uymuyorsa uyar ama buton kilidini aç
         else if(t > 0 && t !== s) { 
-            b.className="status-badge status-error"; 
-            b.innerText = "⚠️ Abweichung: " + s + "/" + t; 
-            isValid = false; 
+            b.className="status-badge status-ok"; 
+            b.innerText = "ℹ️ Info: " + s + " von " + t + " erfasst"; 
         } else if(t > 0) { 
             b.className="status-badge status-ok"; 
             b.innerText = "✅ OK: " + s + "/" + t; 
@@ -478,10 +476,8 @@ function liveCheck() {
     } else if(!hasRows) {
         sendBtn.innerText = "📦 ARTIKEL HINZUFÜGEN";
         sendBtn.disabled = true;
-    } else if(!isValid) {
-        sendBtn.innerText = "⚠️ AUSSCHUSS KORRIGIEREN";
-        sendBtn.disabled = true;
     } else {
+        // Artık isValid kontrolü butonu asla devre dışı bırakamaz!
         sendBtn.innerText = "🚀 SPEICHERN & SENDEN";
         sendBtn.disabled = false;
     }
@@ -568,7 +564,7 @@ async function processReport() {
         const id = row.id.split('_')[1];
         const artName = row.querySelector('.art-name').value.trim() || "Unbekannt";
         
-        // Boş kutuları otomatik "0" olarak formatla
+        // Boş bırakılan alanları burası otomatik olarak "0" yapar
         const artGut = row.querySelector('.art-gut').value || "0";
         let artAusTotal = parseInt(row.querySelector('.art-aus-total').value) || 0;
         const duration = row.querySelector('.art-duration')?.value || "";
@@ -587,6 +583,7 @@ async function processReport() {
             }
         });
         
+        // Eğer el ile toplam yazılmadıysa alt detayların toplamını otomatik eşitle
         if(artAusTotal === 0 && totalAusFromRows > 0) {
             artAusTotal = totalAusFromRows;
         }
