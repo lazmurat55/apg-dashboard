@@ -332,26 +332,39 @@ select:focus, input:focus {
     }
 }
 
+/* Eski koyu kartlar yerine daha açık ve okunabilir kartlar */
+
 .report-box {
-    background: var(--card);
-    border: 1px solid var(--border);
-    padding: 20px;
-    border-radius: 18px;
-    transition: border-color 0.2s;
+    background: rgba(30, 41, 59, 0.95);  /* Daha açık koyu mavi */
+    padding: 18px;
+    border-radius: 24px;
+    border: 1px solid #38bdf8;
+    text-align: left;
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
 }
 
-.report-box:hover {
-    border-color: var(--primary);
+.report-box div {
+    color: #e2e8f0;  /* Açık gri yazı */
 }
 
-.badge-origin {
-    display: inline-block;
-    padding: 4px 10px;
-    border-radius: 8px;
-    font-size: 13px;
+.report-box b {
+    color: #ffffff;  /* Kalın yazılar beyaz */
     font-weight: bold;
-    background: var(--blue-dark);
-    color: white;
+}
+
+.report-box span {
+    color: #7dd3fc;  /* Tarih ve gönderen açık mavi */
+}
+
+.report-box .badge-origin {
+    background: #38bdf8;
+    color: #0f172a;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
     margin-bottom: 8px;
 }
 
