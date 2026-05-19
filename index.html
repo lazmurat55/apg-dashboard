@@ -196,13 +196,46 @@ function setInitialTodayDate() {
 }
 
 async function checkLogin() {
+
     const u = document.getElementById('userInp').value.trim();
     const p = document.getElementById('passInp').value.trim();
+
     const errorDiv = document.getElementById('loginError');
-    if(!initialDB[u]) { errorDiv.innerText = "❌ Benutzer nicht gefunden!"; errorDiv.style.display = 'block'; return; }
-    if (initialDB[u] === p) { enterApp(u); }
-    else { errorDiv.innerText = "❌ Falsches Passwort!"; errorDiv.style.display = 'block'; }
+
+    try {
+
+        const response = await fetch(
+            `${scriptURL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`
+        );
+
+        const data = await response.json();
+
+        if (!data.success) {
+            errorDiv.innerText = "❌ Falsches Passwort!";
+            errorDiv.style.display = 'block';
+            return;
+        }
+
+        loggedInUser = data.user;
+
+        // 🔐 İlk giriş kontrolü
+        if (data.firstLogin === "Hayır") {
+
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('setPassScreen').style.display = 'flex';
+
+            return;
+        }
+
+        enterApp(data.user);
+
+    } catch(err) {
+
+        errorDiv.innerText = "❌ Serverfehler!";
+        errorDiv.style.display = 'block';
+    }
 }
+
 
 const initialDB = {
     "Keskin": "517", "Uzun": "1433", "Kunert": "502", "Aldirmaz": "577", "Beher": "510",
