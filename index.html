@@ -199,9 +199,39 @@ async function checkLogin() {
     const u = document.getElementById('userInp').value.trim();
     const p = document.getElementById('passInp').value.trim();
     const errorDiv = document.getElementById('loginError');
-    if(!initialDB[u]) { errorDiv.innerText = "❌ Benutzer nicht gefunden!"; errorDiv.style.display = 'block'; return; }
-    if (initialDB[u] === p) { enterApp(u); }
-    else { errorDiv.innerText = "❌ Falsches Passwort!"; errorDiv.style.display = 'block'; }
+
+    // Backend'deki doGet(action="getUsers") kısmını çağırıyoruz
+    google.script.run.withSuccessHandler(users => {
+        const user = users[u];
+        if (!user) { 
+            errorDiv.innerText = "❌ Benutzer nicht gefunden!"; 
+            errorDiv.style.display = 'block'; 
+            return; 
+        }
+        // Aktiv/Passiv kontrolü
+        if (user.durum !== 'Aktiv') { 
+            errorDiv.innerText = "❌ Konto inaktiv!"; 
+            errorDiv.style.display = 'block'; 
+            return; 
+        }
+        
+        // Şifre kontrolü ve İlk Giriş kontrolü (JA veya Ja fark etmez)
+        if (user.sifre == p) {
+            loggedInUser = u;
+            if (user.ilkGiris.toString().toUpperCase() === 'JA') {
+                document.getElementById('loginScreen').style.display = 'none';
+                document.getElementById('setPassScreen').style.display = 'flex';
+            } else {
+                enterApp(u);
+            }
+        } else {
+            errorDiv.innerText = "❌ Falsches Passwort!";
+            errorDiv.style.display = 'block';
+        }
+    }).withFailureHandler(err => {
+        console.error(err);
+        errorDiv.innerText = "❌ Bağlantı hatası!";
+    }).doGet({parameter: {action: "getUsers"}});
 }
 
 const initialDB = {
