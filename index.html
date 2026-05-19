@@ -118,13 +118,13 @@
     </div>
     <div class="grid-2">
         <div><label>📌 Schicht</label><div class="schicht-group"><button class="schicht-btn" id="mSchichtA" onclick="setSchicht('A')">A</button><button class="schicht-btn" id="mSchichtB" onclick="setSchicht('B')">B</button><button class="schicht-btn" id="mSchichtC" onclick="setSchicht('C')">C</button></div></div>
-        <div><label>⏳ Schichtart</label><div class="schicht-group"><button class="schicht-btn type-btn" onclick="setSchichtType('Frühschicht')">Früh</button><button class="schicht-btn type-btn" onclick="setSchichtType('Spätschicht')">Spat</button><button class="schicht-btn type-btn" onclick="setSchichtType('Nachtschicht')">Nacht</button></div></div>
+        <div><label>⏳ Schichtart</label><div class="schicht-group"><button class="schicht-btn type-btn" id="tFrueh" onclick="setSchichtType('Frühschicht')">Früh</button><button class="schicht-btn type-btn" id="tSpaet" onclick="setSchichtType('Spätschicht')">Spät</button><button class="schicht-btn type-btn" id="tNacht" onclick="setSchichtType('Nachtschicht')">Nacht</button></div></div>
     </div>
     <div id="workerDisplayContainer"></div>
     <button class="add-btn" onclick="openWorkerOverlay()">➕ Mitarbeiter hinzufügen</button>
     <div class="grid-2">
         <div><label>📅 Datum</label><input type="date" id="datum"></div>
-        <div><label>🏭 Anlage</label><select id="anlage" onchange="onAnlageChange(this.value)"><option value="">Wählen...</option><optgroup label="PUR"><option value="PUR1">PUR 1</option><option value="PUR2">PUR 2</option><option value="PUR3">PUR 3</option><option value="PUR4">PUR 4</option><option value="PUR5">PUR 5</option><option value="PUR6">PUR 6</option><option value="PUR7">PUR 7</option><option value="PUR8">PUR 8</option><option value="PUR9">PUR 9</option></optgroup><optgroup label="Spritzguss"><option value="IM1">IM 1</option><option value="IM2">IM 2</option><option value="IM3">IM 3</option><option value="IM4">IM 4</option><option value="IM5">IM 5</option><option value="CIM1">CIM 1</option></optgroup><option value="COM">Compound</option></select></div>
+        <div><label>🏭 Anlage</label><select id="anlage" onchange="onAnlageChange(this.value)"><option value="">Auswählen...</option><optgroup label="PUR"><option value="PUR1">PUR 1</option><option value="PUR2">PUR 2</option><option value="PUR3">PUR 3</option><option value="PUR4">PUR 4</option><option value="PUR5">PUR 5</option><option value="PUR6">PUR 6</option><option value="PUR7">PUR 7</option><option value="PUR8">PUR 8</option><option value="PUR9">PUR 9</option></optgroup><optgroup label="Spritzguss"><option value="IM1">IM 1</option><option value="IM2">IM 2</option><option value="IM3">IM 3</option><option value="IM4">IM 4</option><option value="IM5">IM 5</option><option value="CIM1">CIM 1</option></optgroup><option value="COM">Compound</option></select></div>
     </div>
     <div id="ftBox" style="display:none;"><label>🧩 Formträger (FT)</label><div class="ft-grid"><button class="ft-btn" onclick="this.classList.toggle('active')">FT1</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT2</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT3</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT4</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT5</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT6</button></div></div>
     <div id="comTimeBox" style="display:none; text-align:center; background:rgba(56, 189, 248, 0.15); border: 1px solid var(--primary); padding:10px; border-radius:10px; margin-top: 15px;"><span style="font-weight:bold; color:var(--primary);">Compound: <span id="comTotal">0</span> / 480 Min</span></div>
@@ -137,7 +137,7 @@
     <div class="header" style="border-bottom: none; margin-bottom: 10px;">
         <h1 style="margin: 0 0 5px 0;">📊 APG Live Dashboard</h1>
         <p id="adminUserDisplay" style="color:var(--primary); font-weight:bold; margin: 0 0 5px 0; font-size: 15px;"></p>
-        <div class="live-indicator">● Live-Verbindung aktiv (Zeitgesteuertes Auto-Refresh)</div>
+        <div class="live-indicator">● Live-Verbindung aktiv (Automatischer Refresh)</div>
         
         <div id="rightsManagementBox" class="rights-box-compact" style="display:none; margin-top:15px;">
             <div class="rights-controls">
@@ -148,7 +148,7 @@
                     <option value="B" selected>Schicht B</option>
                     <option value="C">Schicht C</option>
                 </select>
-                <button class="sub-btn" onclick="grantSchichtleiterRights()">➕ Berechtigung geben</button>
+                <button class="sub-btn" onclick="grantSchichtleiterRights()">➕ Berechtigung erteilen</button>
             </div>
             <div id="currentManagersList" style="font-size:12px; color: var(--text-muted); text-align: right;"></div>
         </div>
@@ -165,20 +165,20 @@
 
 <div id="workerOverlay">
     <div class="overlay-content">
-        <h3 style="color:var(--primary); margin-top: 0;">👥 Mitarbeiter wählen</h3>
+        <h3 style="color:var(--primary); margin-top: 0;">👥 Mitarbeiter auswählen</h3>
         <div id="workerList" style="margin-bottom: 15px;"></div>
-        <input type="text" id="manualWorker" placeholder="✏️ Name manuell..." style="margin-bottom: 10px;">
+        <input type="text" id="manualWorker" placeholder="✏️ Name manuell eingeben..." style="margin-bottom: 10px;">
         <button class="add-btn" onclick="addManualWorker()">➕ Hinzufügen</button>
         <button class="main-btn" onclick="document.getElementById('workerOverlay').style.display='none'">Schließen</button>
     </div>
 </div>
 
 <script>
-// ⚠️ 1. ADIMDA ALDIĞINIZ EN GÜNCEL DAĞITIM (EXEC) LİNKİNİ BURAYA YAPIŞTIRIN!
-const scriptURL = "https://script.google.com/macros/s/AKfycbyKaldQ0VkZ9h_StBFn5R_rB8vcZ-nZULZyaPqbjI0NL25SqCpZqhNfuMVFsELMSLI5TA/exec";
+// ⚠️ HIER RECHTS DEINEN DETEKTIERTEN APPS SCRIPT EXEC LINK EINTRAGEN!
+const scriptURL = "BURAYA_YENI_LINKI_YAPISTIRIN";
 
 let currentSchicht = "B";
-let currentSchichtType = "Frühschicht";
+let currentSchichtType = "Spätschicht";
 let selectedStaff = [];
 let loggedInUser = "";
 let autoRefreshInterval = null; 
@@ -261,7 +261,7 @@ function enterApp(u) {
     else if (schichtLeiterDb[u]) {
         const assignedSchicht = schichtLeiterDb[u];
         document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('adminUserDisplay').innerHTML = `🏃 Schichtleiter: ${u} (Vardiya ${assignedSchicht})`;
+        document.getElementById('adminUserDisplay').innerHTML = `🏃 Schichtleiter: ${u} (Schicht ${assignedSchicht})`;
         document.getElementById('rightsManagementBox').style.display = 'none';
         
         document.querySelectorAll('.filter-btn').forEach(btn => btn.style.display = 'none');
@@ -352,11 +352,16 @@ function updateManagersList() {
     document.getElementById('currentManagersList').innerHTML = listText; 
 }
 
+// 🔀 SCHICHT/VARDİYA ATAMA MANTIĞI DÜZELTİLDİ
 function setSchicht(s) { 
     currentSchicht = s; 
     document.querySelectorAll('.schicht-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById('mSchicht' + s)?.classList.add('active');
-    selectedStaff = []; renderStaff(); 
+    
+    selectedStaff = []; 
+    renderStaff(); 
+    
+    // Sabit hatalı atamalar düzeltildi, eşleşmeler doğru yapıldı.
     if (s === "A") setSchichtType('Frühschicht');
     else if (s === "B") setSchichtType('Spätschicht');
     else if (s === "C") setSchichtType('Nachtschicht');
@@ -365,9 +370,9 @@ function setSchicht(s) {
 function setSchichtType(t) { 
     currentSchichtType = t; 
     document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
-    if(t === 'Frühschicht') document.querySelector('.type-btn[onclick="setSchichtType(\'Frühschicht\')"]')?.classList.add('active');
-    if(t === 'Spätschicht') document.querySelector('.type-btn[onclick="setSchichtType(\'Spätschicht\')"]')?.classList.add('active');
-    if(t === 'Nachtschicht') document.querySelector('.type-btn[onclick="setSchichtType(\'Nachtschicht\')"]')?.classList.add('active');
+    if(t === 'Frühschicht') document.getElementById('tFrueh')?.classList.add('active');
+    if(t === 'Spätschicht') document.getElementById('tSpaet')?.classList.add('active');
+    if(t === 'Nachtschicht') document.getElementById('tNacht')?.classList.add('active');
 }
 
 function openWorkerOverlay() { 
@@ -395,7 +400,7 @@ function addArtikel() {
     div.innerHTML = `<button onclick="this.parentElement.remove(); liveCheck();" style="position:absolute; right:10px; top:10px; background:var(--danger); color:white; border:none; border-radius:5px; width:26px; height:26px; cursor:pointer;">✕</button>
         <label>📌 Artikelnummer</label><input type="text" class="art-name" placeholder="z.B. 123456">
         ${document.getElementById('anlage').value==='COM' ? '<label>⏱️ Dauer (Min)</label><input type="number" class="art-duration" placeholder="Minuten" oninput="liveCheck()">' : ''}
-        <div class="grid-2"><div><label>✅ Gutteile</label><input type="number" class="art-gut" placeholder="Stk (Boş kalabilir)"></div><div><label>❌ Aus Gesamt</label><input type="number" class="art-aus-total" placeholder="Stk (Boş kalabilir)" oninput="liveCheck()"></div></div>
+        <div class="grid-2"><div><label>✅ Gutteile</label><input type="number" class="art-gut" placeholder="Stk. (Optional)"></div><div><label>❌ Aus Gesamt</label><input type="number" class="art-aus-total" placeholder="Stk. (Optional)" oninput="liveCheck()"></div></div>
         <div class="status-badge" id="badge_${id}"></div><div id="rows_${id}"></div>
         <div style="display:flex; gap:10px; margin-top:10px;"><button class="sub-btn" onclick="addRow('${id}','aus')">+ Ausschuss</button><button class="sub-btn" onclick="addRow('${id}','stoer')">+ Störung</button></div>`;
     document.getElementById('artikelContainer').appendChild(div);
@@ -420,7 +425,7 @@ function addRow(artId, type) {
     liveCheck();
 }
 
-// 🎛️ ESNEK VE ZORLAMAYAN LIVECHECK FONKSİYONU
+// 🔓 ZORUNLULUK ORTADAN KALKTI, RAKAM YAZILMASA DA SENDEN AKTİF OLUR
 function liveCheck() {
     let isValid = true; 
     let cT = 0;
@@ -429,22 +434,20 @@ function liveCheck() {
     document.querySelectorAll('.artikel-row').forEach(row => {
         const id = row.id.split('_')[1]; 
         
-        // Boş bırakılırsa 0 kabul et
+        // Boş bırakılırsa arka planda 0 kabul et, kilitleme
         const t = parseInt(row.querySelector('.art-aus-total').value) || 0;
         
         let s = 0; 
         row.querySelectorAll('.aus-value').forEach(i => s += parseInt(i.value) || 0);
         const b = document.getElementById('badge_' + id);
         
-        // Eğer detaylı hata girilmiş ama üstteki toplam girilmemişse otomatik eşitle, engelleme!
         if (s > 0 && t === 0) {
             b.className="status-badge status-ok"; 
-            b.innerText = "✅ Wird angepasst: " + s;
+            b.innerText = "✅ Auto-Anpassung: " + s;
         } 
-        // Eğer el ile yazılan toplam, detayların toplamıyla eşleşmiyorsa uyar
         else if(t > 0 && t !== s) { 
             b.className="status-badge status-error"; 
-            b.innerText = "⚠️ Differenz: " + s + "/" + t; 
+            b.innerText = "⚠️ Abweichung: " + s + "/" + t; 
             isValid = false; 
         } else if(t > 0) { 
             b.className="status-badge status-ok"; 
@@ -534,7 +537,7 @@ async function loadAdminDashboard() {
         });
     } catch (error) {
         console.error("Dashboard error:", error);
-        container.innerHTML = `<p style="text-align:center; color:var(--danger); grid-column: 1/-1;">❌ Veriler yüklenemedi.</p>`;
+        container.innerHTML = `<p style="text-align:center; color:var(--danger); grid-column: 1/-1;">❌ Daten konnten nicht geladen werden.</p>`;
     }
 }
 
@@ -565,7 +568,7 @@ async function processReport() {
         const id = row.id.split('_')[1];
         const artName = row.querySelector('.art-name').value.trim() || "Unbekannt";
         
-        // Boş bırakılan alanları burası otomatik olarak "0" yapar
+        // Boş kutuları otomatik "0" olarak formatla
         const artGut = row.querySelector('.art-gut').value || "0";
         let artAusTotal = parseInt(row.querySelector('.art-aus-total').value) || 0;
         const duration = row.querySelector('.art-duration')?.value || "";
@@ -584,7 +587,6 @@ async function processReport() {
             }
         });
         
-        // Eğer el ile toplam yazılmadıysa alt detayların toplamını otomatik üste eşitle
         if(artAusTotal === 0 && totalAusFromRows > 0) {
             artAusTotal = totalAusFromRows;
         }
