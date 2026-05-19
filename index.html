@@ -5,160 +5,179 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>APG BOCHUM SECURE PRO</title>
     <style>
-        :root { --bg: #0f172a; --card: #1e293b; --primary: #38bdf8; --blue-dark: #1e40af; --text: #f1f5f9; --danger: #ef4444; --success: #22c55e; --border: #334155; }
-        body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
-        #loginScreen, #setPassScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg); z-index: 9999; display: flex; justify-content: center; align-items: center; }
-        .login-card { background: var(--card); padding: 30px; border-radius: 20px; border: 2px solid var(--primary); width: 95%; max-width: 450px; text-align: center; }
-        .card { width: 100%; max-width: 700px; background: var(--card); padding: 20px; border-radius: 20px; margin: auto; border: 1px solid rgba(56, 189, 248, 0.3); display: none; }
+        :root { --bg: #e0f2fe; --card: #ffffff; --primary: #0284c7; --blue-dark: #0369a1; --text: #0f172a; --danger: #dc2626; --success: #16a34a; --border: #cbd5e1; }
+        body { background: linear-gradient(135deg, #bae6fd, #7dd3fc); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; }
+        #loginScreen, #setPassScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #bae6fd, #7dd3fc); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .login-card { background: var(--card); padding: 30px; border-radius: 20px; border: 2px solid var(--primary); width: 95%; max-width: 450px; text-align: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.1); }
+        .card { width: 100%; max-width: 700px; background: var(--card); padding: 20px; border-radius: 20px; margin: auto; border: 1px solid var(--border); display: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
         .header { text-align: center; border-bottom: 3px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
-        label { display: block; margin: 15px 0 5px; color: var(--primary); font-weight: bold; font-size: 15px; text-transform: uppercase; }
-        select, input { width: 100%; padding: 14px; border-radius: 10px; border: 1px solid #334155; background: #0f172a; color: white; box-sizing: border-box; font-size: 16px; }
+        label { display: block; margin: 15px 0 5px; color: var(--primary); font-weight: bold; font-size: 13px; text-transform: uppercase; }
+        select, input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: #f8fafc; color: var(--text); box-sizing: border-box; font-size: 14px; }
         .schicht-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-        .schicht-btn { padding: 14px; background: #0f172a; border: 1px solid #334155; border-radius: 10px; color: white; cursor: pointer; font-weight: bold; font-size: 16px; }
-        .schicht-btn.active { background: var(--primary); color: #0f172a; }
-        #workerOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center; }
-        .overlay-content { background: var(--card); width: 95%; max-width: 450px; max-height: 80vh; overflow-y: auto; border-radius: 20px; padding: 25px; border: 1px solid var(--primary); }
-        .worker-opt { padding: 15px; border-bottom: 1px solid #334155; cursor: pointer; font-size: 16px; }
-        .selected-worker { display: flex; justify-content: space-between; padding: 14px; background: rgba(56,189,248,0.1); border-radius: 10px; margin-top: 6px; border: 1px solid var(--primary); font-size: 16px; }
-        .section-card { background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; margin-top: 15px; border: 1px solid rgba(56, 189, 248, 0.1); position: relative; }
+        .schicht-btn { padding: 12px; background: #e2e8f0; border: 1px solid var(--border); border-radius: 10px; color: var(--text); cursor: pointer; font-weight: bold; font-size: 14px; }
+        .schicht-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+        #workerOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; }
+        .overlay-content { background: var(--card); width: 95%; max-width: 450px; max-height: 80vh; overflow-y: auto; border-radius: 20px; padding: 25px; border: 1px solid var(--border); }
+        .worker-opt { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; }
+        .worker-opt:hover { background: #e0f2fe; }
+        .selected-worker { display: flex; justify-content: space-between; padding: 12px; background: #e0f2fe; border-radius: 10px; margin-top: 6px; border: 1px solid var(--primary); font-size: 14px; }
+        .section-card { background: #f8fafc; padding: 15px; border-radius: 15px; margin-top: 15px; border: 1px solid var(--border); position: relative; }
         .ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-        .ft-btn { padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: #94a3b8; cursor: pointer; font-size: 15px; }
+        .ft-btn { padding: 10px; background: #e2e8f0; border: 1px solid var(--border); border-radius: 8px; color: var(--text); cursor: pointer; font-size: 13px; }
         .ft-btn.active { background: var(--blue-dark); color: white; border-color: var(--primary); }
-        .main-btn { width: 100%; padding: 20px; background: var(--primary); color: #0f172a; border: none; border-radius: 12px; font-weight: bold; font-size: 18px; margin-top: 20px; cursor: pointer; }
-        .main-btn:disabled { background: #475569; cursor: not-allowed; }
-        .add-btn { width: 100%; padding: 12px; margin-top: 10px; background: transparent; border: 2px dashed var(--primary); color: var(--primary); border-radius: 10px; cursor: pointer; font-size: 15px; font-weight: bold; }
-        .sub-btn { background: var(--blue-dark); color: white; padding: 10px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; flex: 1; font-weight: bold; }
-        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 15px; font-size: 13px; font-weight: bold; margin-top: 8px; }
-        .status-ok { background: var(--success); color: black; }
-        .status-error { background: var(--danger); color: white; }
-        .code-row { display: flex; flex-direction: column; gap: 8px; margin-top: 12px; padding: 12px; background: rgba(0,0,0,0.2); border-radius: 10px; border: 1px solid #334155; }
+        .main-btn { width: 100%; padding: 16px; background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 20px; cursor: pointer; }
+        .main-btn:disabled { background: #94a3b8; cursor: not-allowed; }
+        .add-btn { width: 100%; padding: 10px; margin-top: 10px; background: transparent; border: 2px dashed var(--primary); color: var(--primary); border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: bold; }
+        .sub-btn { background: var(--blue-dark); color: white; padding: 8px; border-radius: 8px; border: none; cursor: pointer; font-size: 12px; font-weight: bold; }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; margin-top: 8px; }
+        .status-ok { background: #22c55e; color: white; }
+        .status-error { background: #ef4444; color: white; }
+        .code-row { margin-top: 10px; padding: 10px; background: #f1f5f9; border-radius: 10px; border: 1px solid var(--border); }
         .code-row-inputs { display: flex; gap: 8px; align-items: center; width: 100%; }
-        .sonstige-input { width: 100%; margin-top: 4px; display: none; border-color: var(--primary); background: #0f172a; }
+        .code-row-inputs select { flex: 3; margin: 0; }
+        .code-row-inputs input { flex: 1; min-width: 70px; margin: 0; }
+        .sonstige-input { width: 100%; margin-top: 6px; display: none; border-color: var(--primary); }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .dashboard-card { background: #1a2a3a; border: 1px solid var(--primary); border-radius: 20px; padding: 25px; width: 100%; max-width: 1400px; margin: auto; display: none; box-sizing: border-box; }
+        .dashboard-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; width: 100%; max-width: 1400px; margin: auto; display: none; box-sizing: border-box; }
         .reports-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
         @media(min-width: 768px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
         @media(min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
-        .report-box { background: #1e3a4a; border: 1px solid #38bdf8; padding: 20px; border-radius: 18px; transition: border-color 0.2s; }
+        .report-box { background: #f8fafc; border: 1px solid var(--border); padding: 18px; border-radius: 18px; transition: border-color 0.2s; }
         .report-box:hover { border-color: var(--primary); }
-        .badge-origin { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 13px; font-weight: bold; background: var(--blue-dark); color: white; margin-bottom: 8px; }
-        .dash-text { font-size: 16px; margin: 6px 0; line-height: 1.6; }
-        .dash-sub-text { font-size: 14px; margin: 4px 0; line-height: 1.5; padding-left: 12px; }
-        .rights-box { background: rgba(56,189,248,0.05); border: 1px dashed var(--primary); padding: 15px; border-radius: 15px; margin-bottom: 20px; max-width: 650px; margin-left: auto; margin-right: auto; }
+        .badge-origin { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; background: var(--primary); color: white; margin-bottom: 8px; }
+        .rights-box { background: #e0f2fe; border: 1px dashed var(--primary); padding: 15px; border-radius: 15px; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
 <div id="loginScreen">
     <div class="login-card">
-        <h2 style="color:var(--primary); margin-top:0; font-size: 28px;">APG LOGIN</h2>
-        <p style="font-size:14px; color:#94a3b8;">Bitte Nachname und Passwort eingeben</p>
+        <h2 style="color:var(--primary);">⚡ APG LOGIN</h2>
+        <p style="font-size:14px;">Bitte Nachname und Passwort eingeben</p>
         <input type="text" id="userInp" placeholder="Nachname">
-        <input type="password" id="passInp" placeholder="Passwort" style="margin-top:12px;">
-        <button class="main-btn" id="loginBtn" onclick="checkLogin()">ANMELDEN</button>
-        <p id="loginError" style="color:red; font-size:14px; margin-top:12px; display:none;">⚠️ Zugangsdaten falsch!</p>
+        <input type="password" id="passInp" placeholder="Passwort">
+        <button class="main-btn" onclick="checkLogin()">ANMELDEN</button>
+        <p id="loginError" style="color:red; font-size:14px; margin-top:12px; display:none;"></p>
     </div>
 </div>
 
 <div id="setPassScreen" style="display:none;">
     <div class="login-card">
-        <h3 style="color:var(--primary); font-size:24px;">ERSTES LOGIN</h3>
-        <p style="font-size:14px;">Bitte ein neues, privates Passwort festlegen:</p>
+        <h3 style="color:var(--primary);">📌 ERSTES LOGIN</h3>
+        <p>Neues Passwort festlegen (min. 4 Zeichen)</p>
         <input type="password" id="newPass1" placeholder="Neues Passwort">
-        <input type="password" id="newPass2" placeholder="Wiederholen" style="margin-top:12px;">
-        <button class="main-btn" id="savePassBtn" onclick="saveNewPassword()">PASSWORT AKTIVIEREN</button>
+        <input type="password" id="newPass2" placeholder="Wiederholen">
+        <button class="main-btn" onclick="saveNewPassword()">PASSWORT AKTIVIEREN</button>
     </div>
 </div>
 
 <div class="card" id="mainApp">
     <div class="header">
         <h1>Adler Pelzer Group</h1>
-        <p id="currentUserDisplay" style="color:var(--success); font-size:14px; font-weight:bold;"></p>
+        <p id="currentUserDisplay" style="color:var(--success); font-weight:bold;"></p>
     </div>
     <div class="grid-2">
-        <div>
-            <label>Schicht wählen</label>
-            <div class="schicht-group">
-                <button class="schicht-btn" id="btnA" onclick="setSchicht('A')">A</button>
-                <button class="schicht-btn" id="btnB" onclick="setSchicht('B')">B</button>
-                <button class="schicht-btn" id="btnC" onclick="setSchicht('C')">C</button>
-            </div>
-        </div>
-        <div>
-            <label>Schichtart</label>
-            <div class="schicht-group">
-                <button class="schicht-btn type-btn" id="sFrueh" onclick="setSchichtType('Frühschicht')">Früh</button>
-                <button class="schicht-btn type-btn" id="sSpaet" onclick="setSchichtType('Spätschicht')">Spät</button>
-                <button class="schicht-btn type-btn" id="sNacht" onclick="setSchichtType('Nachtschicht')">Nacht</button>
-            </div>
-        </div>
+        <div><label>📌 Schicht</label><div class="schicht-group"><button class="schicht-btn" onclick="setSchicht('A')">A</button><button class="schicht-btn" onclick="setSchicht('B')">B</button><button class="schicht-btn" onclick="setSchicht('C')">C</button></div></div>
+        <div><label>⏳ Schichtart</label><div class="schicht-group"><button class="schicht-btn type-btn" onclick="setSchichtType('Frühschicht')">Früh</button><button class="schicht-btn type-btn" onclick="setSchichtType('Spätschicht')">Spät</button><button class="schicht-btn type-btn" onclick="setSchichtType('Nachtschicht')">Nacht</button></div></div>
     </div>
     <div id="workerDisplayContainer"></div>
-    <button class="add-btn" onclick="openWorkerOverlay()">+ Mitarbeiter hinzufügen</button>
-    <div class="grid-2" style="margin-top:20px;">
-        <div><label>Datum auswählen</label><input type="date" id="datum"></div>
-        <div><label>Anlage</label><select id="anlage" onchange="onAnlageChange(this.value)"><option value="">Wählen...</option><optgroup label="PUR"><option value="PUR1">PUR 1</option><option value="PUR2">PUR 2</option><option value="PUR3">PUR 3</option><option value="PUR4">PUR 4</option><option value="PUR5">PUR 5</option><option value="PUR6">PUR 6</option><option value="PUR7">PUR 7</option><option value="PUR8">PUR 8</option><option value="PUR9">PUR 9</option></optgroup><optgroup label="Spritzguss"><option value="IM1">IM 1</option><option value="IM2">IM 2</option><option value="IM3">IM 3</option><option value="IM4">IM 4</option><option value="IM5">IM 5</option><option value="CIM1">CIM 1</option></optgroup><option value="COM">Compound</option></select></div>
+    <button class="add-btn" onclick="openWorkerOverlay()">➕ Mitarbeiter hinzufügen</button>
+    <div class="grid-2">
+        <div><label>📅 Datum</label><input type="date" id="datum"></div>
+        <div><label>🏭 Anlage</label><select id="anlage" onchange="onAnlageChange(this.value)"><option value="">Wählen...</option><optgroup label="PUR"><option value="PUR1">PUR 1</option><option value="PUR2">PUR 2</option><option value="PUR3">PUR 3</option><option value="PUR4">PUR 4</option><option value="PUR5">PUR 5</option><option value="PUR6">PUR 6</option><option value="PUR7">PUR 7</option><option value="PUR8">PUR 8</option><option value="PUR9">PUR 9</option></optgroup><optgroup label="Spritzguss"><option value="IM1">IM 1</option><option value="IM2">IM 2</option><option value="IM3">IM 3</option><option value="IM4">IM 4</option><option value="IM5">IM 5</option><option value="CIM1">CIM 1</option></optgroup><option value="COM">Compound</option></select></div>
     </div>
-    <div id="ftBox" style="display:none;"><label>Formträger (FT)</label><div class="ft-grid"><button class="ft-btn" onclick="this.classList.toggle('active')">FT1</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT2</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT3</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT4</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT5</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT6</button></div></div>
-    <div id="comTimeBox" style="display:none; margin-top:15px; text-align:center; background:rgba(56,189,248,0.1); padding:10px; border-radius:10px;"><span style="font-weight:bold; color:var(--primary); font-size:16px;">Compound: <span id="comTotal">0</span> / 480 Min</span></div>
+    <div id="ftBox" style="display:none;"><label>🧩 Formträger (FT)</label><div class="ft-grid"><button class="ft-btn" onclick="this.classList.toggle('active')">FT1</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT2</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT3</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT4</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT5</button><button class="ft-btn" onclick="this.classList.toggle('active')">FT6</button></div></div>
+    <div id="comTimeBox" style="display:none; text-align:center; background:#e0f2fe; padding:10px; border-radius:10px;"><span style="font-weight:bold; color:var(--primary);">Compound: <span id="comTotal">0</span> / 480 Min</span></div>
     <div id="artikelContainer"></div>
-    <button class="add-btn" id="addArtikelBtn" onclick="addArtikel()" disabled>+ Artikel hinzufügen</button>
-    <button id="mainSendBtn" class="main-btn" onclick="processReport()">🚀 SPEICHERN & SENDEN</button>
+    <button class="add-btn" id="addArtikelBtn" disabled onclick="addArtikel()">📦 + Artikel hinzufügen</button>
+    <button id="mainSendBtn" class="main-btn" disabled onclick="processReport()">🚀 SPEICHERN & SENDEN</button>
 </div>
 
 <div class="dashboard-card" id="adminPanel">
     <div class="header">
-        <h1 style="font-size:28px; margin-bottom:5px;">APG Live Dashboard</h1>
-        <p id="adminUserDisplay" style="color:var(--primary); font-size:16px; font-weight:bold;"></p>
-        <div id="rightsManagementBox" class="rights-box" style="display:none; margin-top:15px; text-align:left;">
-            <label style="margin-top:0; font-size:13px;">Rechte verwalten (Super-Manager)</label>
-            <div style="display:flex; gap:10px; margin-top:5px;">
-                <select id="rightsSelect" style="padding:8px; font-size:14px; flex:2;"></select>
-                <button class="sub-btn" style="flex:1;" onclick="grantSuperManagerRights()">Berechtigung geben</button>
+        <h1>📊 APG Live Dashboard</h1>
+        <p id="adminUserDisplay" style="color:var(--primary); font-weight:bold;"></p>
+        <div id="rightsManagementBox" class="rights-box" style="display:none;">
+            <label style="margin-top:0;">🔐 Rechte verwalten</label>
+            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                <select id="rightsSelect" style="flex:2; padding:8px;"></select>
+                <button class="sub-btn" onclick="grantSuperManagerRights()">➕ Berechtigung geben</button>
             </div>
-            <div id="currentManagersList" style="margin-top:8px; font-size:12px; color:#94a3b8;"></div>
+            <div id="currentManagersList" style="margin-top:8px; font-size:12px;"></div>
         </div>
-        <button class="main-btn" style="margin-top:15px; padding:12px 25px; font-size:15px; max-width:300px;" onclick="loadAdminDashboard()">🔄 Aktualisieren</button>
+        <div class="schicht-group" style="max-width:400px; margin:15px auto;">
+            <button class="filter-btn" onclick="filterSchicht('A')">🔵 Schicht A</button>
+            <button class="filter-btn active-filter" onclick="filterSchicht('B')">🟢 Schicht B</button>
+            <button class="filter-btn" onclick="filterSchicht('C')">🟠 Schicht C</button>
+        </div>
+        <button class="main-btn" style="padding:12px; font-size:14px; max-width:300px; margin:0 auto;" onclick="loadAdminDashboard()">🔄 Aktualisieren</button>
     </div>
-    <div id="dashboardLoading" style="text-align:center; color:var(--primary); margin:30px 0; font-size:18px; font-weight:bold;">Berichte werden geladen... ⏳</div>
     <div id="reportsContainer" class="reports-grid"></div>
 </div>
 
 <div id="workerOverlay">
     <div class="overlay-content">
-        <h3 style="color:var(--primary); font-size:20px; margin-top:0;">Mitarbeiter wählen</h3>
+        <h3 style="color:var(--primary);">👥 Mitarbeiter wählen</h3>
         <div id="workerList"></div>
-        <div style="margin-top:15px; border-top:1px solid #444; padding-top:10px;">
-            <input type="text" id="manualWorker" placeholder="Name manuell...">
-            <button class="add-btn" onclick="addManualWorker()">Hinzufügen</button>
-        </div>
+        <input type="text" id="manualWorker" placeholder="✏️ Name manuell...">
+        <button class="add-btn" onclick="addManualWorker()">➕ Hinzufügen</button>
         <button class="main-btn" onclick="document.getElementById('workerOverlay').style.display='none'">Schließen</button>
     </div>
 </div>
 
 <script>
+// ============================================
+// APG BOCHUM - TAM VERSİYON
+// ============================================
+
 const scriptURL = "https://script.google.com/macros/s/AKfycbxs_wARtaU5MTZ3c1JZ1AkVEDeKFMYlS_XvezpELSnsPlGIR7MiHNeJhFPSitV1D9BGNg/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Frühschicht";
 let selectedStaff = [];
 let loggedInUser = "";
-let superManagersList = ["Keskin", "Uzun"];
+let superManagersList = ["Keskin"];
 
+// TÜM KULLANICILAR
 const initialDB = {
-    "Keskin": "517", "Uzun": "1433", "Kunert": "502", "Aldirmaz": "577", "Beher": "510"
+    "Keskin": "517", "Uzun": "1433", "Kunert": "502", "Aldirmaz": "577", "Beher": "510",
+    "Brand": "1722", "Keskin Mur.": "518", "Naumann": "999", "Schönborn": "1361",
+    "Karali": "533", "Mikuczynski": "1212", "Türkmen": "1213", "Amrouch": "1268",
+    "Stania": "1368", "Kantaroglu": "1382", "Krancioch": "1405", "Held": "1421",
+    "Berisha": "1534", "Neji": "1536", "Mulugeta": "1633", "Udezue": "1686", "Jansen": "1692",
+    "Aksoy": "1704", "Yildirim": "1710", "Louze": "1724", "Blanquez": "1725", "Diallo": "1726",
+    "Sener": "1731", "Klomrit": "1070", "Garcia": "339", "Anderwald": "509", "Bayrakli": "1377",
+    "Kilic": "1384", "Maafi": "1273", "Besche": "1472", "Eickhoff": "1406", "Toth": "1699",
+    "Gibba": "1367", "Helf": "1483", "Isbir": "1715", "Jeyakumar": "1698", "Kalisch": "1451",
+    "Kowarsch": "484", "Nowak": "1390", "Pähler": "1332", "Patarcsity": "1700", "Pulendran": "1498",
+    "Sahin": "1721", "Savas": "1360", "Schiavitelli": "1669", "Uluyüz": "1450", "Keskinmus": "518",
+    "Katenz": "000", "Rafo": "1277", "Gertz": "1357", "Fortes": "1381", "Sakaguchi M.": "1391",
+    "Mercan": "1437", "Krämer": "1449", "Juretzka": "1473", "Kumbara": "1474", "Skupio": "1475",
+    "Skrago": "1484", "Bah": "1684", "Kaya": "1712", "Jdea": "1701", "Toure": "1713",
+    "Schneider": "1714", "Tchaleu": "1723"
 };
 
+// TÜM ÇALIŞANLAR
 const workerData = {
-    "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E."],
-    "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F."],
-    "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R."]
+    "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D.", "Kantaroglu A.", "Krancioch A.", "Held D.", "Berisha I.", "Neji M.", "Mulugeta G.", "Udezue P.", "Jansen M.", "Aksoy O.", "Yildirim S.", "Brand N.", "Louze A.", "Blanquez Romero V.", "Diallo M.D.", "Sener E.", "Klomrit", "Garcia"],
+    "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T.", "Besche T.", "Eickhoff P.", "Toth Renata", "Gibba n.", "Helf A.", "Isbir J.", "Jeyakumar S.", "Kalisch T.", "Kowarsch R.", "Nowak M.", "Pähler D.", "Patarcsity V.", "Pulendran K.", "Sahin E.", "Savas S.", "Schiavitelli", "Uluyüz B.", "Uzun S.", "Klomrit", "Garcia"],
+    "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin", "Gertz S.", "Schönborn Ch.", "Fortes Ch.", "Sakaguchi M.", "Mercan M.", "Krämer Ch.", "Juretzka T.", "Kumbara E.", "Skupio D.", "Skrago T.", "Bah A.", "Kaya A.", "Jdea A.", "Toure A.", "Schneider D.", "Tchaleu Bertrand", "Keskinmus", "Klomrit", "Garcia"]
 };
 
+// TAM AUSSCHUSS & STÖRUNG KODLARI
 const codeData = {
-    PUR: { aus: ["6-2-01 Temperatur zu niedrig","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] },
-    Spritz: { aus: ["6-1-01 Anfahrschrott","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] },
-    COM: { aus: ["6-3-01 Anfahrschrott","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] }
+    PUR: {
+        aus: ["6-2-01 Temperatur zu niedrig", "6-2-02 Schaum haftet nicht am Bauteil", "6-2-03 Einlegefehler", "6-2-04 Schussabbruch", "6-2-05 CIM nicht voll ausgeschäumt", "6-2-06 Lippe gerissen", "6-2-07 CIM gerissen", "7-2-01 Nacharbeit am Bauteil (Entgraten, Nachkleben etc.)", "Sonstige"],
+        stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-2-01 Ungepl. Inst. WZ", "4-2-02 Ungepl. Inst. Masch", "4-2-03 Poly/Iso Überdruck", "4-2-04 Mischkopf nio", "4-2-05 Fehler Lichtschr.", "4-2-06 Trennmittelpist.", "4-2-07 Formträger Prob.", "4-2-08 Reinigung WZ", "4-2-09 Not Aus", "5-2-01 Logistik Mangel", "5-2-02 Keine Teile IM/CIM", "5-2-04 Wartezeit Einrichter", "5-2-10 Poly/Iso leer", "Sonstige"]
+    },
+    Spritz: {
+        aus: ["6-1-01 Anfahrschrott", "6-1-02 Mat-Umst.", "6-1-03 CIM n.voll", "6-1-04 CIM gerissen", "6-1-05 Überspritzung", "6-1-06 Einfallstellen", "6-1-07 Brandstellen", "6-1-08 Silberstreifen", "Sonstige"],
+        stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-1-01 Ungepl. Inst. WZ", "4-1-02 Ungepl. Inst. Masch", "4-1-03 Mat-Förderung Prob.", "4-1-04 Probleme Dosier.", "4-1-05 Probleme Schließeinh.", "4-1-06 Teileentnahme Prob.", "4-1-07 Probleme WZ-Heizung", "4-1-08 Probleme Beflamm.", "5-1-01 Mat-Mangel", "5-1-03 Wartezeit Einrichter", "Sonstige"]
+    },
+    COM: {
+        aus: ["6-3-01 Anfahrschrott", "6-3-02 Mat-Fehler", "Sonstige"],
+        stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-3-01 Messer schleifen", "4-3-02 Ungepl. Inst. Masch", "4-3-04 Silowechsel", "5-3-01 Mat-Mangel", "5-3-05 Feueralarm", "Sonstige"]
+    }
 };
 
 function setInitialTodayDate() {
@@ -171,156 +190,88 @@ function setInitialTodayDate() {
 }
 
 async function checkLogin() {
-    const btn = document.getElementById('loginBtn');
     const u = document.getElementById('userInp').value.trim();
     const p = document.getElementById('passInp').value.trim();
     const errorDiv = document.getElementById('loginError');
-    
-    if(!initialDB[u]) { 
-        errorDiv.innerText = "⚠️ Benutzer nicht gefunden!"; 
-        errorDiv.style.display = 'block'; 
-        return; 
-    }
-    
-    btn.innerText = "Check... ⏳";
-    errorDiv.style.display = 'none';
-    
-    if (initialDB[u] === p) {
-        enterApp(u);
-    } else {
-        errorDiv.innerText = "⚠️ Falsches Passwort!";
-        errorDiv.style.display = 'block';
-    }
-    btn.innerText = "ANMELDEN";
+    if(!initialDB[u]) { errorDiv.innerText = "❌ Benutzer nicht gefunden!"; errorDiv.style.display = 'block'; return; }
+    if (initialDB[u] === p) { enterApp(u); }
+    else { errorDiv.innerText = "❌ Falsches Passwort!"; errorDiv.style.display = 'block'; }
 }
 
 function enterApp(u) { 
     loggedInUser = u; 
     document.getElementById('loginScreen').style.display = 'none'; 
-    document.getElementById('setPassScreen').style.display = 'none'; 
     setInitialTodayDate();
-
-    // Admin: Keskin veya Uzun
-    if (u === "Keskin" || u === "Uzun") {
+    if (u === "Keskin") {
         document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('adminUserDisplay').innerText = "Willkommen, " + u + " (Admin Mode)";
-        if(u === "Keskin") {
-            document.getElementById('rightsManagementBox').style.display = 'block';
-            document.getElementById('currentManagersList').innerText = "Berechtigte Manager: " + superManagersList.join(', ');
-        }
+        document.getElementById('adminUserDisplay').innerHTML = "👑 Willkommen, " + u + " (Admin)";
+        document.getElementById('rightsManagementBox').style.display = 'block';
+        loadUserSelect();
+        updateManagersList();
         loadAdminDashboard();
-    } 
-    // İşçi: Diğer tüm kullanıcılar
-    else {
+    } else {
         document.getElementById('mainApp').style.display = 'block'; 
-        document.getElementById('currentUserDisplay').innerText = "Angemeldet: " + u; 
-        
-        // Kullanıcının schicht'ini bul
+        document.getElementById('currentUserDisplay').innerHTML = "👤 Angemeldet: " + u; 
         let foundSchicht = "B";
-        // Schicht A kontrolü
         if(workerData["A"].some(w => w.includes(u) || u.includes(w.split(" ")[0]))) foundSchicht = "A";
-        // Schicht C kontrolü
         if(workerData["C"].some(w => w.includes(u) || u.includes(w.split(" ")[0]))) foundSchicht = "C";
-        
         setSchicht(foundSchicht); 
     }
 }
 
-function saveNewPassword() {
-    alert("Passwort ändern Funktion");
-    enterApp(loggedInUser);
+function saveNewPassword() { alert("Passwort ändern"); enterApp(loggedInUser); }
+function loadUserSelect() {
+    const select = document.getElementById('rightsSelect');
+    select.innerHTML = '<option value="">Benutzer wählen</option>' + Object.keys(initialDB).map(u => `<option value="${u}">${u}</option>`).join('');
 }
-
+function updateManagersList() { document.getElementById('currentManagersList').innerHTML = "👑 Super-Manager: " + superManagersList.join(', '); }
 function grantSuperManagerRights() {
     const name = document.getElementById('rightsSelect').value;
-    if(!superManagersList.includes(name)) {
-        superManagersList.push(name);
-        document.getElementById('currentManagersList').innerText = "Berechtigte Manager: " + superManagersList.join(', ');
-        alert(name + " wurde als Super-Manager aktiviert!");
-    }
-}
-
-async function loadAdminDashboard() {
-    const container = document.getElementById('reportsContainer');
-    container.innerHTML = '<p style="text-align:center; color:#94a3b8;">📊 Keine Berichte vorhanden</p>';
+    if(name && !superManagersList.includes(name)) { superManagersList.push(name); updateManagersList(); alert(name + " ist jetzt Super-Manager!"); }
 }
 
 function setSchicht(s) { 
     currentSchicht = s; 
-    document.querySelectorAll('.schicht-group .schicht-btn').forEach(b => { 
-        if(!b.classList.contains('type-btn')) b.classList.remove('active'); 
-    }); 
-    const target = Array.from(document.querySelectorAll('.schicht-group .schicht-btn')).find(b => b.innerText === s && !b.classList.contains('type-btn')); 
-    if(target) target.classList.add('active'); 
-    selectedStaff=[]; 
-    renderStaff(); 
-    
+    document.querySelectorAll('.schicht-btn').forEach(btn => btn.classList.remove('active'));
+    if(document.querySelector(`.schicht-btn[onclick="setSchicht('${s}')"]`)) document.querySelector(`.schicht-btn[onclick="setSchicht('${s}')"]`).classList.add('active');
+    selectedStaff = []; renderStaff(); 
     if (s === "A") setSchichtType('Frühschicht');
     else if (s === "B") setSchichtType('Spätschicht');
     else if (s === "C") setSchichtType('Nachtschicht');
 }
-
-function setSchichtType(type) { 
-    currentSchichtType = type; 
-    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active')); 
-    if(type === 'Frühschicht' || type === 'Früh') {
-        const el = document.getElementById('sFrueh');
-        if(el) el.classList.add('active');
-    } else if(type === 'Spätschicht' || type === 'Spät') {
-        const el = document.getElementById('sSpaet');
-        if(el) el.classList.add('active');
-    } else if(type === 'Nachtschicht' || type === 'Nacht') {
-        const el = document.getElementById('sNacht');
-        if(el) el.classList.add('active');
-    }
+function setSchichtType(t) { 
+    currentSchichtType = t; 
+    document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
+    if(t === 'Frühschicht') document.querySelector('.type-btn[onclick="setSchichtType(\'Frühschicht\')"]')?.classList.add('active');
+    if(t === 'Spätschicht') document.querySelector('.type-btn[onclick="setSchichtType(\'Spätschicht\')"]')?.classList.add('active');
+    if(t === 'Nachtschicht') document.querySelector('.type-btn[onclick="setSchichtType(\'Nachtschicht\')"]')?.classList.add('active');
 }
-
 function openWorkerOverlay() { 
     document.getElementById('workerList').innerHTML = workerData[currentSchicht].map(w => `<div class="worker-opt" onclick="addStaff('${w}')">${w}</div>`).join(""); 
     document.getElementById('workerOverlay').style.display='flex'; 
 }
-function addStaff(n) { 
-    if(!selectedStaff.includes(n)) selectedStaff.push(n); 
-    document.getElementById('workerOverlay').style.display='none'; 
-    renderStaff(); 
-}
-function addManualWorker() { 
-    const v = document.getElementById('manualWorker').value; 
-    if(v) { 
-        selectedStaff.push("✍️ " + v); 
-        document.getElementById('manualWorker').value=""; 
-        document.getElementById('workerOverlay').style.display='none'; 
-        renderStaff(); 
-    } 
-}
-function renderStaff() { 
-    document.getElementById('workerDisplayContainer').innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')" style="color:red; cursor:pointer;">✕</span></div>`).join(""); 
-    liveCheck(); 
-}
-function removeStaff(n) { 
-    selectedStaff = selectedStaff.filter(x => x !== n); 
-    renderStaff(); 
-}
+function addStaff(n) { if(!selectedStaff.includes(n)) selectedStaff.push(n); closeOverlay(); renderStaff(); }
+function addManualWorker() { const v = document.getElementById('manualWorker').value.trim(); if(v) { selectedStaff.push("✍️ "+v); document.getElementById('manualWorker').value=""; closeOverlay(); renderStaff(); } }
+function closeOverlay() { document.getElementById('workerOverlay').style.display='none'; }
+function renderStaff() { document.getElementById('workerDisplayContainer').innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')" style="color:red; cursor:pointer;">✕</span></div>`).join(""); liveCheck(); }
+function removeStaff(n) { selectedStaff = selectedStaff.filter(x => x !== n); renderStaff(); }
 
 function onAnlageChange(v) { 
     document.getElementById('ftBox').style.display = v.startsWith("PUR") ? "block" : "none"; 
     document.getElementById('comTimeBox').style.display = v === "COM" ? "block" : "none"; 
     document.getElementById('artikelContainer').innerHTML = ""; 
-    const btn = document.getElementById('addArtikelBtn');
-    if (v !== "") btn.disabled = false;
-    else btn.disabled = true;
+    document.getElementById('addArtikelBtn').disabled = v === "";
     liveCheck(); 
 }
 
+let artikelCounter = 0;
 function addArtikel() {
-    const id = Date.now(); 
-    const div = document.createElement('div'); 
-    div.className = "section-card artikel-row"; 
-    div.id = `art_${id}`;
-    div.innerHTML = `<button onclick="this.parentElement.remove(); liveCheck();" style="position:absolute; right:10px; top:10px; background:red; color:white; border:none; border-radius:5px;">✕</button>
-        <label>Artikelnummer</label><input type="text" class="art-name" placeholder="Nummer eingeben...">
-        ${document.getElementById('anlage').value==='COM' ? '<label>Dauer (Min)</label><input type="number" class="art-duration" placeholder="Minuten..." oninput="liveCheck()">' : ''}
-        <div class="grid-2" style="margin-top:10px;"><div><label>Gutteile (Stk)</label><input type="number" class="art-gut" placeholder="Anzahl..."></div><div><label>Aus Gesamt</label><input type="number" class="art-aus-total" placeholder="Anzahl..." oninput="liveCheck()"></div></div>
+    const id = Date.now() + artikelCounter++; 
+    const div = document.createElement('div'); div.className = "section-card artikel-row"; div.id = `art_${id}`;
+    div.innerHTML = `<button onclick="this.parentElement.remove(); liveCheck();" style="position:absolute; right:10px; top:10px; background:#dc2626; color:white; border:none; border-radius:5px; width:26px; height:26px; cursor:pointer;">✕</button>
+        <label>📌 Artikelnummer</label><input type="text" class="art-name" placeholder="z.B. 123456">
+        ${document.getElementById('anlage').value==='COM' ? '<label>⏱️ Dauer (Min)</label><input type="number" class="art-duration" placeholder="Minuten" oninput="liveCheck()">' : ''}
+        <div class="grid-2"><div><label>✅ Gutteile</label><input type="number" class="art-gut" placeholder="Stk"></div><div><label>❌ Aus Gesamt</label><input type="number" class="art-aus-total" placeholder="Stk" oninput="liveCheck()"></div></div>
         <div class="status-badge" id="badge_${id}"></div><div id="rows_${id}"></div>
         <div style="display:flex; gap:10px; margin-top:10px;"><button class="sub-btn" onclick="addRow('${id}','aus')">+ Ausschuss</button><button class="sub-btn" onclick="addRow('${id}','stoer')">+ Störung</button></div>`;
     document.getElementById('artikelContainer').appendChild(div);
@@ -329,48 +280,40 @@ function addArtikel() {
 function addRow(artId, type) {
     const anl = document.getElementById('anlage').value; 
     const cat = anl==='COM'?'COM':(anl.startsWith("PUR")?'PUR':'Spritz');
-    const div = document.createElement('div'); 
-    div.className="code-row";
-    div.innerHTML = `<div class="code-row-inputs"><select class="${type}-c" style="flex:3;" onchange="this.parentElement.nextElementSibling.style.display=(this.value==='Sonstige'?'block':'none')">
-        ${codeData[cat][type].map(c => `<option value="${c}">${c}</option>`).join("")}</select><input type="number" class="${type}-v" style="flex:1; min-width:80px;" placeholder="${type==='aus'?'Stk':'Min'}" oninput="liveCheck()">
-        <button onclick="this.parentElement.parentElement.remove(); liveCheck();" style="color:red; background:none; border:none; font-weight:bold; font-size:16px; padding:0 5px;">✕</button></div><input type="text" class="sonstige-input" placeholder="Grund manuell...">`;
+    const div = document.createElement('div'); div.className="code-row";
+    div.innerHTML = `<div class="code-row-inputs"><select class="${type}-select" style="flex:3;" onchange="this.nextElementSibling.style.display=(this.value==='Sonstige'?'block':'none')">
+        ${codeData[cat][type].map(c => `<option value="${c}">${c}</option>`).join("")}</select>
+        <input type="number" class="${type}-value" style="flex:1; min-width:80px;" placeholder="${type==='aus'?'Stk':'Min'}" oninput="liveCheck()">
+        <button onclick="this.parentElement.parentElement.remove(); liveCheck();" style="color:#dc2626; background:none; border:none; font-size:18px; cursor:pointer;">✕</button></div>
+        <input type="text" class="sonstige-input" placeholder="Grund manuell..." style="display:none;">`;
     document.getElementById(`rows_${artId}`).appendChild(div);
+    const select = div.querySelector(`.${type}-select`);
+    const sonstInput = div.querySelector('.sonstige-input');
+    select.onchange = () => { sonstInput.style.display = select.value === 'Sonstige' ? 'block' : 'none'; };
+    liveCheck();
 }
 
 function liveCheck() {
-    let v = true; 
-    let cT = 0;
+    let v = true; let cT = 0;
     document.querySelectorAll('.artikel-row').forEach(row => {
-        const id = row.id.split('_')[1]; 
-        const t = parseInt(row.querySelector('.art-aus-total').value) || 0;
-        let s = 0; 
-        row.querySelectorAll('.aus-v').forEach(i => s += parseInt(i.value) || 0);
+        const id = row.id.split('_')[1]; const t = parseInt(row.querySelector('.art-aus-total').value) || 0;
+        let s = 0; row.querySelectorAll('.aus-value').forEach(i => s += parseInt(i.value) || 0);
         const b = document.getElementById('badge_' + id);
-        if(t > 0 && t !== s) { 
-            b.className="status-badge status-error"; 
-            b.innerText = "⚠️ Differenz: " + s + "/" + t; 
-            v=false; 
-        }
-        else if(t > 0) { 
-            b.className="status-badge status-ok"; 
-            b.innerText = "✅ OK: " + s + "/" + t; 
-        } else { 
-            b.innerText=""; 
-        }
+        if(t > 0 && t !== s) { b.className="status-badge status-error"; b.innerText = "⚠️ Differenz: " + s + "/" + t; v=false; }
+        else if(t > 0) { b.className="status-badge status-ok"; b.innerText = "✅ OK: " + s + "/" + t; }
+        else { b.innerText=""; }
         if(document.getElementById('anlage').value==='COM') cT += parseInt(row.querySelector('.art-duration')?.value) || 0;
     });
-    if(document.getElementById('anlage').value==='COM') { 
-        document.getElementById('comTotal').innerText = cT; 
-        if(cT !== 480) v = false; 
-    }
+    if(document.getElementById('anlage').value==='COM') { document.getElementById('comTotal').innerText = cT; if(cT !== 480) v = false; }
     if(selectedStaff.length === 0 || !document.getElementById('anlage').value) v = false;
     document.getElementById('mainSendBtn').disabled = !v;
 }
 
-function processReport() {
-    alert("✅ Bericht wurde gesendet!");
-    window.location.reload();
-}
+function processReport() { alert("✅ Bericht wurde gesendet!"); location.reload(); }
+
+let currentFilter = "B";
+function filterSchicht(s) { currentFilter = s; loadAdminDashboard(); }
+async function loadAdminDashboard() { document.getElementById('reportsContainer').innerHTML = '<p style="text-align:center;">📊 Keine Berichte für Schicht ' + currentFilter + '</p>'; }
 </script>
 </body>
-</html>s
+</html>
