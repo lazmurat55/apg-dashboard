@@ -16,6 +16,9 @@
             --danger: #f43f5e; 
             --success: #4ade80; 
             --border: #475569; 
+            /* Yeni Kontrast Renkleri */
+            --orange-bright: #fb923c; /* Zor okunan Störung mavisi yerine parlak turuncu */
+            --text-bright: #ffffff;    /* Gizlenen işçi isimleri için net beyaz */
         }
         body { background: var(--bg-gradient); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; min-height: 100vh; box-sizing: border-box; }
         #loginScreen, #setPassScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-gradient); z-index: 9999; display: flex; justify-content: center; align-items: center; }
@@ -52,16 +55,21 @@
         .sonstige-input { width: 100%; margin-top: 6px; display: none; border-color: var(--primary); }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         
-        /* Dashboard ve Yeni Kompakt Yetki Yönetimi Altyapısı */
+        /* Dashboard ve Canlı Rapor Kutusu Alanları */
         .dashboard-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; width: 100%; max-width: 1400px; margin: auto; display: none; box-sizing: border-box; }
         .reports-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
         @media(min-width: 768px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
         @media(min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
+        
         .report-box { background: var(--card-inner); border: 1px solid var(--border); padding: 18px; border-radius: 18px; transition: border-color 0.2s; margin-bottom: 10px; }
         .report-box:hover { border-color: var(--primary); }
         .badge-origin { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; background: var(--primary); color: #0f172a; margin-bottom: 8px; }
         
-        /* Daraltılmış Kompakt Yetki Yönetimi CSS Satırı */
+        /* Yenilenen Açık Renkli Rapor Yazı Stilleri (Görsel İyileştirmeler) */
+        .report-box .report-date { font-size: 12px; color: #e2e8f0; font-weight: 500; margin-bottom: 8px; } /* Tarih artık açık renk */
+        .report-box .report-störung { font-size: 13px; color: var(--orange-bright); font-weight: bold; } /* Störung artık parlak turuncu */
+        .report-box .report-workers { font-size: 13px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; color: var(--text-bright); font-weight: bold; } /* İşçiler artık net beyaz */
+
         .rights-box-compact { background: rgba(56, 189, 248, 0.08); border: 1px solid var(--border); padding: 12px 18px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
         .rights-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; flex: 1; max-width: 850px; }
         .rights-controls select { padding: 8px 12px; background: var(--card-inner); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 13px; width: auto; min-width: 160px; }
@@ -157,19 +165,33 @@
 </div>
 
 <script>
-// ÇALIŞAN GOOGLE WEB-APP URL'NİZ
-const scriptURL = "https://script.google.com/macros/s/AKfycbxb_SRSaR2wTIw055mcnOsRvqfsnKP7vuZGPkvxxx6s7sJezJVbgtvu6iSFCLyMvBtRaA/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbyC_1dwZVjtsAI_W-ELm4bTL7_Iamzx_PDVEvz2scYAiaW3cO8QEcTFZmRivpckCFb2sw/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Frühschicht";
 let selectedStaff = [];
 let loggedInUser = "";
 
-// Yönetici Rol Veritabanı Yapısı
 let superAdmin = "Keskin";
-let schichtLeiterDb = {
-    // Örnek: "Uzun": "A" -> Uzun giriş yapınca sadece Vardiya A'yı görebilecek.
-};
+let schichtLeiterDb = {};
+
+if(localStorage.getItem('apg_schichtleiter_db')) {
+    try { schichtLeiterDb = JSON.parse(localStorage.getItem('apg_schichtleiter_db')); } catch(e){}
+}
+
+function setInitialTodayDate() {
+    const today = new Date();
+    document.getElementById('datum').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+}
+
+async function checkLogin() {
+    const u = document.getElementById('userInp').value.trim();
+    const p = document.getElementById('passInp').value.trim();
+    const errorDiv = document.getElementById('loginError');
+    if(!initialDB[u]) { errorDiv.innerText = "❌ Benutzer nicht gefunden!"; errorDiv.style.display = 'block'; return; }
+    if (initialDB[u] === p) { enterApp(u); }
+    else { errorDiv.innerText = "❌ Falsches Passwort!"; errorDiv.style.display = 'block'; }
+}
 
 const initialDB = {
     "Keskin": "517", "Uzun": "1433", "Kunert": "502", "Aldirmaz": "577", "Beher": "510",
@@ -210,48 +232,26 @@ const codeData = {
     }
 };
 
-// Yerel hafızadaki atanmış şefleri yükle
-if(localStorage.getItem('apg_schichtleiter_db')) {
-    try { schichtLeiterDb = JSON.parse(localStorage.getItem('apg_schichtleiter_db')); } catch(e){}
-}
-
-function setInitialTodayDate() {
-    const today = new Date();
-    document.getElementById('datum').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-}
-
-async function checkLogin() {
-    const u = document.getElementById('userInp').value.trim();
-    const p = document.getElementById('passInp').value.trim();
-    const errorDiv = document.getElementById('loginError');
-    if(!initialDB[u]) { errorDiv.innerText = "❌ Benutzer nicht gefunden!"; errorDiv.style.display = 'block'; return; }
-    if (initialDB[u] === p) { enterApp(u); }
-    else { errorDiv.innerText = "❌ Falsches Passwort!"; errorDiv.style.display = 'block'; }
-}
-
 function enterApp(u) { 
     loggedInUser = u; 
     document.getElementById('loginScreen').style.display = 'none'; 
     setInitialTodayDate();
     
-    // GİRİŞ YAPAN KİŞİ SUPER-ADMIN (KESKIN) Mİ?
     if (u === superAdmin) {
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerHTML = "👑 Haupt-Admin: " + u;
         document.getElementById('rightsManagementBox').style.display = 'flex';
-        document.getElementById('adminFilterGroup').style.display = 'grid'; // Tüm butonlar açık
+        document.getElementById('adminFilterGroup').style.display = 'grid';
         loadUserSelect();
         updateManagersList();
-        filterSchicht('B'); // Varsayılan B'yi yükle
+        filterSchicht('B');
     } 
-    // GİRİŞ YAPAN KİŞİ ATANMIŞ BİR SCHICHTLEITER MI?
     else if (schichtLeiterDb[u]) {
         const assignedSchicht = schichtLeiterDb[u];
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerHTML = `🏃 Schichtleiter: ${u} (Vardiya ${assignedSchicht})`;
-        document.getElementById('rightsManagementBox').style.display = 'none'; // Yetki paneli kapalı
+        document.getElementById('rightsManagementBox').style.display = 'none';
         
-        // Diğer vardiyaların butonlarını gizle, sadece kendi vardiyasını görmesini sağla
         document.querySelectorAll('.filter-btn').forEach(btn => btn.style.display = 'none');
         const targetBtn = document.getElementById('flt' + assignedSchicht);
         if(targetBtn) {
@@ -260,7 +260,6 @@ function enterApp(u) {
         }
         filterSchicht(assignedSchicht);
     } 
-    // NORMAL KULLANICI GİRİŞİ (Rapor Ekranı)
     else {
         document.getElementById('mainApp').style.display = 'block'; 
         document.getElementById('currentUserDisplay').innerHTML = "👤 Angemeldet: " + u; 
@@ -482,11 +481,11 @@ async function loadAdminDashboard() {
         container.innerHTML = data.map(item => `
             <div class="report-box">
                 <span class="badge-origin">${item.Anlage} ${item.Formträger ? '('+item.Formträger+')' : ''}</span>
-                <div style="font-size:12px; color:var(--text-muted); margin-bottom:8px;">📅 ${item.Datum} | 👤 ${item.Sender}</div>
-                <div style="font-size:14px; font-weight:bold; margin-bottom:6px;">📦 Art: ${item.Artikelnummer || '-'} | Gut: ${item.Stückzahl || '0'} Stk</div>
-                <div style="font-size:13px; color:#f43f5e;">❌ Ausschuss: ${item.Ausschuss || '0'} Stk (${item.Grund || '-'})</div>
-                <div style="font-size:13px; color:#38bdf8;">⚠️ Störung: ${item.min ? item.min+' Min' : '-'} (${item.Störung || '-'})</div>
-                <div style="font-size:12px; margin-top:8px; border-top:1px solid var(--border); padding-top:5px; color:var(--text-muted);">👥 ${item.Mitarbeiter}</div>
+                <div class="report-date">📅 ${item.Datum} | 👤 ${item.Sender}</div>
+                <div style="font-size:14px; font-weight:bold; margin-bottom:6px; color:#ffffff;">📦 Art: ${item.Artikelnummer || '-'} | Gut: ${item.Stückzahl || '0'} Stk</div>
+                <div style="font-size:13px; color:#f43f5e; font-weight:bold; margin-bottom:4px;">❌ Ausschuss: ${item.Ausschuss || '0'} Stk (${item.Grund || '-'})</div>
+                <div class="report-störung">⚠️ Störung: ${item.min ? item.min+' Min' : '-'} (${item.Störung || '-'})</div>
+                <div class="report-workers">👥 ${item.Mitarbeiter}</div>
             </div>
         `).join('');
     } catch(err) {
