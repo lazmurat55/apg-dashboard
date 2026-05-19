@@ -168,7 +168,7 @@
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbzlcSnsozCy7M2bOrjRHa7hKFugPZZ1e2XgfzKgCS245lrTadT703YnliXRH4vcw7pQkw/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbyC_1dwZVjtsAI_W-ELm4bTL7_Iamzx_PDVEvz2scYAiaW3cO8QEcTFZmRivpckCFb2sw/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Frühschicht";
@@ -477,7 +477,6 @@ async function processReport() {
             body: JSON.stringify({ action: "append", rows: rowsToPost })
         });
         const resText = await response.text();
-        // Almanca teşekkür mesajı entegre edildi
         alert("Vielen Dank, dass Sie dieses System nutzen!");
         location.reload();
     } catch(err) {
@@ -501,12 +500,17 @@ async function loadAdminDashboard() {
     
     try {
         const response = await fetch(`${scriptURL}?action=getReports&schicht=${currentFilter}`);
-        const data = await response.json();
+        let data = await response.json();
         
         if(!data || data.length === 0) {
             container.innerHTML = `<p style="text-align:center; color:var(--text-muted);">📊 Keine Berichte für Schicht ${currentFilter}</p>`;
             return;
         }
+
+        // AKILLI TARİH SIRALAMA: En yeni tarihli olanı en başa getirir
+        data.sort((a, b) => {
+            return new Date(b.Datum.replace(/-/g, '/')) - new Date(a.Datum.replace(/-/g, '/'));
+        });
         
         container.innerHTML = data.map(item => `
             <div class="report-box">
