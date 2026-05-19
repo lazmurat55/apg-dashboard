@@ -337,8 +337,42 @@ function startAutoRefresh() {
     }, 10000); 
 }
 
-function saveNewPassword() { alert("Passwort geändert"); enterApp(loggedInUser); }
+async function saveNewPassword() {
 
+    const p1 = document.getElementById('newPass1').value;
+    const p2 = document.getElementById('newPass2').value;
+
+    if (p1 !== p2) {
+        alert("❌ Passwörter stimmen nicht überein!");
+        return;
+    }
+
+    try {
+
+        const response = await fetch(
+            `${scriptURL}?action=changePassword&username=${encodeURIComponent(loggedInUser)}&newPassword=${encodeURIComponent(p1)}`
+        );
+
+        const data = await response.json();
+
+        if (data.success) {
+
+            alert("✅ Passwort erfolgreich gespeichert!");
+
+            document.getElementById('setPassScreen').style.display = 'none';
+
+            enterApp(loggedInUser);
+
+        } else {
+
+            alert("❌ Passwort konnte nicht gespeichert werden!");
+        }
+
+    } catch(err) {
+
+        alert("❌ Fehler: " + err);
+    }
+}
 function loadUserSelect() {
     const select = document.getElementById('rightsSelect');
     select.innerHTML = '<option value="">Mitarbeiter wählen...</option>' + 
