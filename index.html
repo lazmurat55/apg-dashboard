@@ -7,19 +7,21 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: #0f172a;
+            background: linear-gradient(135deg, #1a3a4a 0%, #0d2a3a 100%);
             font-family: 'Segoe UI', sans-serif;
             padding: 16px;
             min-height: 100vh;
         }
         .login-card, .card, .dashboard-card {
-            background: #1e293b;
+            background: rgba(30, 41, 59, 0.95);
+            backdrop-filter: blur(10px);
             padding: 30px;
             border-radius: 32px;
             border: 2px solid #38bdf8;
             max-width: 500px;
             margin: 0 auto;
             text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
         }
         .dashboard-card { max-width: 1400px; }
         h2, h3 { color: #38bdf8; margin-bottom: 20px; }
@@ -28,8 +30,8 @@
             padding: 12px;
             margin: 8px 0;
             border-radius: 24px;
-            border: 1px solid #334155;
-            background: #0f172a;
+            border: 1px solid #38bdf8;
+            background: rgba(15, 23, 42, 0.9);
             color: white;
             font-size: 14px;
         }
@@ -39,27 +41,31 @@
             font-weight: bold;
             cursor: pointer;
             border: none;
+            transition: all 0.2s;
         }
+        button:hover { transform: scale(1.02); background: #7dd3fc; }
         .hidden { display: none; }
-        .error { color: #ef4444; margin-top: 10px; }
+        .error { color: #ff6b6b; margin-top: 10px; }
         .success { color: #22c55e; }
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .schicht-group { display: flex; gap: 10px; margin: 10px 0; }
         .schicht-btn, .type-btn, .ft-btn, .filter-btn {
-            background: #0f172a;
-            border: 1px solid #334155;
+            background: rgba(15, 23, 42, 0.9);
+            border: 1px solid #38bdf8;
             padding: 10px;
             border-radius: 30px;
             cursor: pointer;
             text-align: center;
+            transition: all 0.2s;
         }
         .schicht-btn.active, .type-btn.active, .ft-btn.active, .filter-btn.active-filter {
             background: #38bdf8;
             color: #0f172a;
+            box-shadow: 0 0 10px #38bdf8;
         }
         .ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
         .selected-worker {
-            background: rgba(56,189,248,0.1);
+            background: rgba(56,189,248,0.15);
             padding: 10px;
             border-radius: 20px;
             margin-top: 5px;
@@ -69,8 +75,8 @@
         }
         .add-btn { background: transparent; border: 2px dashed #38bdf8; color: #38bdf8; }
         .sub-btn { background: #1e40af; padding: 8px 16px; width: auto; display: inline-block; margin: 5px; }
-        .section-card { background: rgba(255,255,255,0.04); padding: 15px; border-radius: 24px; margin-top: 15px; position: relative; }
-        .code-row { background: #0f172a; padding: 10px; border-radius: 20px; margin-top: 10px; }
+        .section-card { background: rgba(15, 23, 42, 0.7); padding: 15px; border-radius: 24px; margin-top: 15px; position: relative; }
+        .code-row { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 20px; margin-top: 10px; }
         .code-row-inputs { display: flex; gap: 8px; align-items: center; }
         .code-row-inputs select { flex: 2; margin: 0; }
         .code-row-inputs input { flex: 1; margin: 0; }
@@ -81,9 +87,9 @@
         .reports-grid { display: grid; gap: 15px; margin-top: 20px; }
         @media (min-width: 800px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
         @media (min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
-        .report-box { background: #0f172a; padding: 15px; border-radius: 20px; border: 1px solid #334155; }
+        .report-box { background: rgba(15, 23, 42, 0.8); padding: 15px; border-radius: 20px; border: 1px solid #38bdf8; }
         .filter-group { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
-        .rights-box { background: rgba(56,189,248,0.07); border: 1px dashed #38bdf8; border-radius: 24px; padding: 15px; margin-bottom: 20px; }
+        .rights-box { background: rgba(56,189,248,0.1); border: 1px dashed #38bdf8; border-radius: 24px; padding: 15px; margin-bottom: 20px; }
         .inline-group { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
         .inline-group select, .inline-group button { width: auto; flex: 1; }
         #workerOverlay {
@@ -110,14 +116,14 @@
         }
         .worker-opt { padding: 12px; border-bottom: 1px solid #334155; cursor: pointer; }
         .worker-opt:hover { background: #38bdf8; color: #0f172a; border-radius: 20px; }
-        label { display: block; margin: 10px 0 5px; color: #38bdf8; font-size: 11px; font-weight: bold; }
+        label { display: block; margin: 10px 0 5px; color: #7dd3fc; font-size: 11px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <!-- LOGIN -->
 <div id="loginScreen" class="login-card">
-    <h2>⚡ APG LOGIN</h2>
+    <h2>⚡ APG BOCHUM</h2>
     <input type="text" id="username" placeholder="Nachname">
     <input type="password" id="password" placeholder="Passwort">
     <button onclick="login()">ANMELDEN</button>
@@ -177,7 +183,7 @@
         </div>
     </div>
     
-    <div id="comTimeBox" style="display:none; background:#0f172a; border-radius:24px; padding:10px; text-align:center; margin-top:10px;">⏱️ Compound: <span id="comTotal">0</span> / 480 Min</div>
+    <div id="comTimeBox" style="display:none; background:rgba(0,0,0,0.3); border-radius:24px; padding:10px; text-align:center; margin-top:10px;">⏱️ Compound: <span id="comTotal">0</span> / 480 Min</div>
     
     <div id="artikelContainer"></div>
     <button class="add-btn" id="addArtikelBtn" disabled onclick="addArtikel()">📦 + Artikel hinzufügen</button>
@@ -192,7 +198,7 @@
     
     <div id="schichtleiterBox" class="rights-box">
         <div class="inline-group">
-            <select id="schichtleiterSelect"><option value="">👔 Schichtleiter</option><option value="Keskin">Keskin</option><option value="Uzun">Uzun</option><option value="Beher">Beher</option><option value="Brand">Brand</option><option value="Keskin Mur.">Keskin Mur.</option></select>
+            <select id="schichtleiterSelect"><option value="">👔 Schichtleiter</option><option value="Keskin">Keskin</option><option value="Uzun">Uzun</option><option value="Beher">Beher</option><option value="Brand">Brand</option><option value="Keskin Mur.">Keskin Mur.</option><option value="Naumann">Naumann</option><option value="Schönborn">Schönborn</option></select>
             <select id="schichtSelect"><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
             <button class="sub-btn" onclick="assignSchichtleiter()">✅ Zuweisen</button>
         </div>
@@ -222,35 +228,54 @@
 
 <script>
 // ============================================
-// APG BOCHUM - DÜZELTİLMİŞ VERSİYON
+// APG BOCHUM - TAM DÜZENLENMİŞ VERSİYON
 // ============================================
 
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqWG5_E0N6NigKpfc4DlSocgr2jwofgJ_W6zScvDO2cIcOjCMA5A/exec";
 
 // Kullanıcılar
 const USERS = {
-    "Keskin": "517",
-    "Uzun": "1433",
-    "Kunert": "502",
-    "Aldirmaz": "577",
-    "Beher": "510"
+    "Keskin": "517", "Uzun": "1433", "Kunert": "502", "Aldirmaz": "577", "Beher": "510",
+    "Brand": "1722", "Keskin Mur.": "518", "Naumann": "999", "Schönborn": "1361",
+    "Karali": "533", "Mikuczynski": "1212", "Türkmen": "1213", "Amrouch": "1268",
+    "Stania": "1368", "Kantaroglu": "1382", "Krancioch": "1405", "Held": "1421",
+    "Berisha": "1534", "Neji": "1536", "Mulugeta": "1633", "Udezue": "1686", "Jansen": "1692",
+    "Aksoy": "1704", "Yildirim": "1710", "Louze": "1724", "Blanquez": "1725", "Diallo": "1726",
+    "Sener": "1731", "Klomrit": "1070", "Garcia": "339", "Anderwald": "509", "Bayrakli": "1377",
+    "Kilic": "1384", "Maafi": "1273", "Besche": "1472", "Eickhoff": "1406", "Toth": "1699",
+    "Gibba": "1367", "Helf": "1483", "Isbir": "1715", "Jeyakumar": "1698", "Kalisch": "1451",
+    "Kowarsch": "484", "Nowak": "1390", "Pähler": "1332", "Patarcsity": "1700", "Pulendran": "1498",
+    "Sahin": "1721", "Savas": "1360", "Schiavitelli": "1669", "Uluyüz": "1450", "Keskinmus": "518",
+    "Katenz": "000", "Rafo": "1277", "Gertz": "1357", "Fortes": "1381", "Sakaguchi M.": "1391",
+    "Mercan": "1437", "Krämer": "1449", "Juretzka": "1473", "Kumbara": "1474", "Skupio": "1475",
+    "Skrago": "1484", "Bah": "1684", "Kaya": "1712", "Jdea": "1701", "Toure": "1713",
+    "Schneider": "1714", "Tchaleu": "1723"
 };
 
 // Schichtleiter
 let SCHICHTLEITER = { A: "", B: "", C: "" };
 
-// Çalışanlar
+// Tüm çalışanlar (tam liste)
 const WORKER_DATA = {
-    A: ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E."],
-    B: ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F."],
-    C: ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R."]
+    A: ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D.", "Kantaroglu A.", "Krancioch A.", "Held D.", "Berisha I.", "Neji M.", "Mulugeta G.", "Udezue P.", "Jansen M.", "Aksoy O.", "Yildirim S.", "Brand N.", "Louze A.", "Blanquez Romero V.", "Diallo M.D.", "Sener E.", "Klomrit", "Garcia"],
+    B: ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T.", "Besche T.", "Eickhoff P.", "Toth Renata", "Gibba n.", "Helf A.", "Isbir J.", "Jeyakumar S.", "Kalisch T.", "Kowarsch R.", "Nowak M.", "Pähler D.", "Patarcsity V.", "Pulendran K.", "Sahin E.", "Savas S.", "Schiavitelli", "Uluyüz B.", "Uzun S.", "Klomrit", "Garcia"],
+    C: ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin", "Gertz S.", "Schönborn Ch.", "Fortes Ch.", "Sakaguchi M.", "Mercan M.", "Krämer Ch.", "Juretzka T.", "Kumbara E.", "Skupio D.", "Skrago T.", "Bah A.", "Kaya A.", "Jdea A.", "Toure A.", "Schneider D.", "Tchaleu Bertrand", "Keskinmus", "Klomrit", "Garcia"]
 };
 
-// Kodlar
+// Tam Kodlar
 const CODE_DATA = {
-    PUR: { aus: ["6-2-01 Temperatur zu niedrig","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] },
-    Spritz: { aus: ["6-1-01 Anfahrschrott","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] },
-    COM: { aus: ["6-3-01 Anfahrschrott","Sonstige"], stoer: ["3-01 WZ-Wechsel","Sonstige"] }
+    PUR: { 
+        aus: ["6-2-01 Temperatur zu niedrig", "6-2-02 Schaum haftet nicht am Bauteil", "6-2-03 Einlegefehler", "6-2-04 Schussabbruch", "6-2-05 CIM nicht voll ausgeschäumt", "6-2-06 Lippe gerissen", "6-2-07 CIM gerissen", "7-2-01 Nacharbeit am Bauteil (Entgraten, Nachkleben etc.)", "Sonstige"], 
+        stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-2-01 Ungepl. Inst. WZ", "4-2-02 Ungepl. Inst. Masch", "4-2-03 Poly/Iso Überdruck", "4-2-04 Mischkopf nio", "4-2-05 Fehler Lichtschr.", "4-2-06 Trennmittelpist.", "4-2-07 Formträger Prob.", "4-2-08 Reinigung WZ", "4-2-09 Not Aus", "5-2-01 Logistik Mangel", "5-2-02 Keine Teile IM/CIM", "5-2-04 Wartezeit Einrichter", "5-2-10 Poly/Iso leer", "Sonstige"] 
+    },
+    Spritz: { 
+        aus: ["6-1-01 Anfahrschrott", "6-1-02 Mat-Umst.", "6-1-03 CIM n.voll", "6-1-04 CIM gerissen", "6-1-05 Überspritzung", "6-1-06 Einfallstellen", "6-1-07 Brandstellen", "6-1-08 Silberstreifen", "Sonstige"], 
+        stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-1-01 Ungepl. Inst. WZ", "4-1-02 Ungepl. Inst. Masch", "4-1-03 Mat-Förderung Prob.", "4-1-04 Probleme Dosier.", "4-1-05 Probleme Schließeinh.", "4-1-06 Teileentnahme Prob.", "4-1-07 Probleme WZ-Heizung", "4-1-08 Probleme Beflamm.", "5-1-01 Mat-Mangel", "5-1-03 Wartezeit Einrichter", "Sonstige"] 
+    },
+    COM: { 
+        aus: ["6-3-01 Anfahrschrott", "6-3-02 Mat-Fehler", "Sonstige"], 
+        stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-3-01 Messer schleifen", "4-3-02 Ungepl. Inst. Masch", "4-3-04 Silowechsel", "5-3-01 Mat-Mangel", "5-3-05 Feueralarm", "Sonstige"] 
+    }
 };
 
 let currentUser = "";
@@ -275,14 +300,12 @@ function login() {
         currentUser = u;
         document.getElementById('loginScreen').classList.add('hidden');
         
-        // KESKIN ADMIN OLARAK GİRİŞ YAPAR
         if (u === "Keskin") {
             document.getElementById('adminPanel').classList.remove('hidden');
             document.getElementById('adminDisplay').innerHTML = "👑 Willkommen, " + u + " (Admin)";
             updateSchichtleiterDisplay();
             loadDashboard();
         }
-        // Schichtleiter
         else if (SCHICHTLEITER.A === u || SCHICHTLEITER.B === u || SCHICHTLEITER.C === u) {
             document.getElementById('adminPanel').classList.remove('hidden');
             let s = SCHICHTLEITER.A === u ? "A" : (SCHICHTLEITER.B === u ? "B" : "C");
@@ -290,7 +313,6 @@ function login() {
             currentFilter = s;
             loadDashboard();
         }
-        // İşçi
         else {
             document.getElementById('mainApp').classList.remove('hidden');
             document.getElementById('userDisplay').innerHTML = "👤 Angemeldet: " + u;
@@ -355,7 +377,7 @@ async function loadDashboard() {
         if(filtered.length === 0) { container.innerHTML = `<p style="text-align:center">📭 Keine Berichte für Schicht ${show}</p>`; return; }
         container.innerHTML = filtered.map(r => `
             <div class="report-box">
-                <div style="display:flex; justify-content:space-between; border-bottom:1px solid #334155; padding-bottom:6px; margin-bottom:8px;">
+                <div style="display:flex; justify-content:space-between; border-bottom:1px solid #38bdf8; padding-bottom:6px; margin-bottom:8px;">
                     <span>📅 ${r.date || '-'}</span><span>👤 ${r.sender || '-'}</span>
                 </div>
                 <div><b>${r.anlage || '-'}</b> ${r.ft && r.ft !== '-' ? `[FT: ${r.ft}]` : ''}</div>
@@ -464,74 +486,4 @@ function addRow(artId, type) {
     let rowDiv = document.createElement('div'); rowDiv.className = "code-row";
     rowDiv.innerHTML = `<div class="code-row-inputs"><select class="${type}-select">${codes.map(c => `<option value="${c}">${c}</option>`).join('')}</select>
         <input type="number" class="${type}-value" placeholder="${type === 'aus' ? 'Stk' : 'Min'}" oninput="liveCheck()">
-        <button onclick="this.parentElement.parentElement.remove(); liveCheck();" style="background:#ef4444; border:none; color:white; border-radius:30px; width:26px; cursor:pointer;">✕</button></div>
-        <input type="text" class="sonstige-input" placeholder="Grund manuell..." style="display:none;">`;
-    rowsDiv.appendChild(rowDiv);
-    let sel = rowDiv.querySelector(`.${type}-select`);
-    let inp = rowDiv.querySelector('.sonstige-input');
-    sel.onchange = () => { inp.style.display = sel.value === 'Sonstige' ? 'block' : 'none'; };
-    liveCheck();
-}
-
-function liveCheck() {
-    let ok = true, comp = 0;
-    document.querySelectorAll('.artikel-row').forEach(row => {
-        let id = row.id.split('_')[1];
-        let total = parseInt(row.querySelector('.art-aus-total')?.value) || 0;
-        let sum = 0;
-        row.querySelectorAll('.aus-value').forEach(inp => sum += parseInt(inp.value) || 0);
-        let badge = document.getElementById(`badge_${id}`);
-        if(badge) {
-            if(total > 0 && total !== sum) { badge.className = "status-badge status-error"; badge.innerText = `⚠️ ${sum}/${total}`; ok = false; }
-            else if(total > 0) { badge.className = "status-badge status-ok"; badge.innerText = `✅ ${sum}/${total}`; }
-            else { badge.innerText = ""; }
-        }
-        comp += parseInt(row.querySelector('.art-duration')?.value) || 0;
-    });
-    if(document.getElementById('anlage').value === 'COM') {
-        document.getElementById('comTotal').innerText = comp;
-        if(comp !== 480) ok = false;
-    }
-    if(selectedStaff.length === 0 || !document.getElementById('anlage').value) ok = false;
-    document.getElementById('sendBtn').disabled = !ok;
-}
-
-async function sendReport() {
-    let btn = document.getElementById('sendBtn');
-    btn.disabled = true;
-    btn.innerText = "Sende...";
-    
-    let fts = Array.from(document.querySelectorAll('.ft-btn.active')).map(x => x.innerText).join(", ");
-    let rawDate = document.getElementById('datum').value;
-    let formattedDate = rawDate ? rawDate.split("-").reverse().join(".") : "";
-    
-    let articles = [];
-    document.querySelectorAll('.artikel-row').forEach(row => {
-        let artName = row.querySelector('.art-name')?.value || "NA";
-        let artGut = parseInt(row.querySelector('.art-gut')?.value) || 0;
-        let artAusTotal = parseInt(row.querySelector('.art-aus-total')?.value) || 0;
-        let ausGrund = "-", ausStk = 0, stoerGrund = "-", stoerMin = 0;
-        row.querySelectorAll('.code-row').forEach(cr => {
-            let select = cr.querySelector('select');
-            let val = parseInt(cr.querySelector('input[type="number"]')?.value) || 0;
-            if(val > 0 && select) {
-                let text = select.value === "Sonstige" ? "✍️ " + (cr.querySelector('.sonstige-input')?.value || "Sonstige") : select.value;
-                if(select.classList.contains('aus-select')) { ausGrund = text; ausStk = val; }
-                else { stoerGrund = text; stoerMin = val; }
-            }
-        });
-        articles.push({ name: artName, gut: artGut, ausTotal: artAusTotal, ausGrund: ausGrund, ausStk: ausStk, stoerGrund: stoerGrund, stoerMin: stoerMin });
-    });
-    
-    let payload = { action: "sendReport", sender: currentUser, staff: selectedStaff.join(", "), anlage: document.getElementById('anlage').value, schicht: currentSchicht, schichtType: currentSchichtType, customDate: formattedDate, ft: fts || "-", articles: articles };
-    
-    try {
-        await fetch(SCRIPT_URL, { method: "POST", mode: "no-cors", body: JSON.stringify(payload) });
-        alert("✅ Bericht wurde erfolgreich gesendet!");
-        location.reload();
-    } catch(e) { alert("✅ Bericht wurde gesendet!"); location.reload(); }
-}
-</script>
-
-</body>
-</html>
+        <button onclick="this.parentElement.parentElement.remove(); liveCheck();" style="background:#ef4444; border:none; color:white; border-radius:30px; width:26px;
