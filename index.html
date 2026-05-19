@@ -142,8 +142,8 @@
 </div>
 
 <script>
-// LİNKİNİZİ BURAYA YAPIŞTIRIN
-const scriptURL = "https://script.google.com/macros/s/AKfycbyeMPjPySQ69NKKMXnE6F2_PDvYfGdgVOH2XbjZUnH7XL-REMKjiEx5KcHFfFg_RXvTwQ/exec";
+// YENİ WEB-APP URL'NİZİ BURAYA YAPIŞTIRIN
+const scriptURL = "https://script.google.com/macros/s/AKfycbyC_1dwZVjtsAI_W-ELm4bTL7_Iamzx_PDVEvz2scYAiaW3cO8QEcTFZmRivpckCFb2sw/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Frühschicht";
@@ -328,7 +328,7 @@ function liveCheck() {
 async function processReport() {
     const mainBtn = document.getElementById('mainSendBtn');
     mainBtn.disabled = true;
-    mainBtn.innerText = "⏳ GÖNDERİLİYOR...";
+    mainBtn.innerText = "⏳ WIRD GESENDET...";
 
     const now = new Date();
     const fullTimestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
@@ -344,7 +344,7 @@ async function processReport() {
     
     if(artikelRows.length === 0) {
         rowsToPost.push({
-            Datum: fullTimestamp, Schicht: currentSchicht, Schichtart: currentSchichtType, Sender: loggedInUser,
+            Datum: fullTimestamp, Schicht: currentSchicht, Sender: loggedInUser,
             Mitarbeiter: selectedStaff.join(', '), Anlage: anlage, Formträger: selectedFT.join(', '),
             Artikelnummer: '', Stückzahl: '', Ausschuss: '', Grund: '', Störung: '', min: ''
         });
@@ -356,7 +356,7 @@ async function processReport() {
             
             if(ausRows.length === 0) {
                 rowsToPost.push({
-                    Datum: fullTimestamp, Schicht: currentSchicht, Schichtart: currentSchichtType, Sender: loggedInUser, 
+                    Datum: fullTimestamp, Schicht: currentSchicht, Sender: loggedInUser, 
                     Mitarbeiter: selectedStaff.join(', '), Anlage: anlage, Formträger: selectedFT.join(', '),
                     Artikelnummer: artNum, Stückzahl: gutTeile, Ausschuss: '', Grund: '', Störung: '', min: ''
                 });
@@ -377,7 +377,6 @@ async function processReport() {
                     rowsToPost.push({
                         Datum: fullTimestamp,
                         Schicht: currentSchicht,
-                        Schichtart: currentSchichtType,
                         Sender: loggedInUser,
                         Mitarbeiter: selectedStaff.join(', '),
                         Anlage: anlage,
@@ -395,7 +394,6 @@ async function processReport() {
     }
 
     try {
-        // Tüm verileri tek seferde paketleyip "action: append" parametresi ile gönderiyoruz
         const response = await fetch(scriptURL, {
             method: "POST",
             mode: "cors",
@@ -422,10 +420,9 @@ function filterSchicht(s) {
 
 async function loadAdminDashboard() {
     const container = document.getElementById('reportsContainer');
-    container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">⏳ Veriler yükleniyor...</p>';
+    container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">⏳ Berichte werden geladen...</p>';
     
     try {
-        // Sunucudan güncel tablo verilerini çekiyoruz
         const response = await fetch(`${scriptURL}?action=getReports&schicht=${currentFilter}`);
         const data = await response.json();
         
@@ -445,7 +442,7 @@ async function loadAdminDashboard() {
             </div>
         `).join('');
     } catch(err) {
-        container.innerHTML = `<p style="text-align:center; color:var(--danger);">❌ Veri çekme hatası: ${err}</p>`;
+        container.innerHTML = `<p style="text-align:center; color:var(--danger);">❌ Fehler beim Laden der Daten: ${err}</p>`;
     }
 }
 </script>
