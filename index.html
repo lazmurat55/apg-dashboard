@@ -69,8 +69,6 @@
             box-shadow: 0 0 5px #38bdf8;
         }
         .ft-grid { display: flex; gap: 8px; flex-wrap: wrap; }
-        
-        /* DÜZELTİLMİŞ ÇALIŞAN LİSTESİ RENKLERİ */
         .selected-worker {
             background: rgba(56, 189, 248, 0.25);
             padding: 12px;
@@ -91,15 +89,14 @@
             padding: 8px;
             margin-top: 5px;
         }
-        
         .add-btn { background: transparent; border: 2px dashed #38bdf8; color: #38bdf8; }
         .sub-btn { background: #1e40af; padding: 8px 16px; width: auto; display: inline-block; margin: 5px; color: white; }
         .section-card { background: rgba(15, 23, 42, 0.7); padding: 15px; border-radius: 24px; margin-top: 15px; position: relative; }
         .code-row { background: rgba(0,0,0,0.3); padding: 10px; border-radius: 20px; margin-top: 10px; }
         .code-row-inputs { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-        .code-row-inputs select { flex: 2; margin: 0; }
+        .code-row-inputs select { flex: 2; margin: 0; background: #0f172a; color: white; border: 1px solid #38bdf8; }
         .code-row-inputs input { flex: 1; margin: 0; }
-        .sonstige-input { margin-top: 8px; display: none; }
+        .sonstige-input { margin-top: 8px; display: none; width: 100%; }
         .status-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; margin-top: 8px; }
         .status-ok { background: #22c55e; color: black; }
         .status-error { background: #ef4444; color: white; }
@@ -108,9 +105,6 @@
         @media (min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
         .report-box { background: rgba(15, 23, 42, 0.8); padding: 15px; border-radius: 20px; border: 1px solid #38bdf8; }
         .filter-group { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
-        .rights-box { background: rgba(56,189,248,0.1); border: 1px dashed #38bdf8; border-radius: 24px; padding: 15px; margin-bottom: 20px; }
-        .inline-group { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
-        .inline-group select, .inline-group button { width: auto; flex: 1; }
         #workerOverlay {
             display: none;
             position: fixed;
@@ -233,7 +227,7 @@
 
 <script>
 // ============================================
-// APG BOCHUM - DÜZELTİLMİŞ RENKLER
+// APG BOCHUM - TAM KODLAR EKLENDİ
 // ============================================
 
 const USERS = {
@@ -246,6 +240,86 @@ const WORKER_DATA = {
     A: ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E."],
     B: ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F."],
     C: ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R."]
+};
+
+// ========== TAM KODLAR ==========
+const CODE_DATA = {
+    PUR: {
+        aus: [
+            "6-2-01 Temperatur zu niedrig",
+            "6-2-02 Schaum haftet nicht am Bauteil",
+            "6-2-03 Einlegefehler",
+            "6-2-04 Schussabbruch",
+            "6-2-05 CIM nicht voll ausgeschäumt",
+            "6-2-06 Lippe gerissen",
+            "6-2-07 CIM gerissen",
+            "7-2-01 Nacharbeit am Bauteil (Entgraten, Nachkleben etc.)",
+            "Sonstige"
+        ],
+        stoer: [
+            "3-01 WZ-Wechsel",
+            "3-02 Mat-Umst.",
+            "4-2-01 Ungepl. Inst. WZ",
+            "4-2-02 Ungepl. Inst. Masch",
+            "4-2-03 Poly/Iso Überdruck",
+            "4-2-04 Mischkopf nio",
+            "4-2-05 Fehler Lichtschr.",
+            "4-2-06 Trennmittelpist.",
+            "4-2-07 Formträger Prob.",
+            "4-2-08 Reinigung WZ",
+            "4-2-09 Not Aus",
+            "5-2-01 Logistik Mangel",
+            "5-2-02 Keine Teile IM/CIM",
+            "5-2-04 Wartezeit Einrichter",
+            "5-2-10 Poly/Iso leer",
+            "Sonstige"
+        ]
+    },
+    Spritz: {
+        aus: [
+            "6-1-01 Anfahrschrott",
+            "6-1-02 Mat-Umst.",
+            "6-1-03 CIM n.voll",
+            "6-1-04 CIM gerissen",
+            "6-1-05 Überspritzung",
+            "6-1-06 Einfallstellen",
+            "6-1-07 Brandstellen",
+            "6-1-08 Silberstreifen",
+            "Sonstige"
+        ],
+        stoer: [
+            "3-01 WZ-Wechsel",
+            "3-02 Mat-Umst.",
+            "4-1-01 Ungepl. Inst. WZ",
+            "4-1-02 Ungepl. Inst. Masch",
+            "4-1-03 Mat-Förderung Prob.",
+            "4-1-04 Probleme Dosier.",
+            "4-1-05 Probleme Schließeinh.",
+            "4-1-06 Teileentnahme Prob.",
+            "4-1-07 Probleme WZ-Heizung",
+            "4-1-08 Probleme Beflamm.",
+            "5-1-01 Mat-Mangel",
+            "5-1-03 Wartezeit Einrichter",
+            "Sonstige"
+        ]
+    },
+    COM: {
+        aus: [
+            "6-3-01 Anfahrschrott",
+            "6-3-02 Mat-Fehler",
+            "Sonstige"
+        ],
+        stoer: [
+            "3-01 WZ-Wechsel",
+            "3-02 Mat-Umst.",
+            "4-3-01 Messer schleifen",
+            "4-3-02 Ungepl. Inst. Masch",
+            "4-3-04 Silowechsel",
+            "5-3-01 Mat-Mangel",
+            "5-3-05 Feueralarm",
+            "Sonstige"
+        ]
+    }
 };
 
 let currentUser = "";
@@ -360,24 +434,35 @@ function addArtikel() {
         ${isCom ? '<label>DAUER (Min)</label><input type="number" class="art-duration" placeholder="Minuten">' : ''}
         <div class="grid-2"><div><label>GUTTEILE</label><input type="number" class="art-gut" placeholder="Stk"></div>
         <div><label>AUS GESAMT</label><input type="number" class="art-aus-total" placeholder="Stk"></div></div>
+        <div id="rows_${id}"></div>
         <div style="display:flex; gap:8px; margin-top:8px;"><button class="sub-btn" onclick="addRow('${id}','aus')">+ Ausschuss</button><button class="sub-btn" onclick="addRow('${id}','stoer')">+ Störung</button></div>`;
     container.appendChild(div);
 }
 
 function addRow(artId, type) {
+    let anlage = document.getElementById('anlage').value;
+    let category = anlage === 'COM' ? 'COM' : (anlage.startsWith('PUR') ? 'PUR' : 'Spritz');
+    let codes = CODE_DATA[category][type];
     let targetDiv = document.getElementById(`rows_${artId}`);
-    if(!targetDiv) {
-        let newDiv = document.createElement('div'); newDiv.id = `rows_${artId}`;
-        document.getElementById(`art_${artId}`).appendChild(newDiv);
-        targetDiv = newDiv;
-    }
+    
     let rowDiv = document.createElement('div'); rowDiv.className = "code-row";
-    rowDiv.innerHTML = `<div class="code-row-inputs">
-        <input type="text" placeholder="${type === 'aus' ? 'Grund' : 'Störung'}" style="flex:2;">
-        <input type="number" placeholder="${type === 'aus' ? 'Stk' : 'Min'}" style="flex:1;">
-        <button onclick="this.parentElement.parentElement.remove();" style="background:#ef4444; border:none; color:white; border-radius:30px; width:26px; cursor:pointer;">✕</button>
-    </div>`;
+    rowDiv.innerHTML = `
+        <div class="code-row-inputs">
+            <select class="code-select" style="flex:2;">
+                ${codes.map(c => `<option value="${c}">${c}</option>`).join('')}
+            </select>
+            <input type="number" class="code-value" placeholder="${type === 'aus' ? 'Stk' : 'Min'}" style="flex:1;">
+            <button onclick="this.parentElement.parentElement.remove();" style="background:#ef4444; border:none; color:white; border-radius:30px; width:26px; cursor:pointer;">✕</button>
+        </div>
+        <input type="text" class="sonstige-input" placeholder="Grund manuell..." style="display:none;">
+    `;
     targetDiv.appendChild(rowDiv);
+    
+    let select = rowDiv.querySelector('.code-select');
+    let sonstInput = rowDiv.querySelector('.sonstige-input');
+    select.onchange = function() {
+        sonstInput.style.display = this.value === 'Sonstige' ? 'block' : 'none';
+    };
 }
 
 function sendReport() {
@@ -386,7 +471,37 @@ function sendReport() {
     if (!anlage) { alert("Bitte Anlage wählen!"); return; }
     if (selectedStaff.length === 0) { alert("Bitte Mitarbeiter hinzufügen!"); return; }
     if (artikelRows.length === 0) { alert("Bitte mindestens einen Artikel hinzufügen!"); return; }
-    alert("✅ Bericht wurde gesendet!\n\nSchicht: " + currentSchicht + "\nMitarbeiter: " + selectedStaff.join(", ") + "\nAnlage: " + anlage);
+    
+    // Rapor verilerini topla
+    let reports = [];
+    document.querySelectorAll('.artikel-row').forEach(row => {
+        let artikel = row.querySelector('.art-name')?.value || "NA";
+        let gut = row.querySelector('.art-gut')?.value || 0;
+        let ausTotal = row.querySelector('.art-aus-total')?.value || 0;
+        let ausschuss = [];
+        let stoerungen = [];
+        row.querySelectorAll('.code-row').forEach(cr => {
+            let select = cr.querySelector('.code-select');
+            let val = cr.querySelector('.code-value')?.value || 0;
+            if(val > 0) {
+                let text = select.value;
+                if(text === "Sonstige") {
+                    text = "✍️ " + (cr.querySelector('.sonstige-input')?.value || "Sonstige");
+                }
+                if(select.parentElement.parentElement.querySelector('.code-select').classList.contains('code-select')) {
+                    // Ausschuss oder Störung ayırt etmek için basit yöntem
+                    if(cr.innerHTML.includes('Ausschuss') || cr.querySelector('.code-value')?.placeholder === 'Stk') {
+                        ausschuss.push({ grund: text, stk: val });
+                    } else {
+                        stoerungen.push({ grund: text, min: val });
+                    }
+                }
+            }
+        });
+        reports.push({ artikel, gut, ausTotal, ausschuss, stoerungen });
+    });
+    
+    alert("✅ Bericht wurde gesendet!\n\n" + JSON.stringify(reports, null, 2));
 }
 
 let currentFilter = "B";
