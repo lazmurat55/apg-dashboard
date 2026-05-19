@@ -69,15 +69,29 @@
             box-shadow: 0 0 5px #38bdf8;
         }
         .ft-grid { display: flex; gap: 8px; flex-wrap: wrap; }
+        
+        /* DÜZELTİLMİŞ ÇALIŞAN LİSTESİ RENKLERİ */
         .selected-worker {
-            background: rgba(56,189,248,0.15);
-            padding: 10px;
+            background: rgba(56, 189, 248, 0.25);
+            padding: 12px;
             border-radius: 20px;
-            margin-top: 5px;
+            margin-top: 8px;
             border: 1px solid #38bdf8;
             display: flex;
             justify-content: space-between;
+            color: #ffffff;
+            font-weight: bold;
+            font-size: 14px;
         }
+        .selected-worker span:first-child { color: #ffffff; }
+        .selected-worker span:last-child { color: #ff8888; cursor: pointer; font-size: 18px; }
+        #workerList {
+            background: rgba(15, 23, 42, 0.6);
+            border-radius: 24px;
+            padding: 8px;
+            margin-top: 5px;
+        }
+        
         .add-btn { background: transparent; border: 2px dashed #38bdf8; color: #38bdf8; }
         .sub-btn { background: #1e40af; padding: 8px 16px; width: auto; display: inline-block; margin: 5px; color: white; }
         .section-card { background: rgba(15, 23, 42, 0.7); padding: 15px; border-radius: 24px; margin-top: 15px; position: relative; }
@@ -119,7 +133,7 @@
             padding: 20px;
             border: 1px solid #38bdf8;
         }
-        .worker-opt { padding: 12px; border-bottom: 1px solid #334155; cursor: pointer; }
+        .worker-opt { padding: 12px; border-bottom: 1px solid #334155; cursor: pointer; color: white; }
         .worker-opt:hover { background: #38bdf8; color: #0f172a; border-radius: 20px; }
         label { display: block; margin: 10px 0 5px; color: #7dd3fc; font-size: 11px; font-weight: bold; }
     </style>
@@ -219,7 +233,7 @@
 
 <script>
 // ============================================
-// APG BOCHUM - ADIM 2 (Artikel, FT, Compound)
+// APG BOCHUM - DÜZELTİLMİŞ RENKLER
 // ============================================
 
 const USERS = {
@@ -240,12 +254,10 @@ let currentSchichtType = "Frühschicht";
 let selectedStaff = [];
 let artikelCounter = 0;
 
-// ========== LOGIN ==========
 function login() {
     let u = document.getElementById('username').value.trim();
     let p = document.getElementById('password').value.trim();
     let msg = document.getElementById('loginError');
-    
     if (!USERS[u]) { msg.innerHTML = "❌ Benutzer nicht gefunden!"; return; }
     if (USERS[u] === p) {
         currentUser = u;
@@ -272,7 +284,6 @@ function logout() {
     selectedStaff = [];
 }
 
-// ========== İŞÇİ EKRANI ==========
 function setTodayDate() {
     let today = new Date();
     let year = today.getFullYear();
@@ -322,9 +333,9 @@ function closeOverlay() { document.getElementById('workerOverlay').style.display
 function updateWorkerDisplay() {
     let container = document.getElementById('workerList');
     if (selectedStaff.length === 0) {
-        container.innerHTML = '<div class="selected-worker" style="color:#94a3b8;">Keine Mitarbeiter</div>';
+        container.innerHTML = '<div class="selected-worker" style="color:#94a3b8; background:rgba(56,189,248,0.15);">Keine Mitarbeiter</div>';
     } else {
-        container.innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s.replace(/'/g, "\\'")}')" style="color:#ef4444; cursor:pointer;">✕</span></div>`).join('');
+        container.innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s.replace(/'/g, "\\'")}')" style="color:#ff8888; cursor:pointer;">✕</span></div>`).join('');
     }
 }
 
@@ -354,12 +365,12 @@ function addArtikel() {
 }
 
 function addRow(artId, type) {
-    let rowsDiv = document.getElementById(`rows_${artId}`);
-    if(!rowsDiv) {
-        let rowDiv = document.createElement('div'); rowDiv.id = `rows_${artId}`;
-        document.getElementById(`art_${artId}`).appendChild(rowDiv);
-    }
     let targetDiv = document.getElementById(`rows_${artId}`);
+    if(!targetDiv) {
+        let newDiv = document.createElement('div'); newDiv.id = `rows_${artId}`;
+        document.getElementById(`art_${artId}`).appendChild(newDiv);
+        targetDiv = newDiv;
+    }
     let rowDiv = document.createElement('div'); rowDiv.className = "code-row";
     rowDiv.innerHTML = `<div class="code-row-inputs">
         <input type="text" placeholder="${type === 'aus' ? 'Grund' : 'Störung'}" style="flex:2;">
@@ -378,7 +389,6 @@ function sendReport() {
     alert("✅ Bericht wurde gesendet!\n\nSchicht: " + currentSchicht + "\nMitarbeiter: " + selectedStaff.join(", ") + "\nAnlage: " + anlage);
 }
 
-// ========== ADMIN DASHBOARD ==========
 let currentFilter = "B";
 function filterSchicht(s) {
     currentFilter = s;
