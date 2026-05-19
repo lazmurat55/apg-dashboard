@@ -1,5 +1,5 @@
 :root {
-    --bg: #000000;
+    --bg: #0f172a;
     --card: #1e293b;
     --primary: #38bdf8;
     --blue-dark: #1e40af;
@@ -16,7 +16,7 @@
 }
 
 body {
-    background: var(--bg);
+    background: linear-gradient(135deg, #1a4a6e 0%, #0d2a3a 100%);
     color: var(--text);
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
     margin: 0;
@@ -30,7 +30,7 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: var(--bg);
+    background: linear-gradient(135deg, #1a4a6e 0%, #0d2a3a 100%);
     z-index: 9999;
     display: flex;
     justify-content: center;
@@ -64,7 +64,7 @@ body {
 }
 
 .dashboard-card {
-    background: #000000;
+    background: #1a2a3a;
     border: 1px solid var(--primary);
     border-radius: 20px;
     padding: 25px;
@@ -233,7 +233,7 @@ select:focus, input:focus {
     justify-content: space-between;
     align-items: center;
     padding: 12px 15px;
-    background: rgba(56, 189, 248, 0.1);
+    background: rgba(56, 189, 248, 0.15);
     border-radius: 10px;
     margin-top: 6px;
     border: 1px solid var(--primary);
@@ -268,11 +268,11 @@ select:focus, input:focus {
 }
 
 .section-card {
-    background: rgba(255, 255, 255, 0.03);
+    background: rgba(255, 255, 255, 0.05);
     padding: 15px;
     border-radius: 15px;
     margin-top: 15px;
-    border: 1px solid rgba(56, 189, 248, 0.1);
+    border: 1px solid rgba(56, 189, 248, 0.2);
     position: relative;
 }
 
@@ -282,7 +282,7 @@ select:focus, input:focus {
     gap: 8px;
     margin-top: 12px;
     padding: 12px;
-    background: rgba(0, 0, 0, 0.2);
+    background: rgba(0, 0, 0, 0.3);
     border-radius: 10px;
     border: 1px solid var(--border);
 }
@@ -332,29 +332,35 @@ select:focus, input:focus {
     }
 }
 
-/* Eski koyu kartlar yerine daha açık ve okunabilir kartlar */
-
+/* ========== DÜZELTİLMİŞ RAPOR KARTLARI ========== */
 .report-box {
-    background: rgba(30, 41, 59, 0.95);  /* Daha açık koyu mavi */
+    background: #1e3a4a;
     padding: 18px;
     border-radius: 24px;
-    border: 1px solid #38bdf8;
+    border-left: 5px solid #38bdf8;
     text-align: left;
-    color: #ffffff;
+    color: #f1f5f9;
     box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    transition: all 0.2s;
+}
+
+.report-box:hover {
+    transform: translateY(-2px);
+    border-left-color: #7dd3fc;
 }
 
 .report-box div {
-    color: #e2e8f0;  /* Açık gri yazı */
+    color: #cbd5e1;
+    margin: 6px 0;
 }
 
 .report-box b {
-    color: #ffffff;  /* Kalın yazılar beyaz */
+    color: #ffffff;
     font-weight: bold;
 }
 
 .report-box span {
-    color: #7dd3fc;  /* Tarih ve gönderen açık mavi */
+    color: #7dd3fc;
 }
 
 .report-box .badge-origin {
@@ -366,6 +372,23 @@ select:focus, input:focus {
     font-weight: bold;
     display: inline-block;
     margin-bottom: 8px;
+}
+
+.report-header {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #334155;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+}
+
+.badge-schicht {
+    background: #38bdf8;
+    color: #0f172a;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: bold;
 }
 
 .dash-text {
@@ -382,7 +405,7 @@ select:focus, input:focus {
 }
 
 .rights-box {
-    background: rgba(56, 189, 248, 0.05);
+    background: rgba(56, 189, 248, 0.1);
     border: 1px dashed var(--primary);
     padding: 15px;
     border-radius: 15px;
@@ -422,10 +445,12 @@ select:focus, input:focus {
     cursor: pointer;
     font-size: 16px;
     transition: background 0.2s;
+    color: white;
 }
 
 .worker-opt:hover {
-    background: rgba(56, 189, 248, 0.1);
+    background: rgba(56, 189, 248, 0.2);
+    border-radius: 10px;
 }
 
 .filter-btn {
