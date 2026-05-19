@@ -284,7 +284,27 @@ function enterApp(u) {
 
 function startAutoRefresh() {
     if(autoRefreshInterval) clearInterval(autoRefreshInterval);
-    autoRefreshInterval = setInterval(() => { loadAdminDashboard(); }, 90000);
+    
+    // Her 10 saniyede bir saati kontrol eden akıllı bir döngü başlatıyoruz
+    autoRefreshInterval = setInterval(() => {
+        const now = new Date();
+        const hrs = now.getHours();
+        const mins = now.getMinutes();
+        
+        // Zaman aralıklarını tanımlıyoruz (Saat ve Dakika olarak)
+        const isVardiya1 = (hrs === 13 && mins >= 30) || (hrs === 14 && mins === 0); // 13:30 - 14:00
+        const isVardiya2 = (hrs === 21 && mins >= 30) || (hrs === 22 && mins <= 10); // 21:30 - 22:10
+        const isVardiya3 = (hrs === 5 && mins >= 30)  || (hrs === 6 && mins <= 10);  // 05:30 - 06:10
+
+        // Eğer şu anki zaman bu aralıklardan birine uyuyorsa ve şu an arka planda veri çekilmiyorsa
+        if (isVardiya1 || isVardiya2 || isVardiya3) {
+            // Son yenilenme zamanına bakıyoruz (90 saniye geçmiş mi?)
+            if (!window.lastRefreshTime || (now - window.lastRefreshTime >= 90000)) {
+                window.lastRefreshTime = now;
+                loadAdminDashboard(); // Dashboard verilerini yenile
+            }
+        }
+    }, 10000); // Saat kontrolünü her 10 saniyede bir yapar, zamanı gelince 90 sn kuralını tetikler
 }
 
 function saveNewPassword() { alert("Passwort geändert"); enterApp(loggedInUser); }
