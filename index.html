@@ -3,177 +3,340 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>APG BOCHUM</title>
+    <title>APG BOCHUM SECURE PRO</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            background: linear-gradient(135deg, #1a4a6e 0%, #0d2a3a 100%);
-            font-family: 'Segoe UI', sans-serif;
+            background: #e0f2fe; /* Açık ve ferah mavi arka plan */
+            font-family: 'Segoe UI', -apple-system, sans-serif;
+            padding: 16px;
             min-height: 100vh;
+            color: #1e3a8a; /* Okunabilir koyu mavi metinler */
+        }
+        .login-card, .card, .dashboard-card {
+            background: #ffffff; /* Kartlar beyaz */
+            padding: 30px;
+            border-radius: 24px;
+            border: 2px solid #38bdf8;
+            max-width: 500px;
+            margin: 20px auto;
+            text-align: center;
+            box-shadow: 0 10px 25px rgba(56, 189, 248, 0.15);
+        }
+        .dashboard-card { max-width: 1400px; }
+        h2, h3 { color: #0369a1; margin-bottom: 20px; font-weight: 700; }
+        input, select, button {
+            width: 100%;
+            padding: 12px 16px;
+            margin: 8px 0;
+            border-radius: 12px;
+            border: 2px solid #bae6fd;
+            background: #f8fafc;
+            color: #0f172a;
+            font-size: 14px;
+            outline: none;
+            transition: all 0.2s;
+        }
+        input:focus, select:focus {
+            border-color: #38bdf8;
+            background: #ffffff;
+        }
+        button {
+            background: #0284c7;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border: none;
+        }
+        button:hover { background: #0369a1; }
+        button:disabled { background: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
+        .hidden { display: none; }
+        .error { color: #dc2626; margin-top: 10px; font-weight: bold; }
+        .success { color: #16a34a; font-weight: bold; margin-bottom: 15px; }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .schicht-group { display: flex; gap: 10px; margin: 10px 0; }
+        .schicht-btn, .type-btn, .ft-btn, .filter-btn {
+            background: #f0f9ff;
+            border: 2px solid #bae6fd;
+            color: #0369a1;
+            padding: 10px;
+            border-radius: 12px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 600;
+        }
+        .schicht-btn.active, .type-btn.active, .ft-btn.active, .filter-btn.active-filter {
+            background: #0284c7;
+            color: white;
+            border-color: #0284c7;
+        }
+        .ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 10px 0; }
+        .selected-worker {
+            background: #f0f9ff;
+            padding: 10px 16px;
+            border-radius: 12px;
+            margin-top: 5px;
+            border: 2px solid #38bdf8;
             display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            color: #0369a1;
+        }
+        .add-btn { background: transparent; border: 2px dashed #0284c7; color: #0284c7; }
+        .add-btn:hover { background: #f0f9ff; }
+        .sub-btn { background: #0ea5e9; padding: 8px 16px; width: auto; display: inline-block; margin: 5px; color: white; border-radius: 8px; }
+        .section-card { background: #f8fafc; padding: 20px; border-radius: 16px; margin-top: 15px; position: relative; border: 1px solid #e2e8f0; text-align: left; }
+        .code-row { background: #f1f5f9; padding: 12px; border-radius: 12px; margin-top: 10px; border: 1px solid #cbd5e1; }
+        .code-row-inputs { display: flex; gap: 8px; align-items: center; }
+        .code-row-inputs select { flex: 2; margin: 0; background: white; }
+        .code-row-inputs input { flex: 1; margin: 0; background: white; }
+        .sonstige-input { margin-top: 8px; display: none; background: white; }
+        .status-badge { display: inline-block; padding: 6px 12px; border-radius: 8px; font-size: 12px; margin-top: 8px; font-weight: bold; }
+        .status-ok { background: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; }
+        .status-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+        .reports-grid { display: grid; gap: 15px; margin-top: 20px; text-align: left; }
+        @media (min-width: 800px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media (min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
+        .report-box { background: white; padding: 15px; border-radius: 16px; border: 2px solid #e2e8f0; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .filter-group { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
+        .rights-box { background: #f0f9ff; border: 2px dashed #38bdf8; border-radius: 16px; padding: 15px; margin-bottom: 20px; }
+        .inline-group { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; }
+        .inline-group select, .inline-group button { width: auto; flex: 1; }
+        #workerOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            z-index: 10000;
             justify-content: center;
             align-items: center;
         }
-        .login-card {
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 40px 30px;
-            border-radius: 32px;
-            border: 2px solid #38bdf8;
+        .overlay-content {
+            background: #ffffff;
             width: 90%;
             max-width: 400px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-        }
-        h2 { color: #38bdf8; margin-bottom: 20px; font-size: 28px; }
-        input {
-            width: 100%;
-            padding: 14px;
-            margin: 10px 0;
-            border-radius: 24px;
-            border: 1px solid #38bdf8;
-            background: rgba(15, 23, 42, 0.9);
-            color: white;
-            font-size: 16px;
-        }
-        button {
-            width: 100%;
-            padding: 14px;
-            margin-top: 20px;
-            border-radius: 24px;
-            border: none;
-            background: #38bdf8;
-            color: #0f172a;
-            font-weight: bold;
-            font-size: 18px;
-            cursor: pointer;
-            transition: all 0.2s;
-        }
-        button:hover { transform: scale(1.02); background: #7dd3fc; }
-        .error { color: #ff6b6b; margin-top: 15px; font-size: 14px; }
-        .success { color: #22c55e; margin-top: 15px; }
-        .hidden { display: none; }
-        .card, .dashboard-card {
-            background: rgba(30, 41, 59, 0.95);
-            backdrop-filter: blur(10px);
-            padding: 30px;
-            border-radius: 32px;
-            border: 2px solid #38bdf8;
-            max-width: 500px;
-            margin: 0 auto;
-            text-align: center;
-        }
-        .dashboard-card { max-width: 1400px; }
-        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .schicht-group { display: flex; gap: 10px; margin: 10px 0; }
-        .schicht-btn, .type-btn, .filter-btn {
-            background: rgba(15, 23, 42, 0.9);
-            border: 1px solid #38bdf8;
-            padding: 10px;
-            border-radius: 30px;
-            cursor: pointer;
-            text-align: center;
-        }
-        .schicht-btn.active, .type-btn.active, .filter-btn.active-filter {
-            background: #38bdf8;
-            color: #0f172a;
-        }
-        .selected-worker {
-            background: rgba(56,189,248,0.15);
-            padding: 10px;
+            max-height: 70vh;
+            overflow-y: auto;
             border-radius: 20px;
-            margin-top: 5px;
-            border: 1px solid #38bdf8;
-            display: flex;
-            justify-content: space-between;
+            padding: 25px;
+            border: 2px solid #38bdf8;
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
         }
-        .add-btn { background: transparent; border: 2px dashed #38bdf8; color: #38bdf8; padding: 10px; border-radius: 24px; cursor: pointer; }
-        .main-btn { background: #38bdf8; color: #0f172a; padding: 14px; border-radius: 24px; font-weight: bold; cursor: pointer; }
-        .filter-group { display: flex; gap: 10px; justify-content: center; margin: 20px 0; }
-        .report-box { background: rgba(15, 23, 42, 0.8); padding: 15px; border-radius: 20px; border: 1px solid #38bdf8; margin-bottom: 10px; }
-        .reports-grid { display: grid; gap: 15px; margin-top: 20px; }
-        @media (min-width: 800px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
+        .worker-opt { padding: 12px; border-bottom: 1px solid #f1f5f9; cursor: pointer; font-weight: 600; color: #334155; text-align: left; }
+        .worker-opt:hover { background: #e0f2fe; color: #0369a1; border-radius: 8px; }
+        label { display: block; margin: 10px 0 3px; color: #0369a1; font-size: 12px; font-weight: bold; text-align: left; text-transform: uppercase; letter-spacing: 0.5px; }
     </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="loginScreen" class="login-card">
-    <h2>⚡ APG BOCHUM</h2>
-    <input type="text" id="username" placeholder="Nachname">
-    <input type="password" id="password" placeholder="Passwort">
+    <h2>⚡ APG LOGIN</h2>
+    <input type="text" id="username" placeholder="Nachname (z.B. Keskin)">
+    <input type="password" id="password" placeholder="Passwort (z.B. 517)">
     <button onclick="login()">ANMELDEN</button>
     <div id="loginMessage" class="error"></div>
 </div>
 
-<!-- İŞÇİ EKRANI -->
+<div id="setPassScreen" class="login-card hidden">
+    <h3>📌 Erstes Login</h3>
+    <p>Neues Passwort festlegen (min. 4 Zeichen)</p>
+    <input type="password" id="newPass1" placeholder="Neues Passwort">
+    <input type="password" id="newPass2" placeholder="Wiederholen">
+    <button onclick="saveNewPassword()">PASSWORT AKTIVIEREN</button>
+</div>
+
 <div id="mainApp" class="card hidden">
     <h2>📋 APG Produktion</h2>
     <p id="userDisplay" class="success"></p>
+    
     <div class="grid-2">
-        <div><label>SCHICHT</label><div class="schicht-group"><button class="schicht-btn" onclick="setSchicht('A')">A</button><button class="schicht-btn" onclick="setSchicht('B')">B</button><button class="schicht-btn" onclick="setSchicht('C')">C</button></div></div>
-        <div><label>SCHICHTART</label><div class="schicht-group"><button class="type-btn" onclick="setSchichtType('Frühschicht')">Früh</button><button class="type-btn" onclick="setSchichtType('Spätschicht')">Spät</button><button class="type-btn" onclick="setSchichtType('Nachtschicht')">Nacht</button></div></div>
+        <div>
+            <label>Schicht</label>
+            <div class="schicht-group">
+                <button class="schicht-btn" onclick="setSchicht('A')">A</button>
+                <button class="schicht-btn" onclick="setSchicht('B')">B</button>
+                <button class="schicht-btn" onclick="setSchicht('C')">C</button>
+            </div>
+        </div>
+        <div>
+            <label>Schichtart</label>
+            <div class="schicht-group">
+                <button class="type-btn" onclick="setSchichtType('Frühschicht')">Früh</button>
+                <button class="type-btn" onclick="setSchichtType('Spätschicht')">Spät</button>
+                <button class="type-btn" onclick="setSchichtType('Nachtschicht')">Nacht</button>
+            </div>
+        </div>
     </div>
+    
     <div id="workerList"></div>
-    <button class="add-btn" onclick="alert('Mitarbeiter Funktion')">➕ Mitarbeiter</button>
-    <div class="grid-2"><div><label>DATUM</label><input type="date" id="datum"></div><div><label>ANLAGE</label><select id="anlage"><option>PUR1</option><option>IM1</option></select></div></div>
-    <button class="main-btn" onclick="alert('Bericht gesendet!')">📤 SPEICHERN & SENDEN</button>
-    <button onclick="logout()" style="margin-top:10px; background:#475569;">ABMELDEN</button>
+    <button class="add-btn" onclick="openWorkerOverlay()">➕ Mitarbeiter hinzufügen</button>
+    
+    <div class="grid-2">
+        <div><label>Datum</label><input type="date" id="datum"></div>
+        <div>
+            <label>Anlage</label>
+            <select id="anlage" onchange="onAnlageChange()">
+                <option value="">Wählen</option>
+                <optgroup label="PUR">
+                    <option value="PUR1">PUR1</option><option value="PUR2">PUR2</option><option value="PUR3">PUR3</option>
+                    <option value="PUR4">PUR4</option><option value="PUR5">PUR5</option><option value="PUR6">PUR6</option>
+                    <option value="PUR7">PUR7</option><option value="PUR8">PUR8</option><option value="PUR9">PUR9</option>
+                </optgroup>
+                <optgroup label="Spritzguss (IM)">
+                    <option value="IM1">IM1</option><option value="IM2">IM2</option><option value="IM3">IM3</option>
+                    <option value="IM4">IM4</option><option value="IM5">IM5</option><option value="CIM1">CIM1</option>
+                </optgroup>
+                <option value="COM">Compound (COM)</option>
+            </select>
+        </div>
+    </div>
+    
+    <div id="ftBox" style="display:none;">
+        <label>Formträger (FT)</label>
+        <div class="ft-grid">
+            <button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT1</button>
+            <button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT2</button>
+            <button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT3</button>
+            <button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT4</button>
+            <button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT5</button>
+            <button class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT6</button>
+        </div>
+    </div>
+    
+    <div id="comTimeBox" style="display:none; background:#f0f9ff; border: 2px dashed #38bdf8; border-radius:12px; padding:10px; text-align:center; margin-top:10px; font-weight: bold; color: #0369a1;">⏱️ Compound Zeit: <span id="comTotal">0</span> / 480 Min</div>
+    
+    <div id="artikelContainer"></div>
+    <button class="add-btn" id="addArtikelBtn" disabled onclick="addArtikel()">📦 + Artikel hinzufügen</button>
+    <button id="sendBtn" class="main-btn" disabled onclick="sendReport()" style="margin-top: 15px;">🚀 SPEICHERN & SENDEN</button>
+    <button onclick="logout()" style="margin-top:10px; background:#64748b;">ABMELDEN</button>
 </div>
 
-<!-- ADMIN PANEL -->
 <div id="adminPanel" class="dashboard-card hidden">
     <h2>📊 APG Live Dashboard</h2>
     <p id="adminDisplay" class="success"></p>
-    <div class="filter-group"><button class="filter-btn" onclick="filterSchicht('A')">🔵 A</button><button class="filter-btn active-filter" onclick="filterSchicht('B')">🟢 B</button><button class="filter-btn" onclick="filterSchicht('C')">🟠 C</button></div>
-    <button class="main-btn" onclick="loadDashboard()">🔄 AKTUALISIEREN</button>
+    
+    <div id="schichtleiterBox" class="rights-box">
+        <div class="inline-group">
+            <select id="schichtleiterSelect">
+                <option value="">👔 Schichtleiter</option>
+                <option value="Keskin">Keskin</option>
+                <option value="Uzun">Uzun</option>
+                <option value="Beher">Beher</option>
+                <option value="Brand">Brand</option>
+                <option value="Keskin Mur.">Keskin Mur.</option>
+            </select>
+            <select id="schichtSelect"><option value="A">A</option><option value="B">B</option><option value="C">C</option></select>
+            <button class="sub-btn" onclick="assignSchichtleiter()">✅ Zuweisen</button>
+        </div>
+        <div id="schichtleiterDisplay" style="font-size:13px; margin-top:8px; font-weight: bold; color: #0369a1;"></div>
+    </div>
+    
+    <div class="filter-group">
+        <button class="filter-btn" onclick="filterSchicht('A')">🔵 Schicht A</button>
+        <button class="filter-btn active-filter" onclick="filterSchicht('B')">🟢 Schicht B</button>
+        <button class="filter-btn" onclick="filterSchicht('C')">🟠 Schicht C</button>
+    </div>
+    <button class="main-btn" onclick="loadDashboard()">🔄 DASHBOARD AKTUALISIEREN</button>
     <div id="reportsContainer" class="reports-grid"></div>
-    <button onclick="logout()" style="margin-top:20px; background:#475569;">ABMELDEN</button>
+    <button onclick="logout()" style="margin-top:20px; background:#64748b;">ABMELDEN</button>
+</div>
+
+<div id="workerOverlay">
+    <div class="overlay-content">
+        <h3>👥 Mitarbeiter wählen</h3>
+        <div id="workerListOverlay"></div>
+        <input type="text" id="manualWorker" placeholder="✏️ Name manuell eingeben">
+        <button class="add-btn" onclick="addManualWorker()">➕ Hinzufügen</button>
+        <button class="main-btn" onclick="closeOverlay()" style="background:#64748b;">Schließen</button>
+    </div>
 </div>
 
 <script>
-// ============================================
-// BASİT VE SAĞLAM LOGIN SİSTEMİ
-// ============================================
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg4kxAhydA2nlhlWpqWG5_E0N6NigKpfc4DlSocgr2jwofgJ_W6zScvDO2cIcOjCMA5A/exec";
 
-// KULLANICILAR (Nachname : Passwort)
+// Kullanıcı Giriş Bilgileri (Büyük/Küçük harf duyarsız aramayı kolaylaştırmak için anahtarları küçük harfe eşledik)
 const USERS = {
-    "Keskin": "517",
-    "Uzun": "1433",
-    "Kunert": "502",
-    "Aldirmaz": "577",
-    "Beher": "510"
+    "keskin": { displayName: "Keskin", pin: "517" },
+    "uzun": { displayName: "Uzun", pin: "1433" },
+    "kunert": { displayName: "Kunert", pin: "502" },
+    "aldirmaz": { displayName: "Aldirmaz", pin: "577" },
+    "beher": { displayName: "Beher", pin: "510" }
+};
+
+let SCHICHTLEITER = { A: "", B: "", C: "" };
+
+const WORKER_DATA = {
+    A: ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Brand M.", "Uzun T."],
+    B: ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Keskin Met.", "Yilmaz H."],
+    C: ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Demir A.", "Schulz G."]
+};
+
+const CODE_DATA = {
+    PUR: { 
+        aus: ["6-2-01 Temperatur zu niedrig", "6-2-02 Blasenbildung / Luftschlüsse", "6-2-03 Einfallstellen / Risse", "6-2-04 Unvollständige Füllung", "6-2-05 Dosierfehler / Mischungsverhältnis", "Sonstige"], 
+        stoer: ["3-01 WZ-Wechsel (Werkzeugwechsel)", "3-02 Dosierkopf Reinigung / Verstopfung", "3-03 Heizungsausfall Werkzeug", "3-04 Roboterschaden / Einlegefehler", "3-05 Materialmangel / Fasswechsel", "Sonstige"] 
+    },
+    Spritz: { 
+        aus: ["6-1-01 Anfahrschrott", "6-1-02 Überspritzung / Gratbildung", "6-1-03 Verbranntes Material / Schlieren", "6-1-04 Maßhaltigkeit nicht gegeben", "6-1-05 Deformierung bei Entnahme", "Sonstige"], 
+        stoer: ["3-01 WZ-Wechsel (Werkzeugwechsel)", "3-06 Auswerferbolzenbruch", "3-07 Kernzugfehler / Hydraulikstörung", "3-08 Materialtrockner blockiert", "3-09 Schneckenblockade / Überlastung", "Sonstige"] 
+    },
+    COM: { 
+        aus: ["6-3-01 Extruder Anfahrschrott", "6-3-02 Farbabweichung / Streifen", "6-3-03 Feuchtigkeit im Granulat", "6-3-04 Falsche Viskosität / MFI Abweichung", "Sonstige"], 
+        stoer: ["3-10 Siebwechsel Extruder", "3-11 Strangabriss / Granulatorfehler", "3-12 Dosierbandwaage Kalibrierung", "3-13 Kühlwasser-Temperaturfehler", "Sonstige"] 
+    }
 };
 
 let currentUser = "";
+let currentSchicht = "B";
+let currentSchichtType = "Frühschicht";
+let selectedStaff = [];
+let artikelCounter = 0;
 let currentFilter = "B";
 
-// LOGIN FONKSİYONU
+// ========== LOGIN SYSTEM (BÜYÜK/KÜÇÜK HARF HATALARI DÜZELTİLDİ) ==========
 function login() {
-    let username = document.getElementById('username').value.trim();
-    let password = document.getElementById('password').value.trim();
-    let msgDiv = document.getElementById('loginMessage');
+    let uInput = document.getElementById('username').value.trim();
+    let pInput = document.getElementById('password').value.trim();
+    let msg = document.getElementById('loginMessage');
     
-    if (USERS[username] && USERS[username] === password) {
-        currentUser = username;
+    // Girilen ismi tamamen küçük harfe çevirip sistemde arıyoruz (Hataları önlemek için)
+    let searchKey = uInput.toLowerCase();
+    
+    if (!USERS[searchKey]) {
+        msg.innerHTML = "❌ Benutzer nicht gefunden! (Soyadı hatalı veya kayıtlı değil)";
+        return;
+    }
+    
+    let userObj = USERS[searchKey];
+    
+    // Şifre (Sicil No) doğrulaması
+    if (userObj.pin === pInput) {
+        currentUser = userObj.displayName; // Doğru yazılış formatını alıyoruz (Örn: "Keskin")
         document.getElementById('loginScreen').classList.add('hidden');
         
-        // KESKIN ADMIN PANELİ GÖRÜR
-        if (username === "Keskin") {
+        if (currentUser === "Keskin") {
             document.getElementById('adminPanel').classList.remove('hidden');
-            document.getElementById('adminDisplay').innerHTML = "👑 Willkommen, " + username + " (Admin)";
+            document.getElementById('adminDisplay').innerHTML = "👑 Willkommen, " + currentUser + " (Admin)";
+            updateSchichtleiterDisplay();
             loadDashboard();
-        } 
-        // DİĞER KULLANICILAR İŞÇİ EKRANI GÖRÜR
-        else {
+        } else if (SCHICHTLEITER.A === currentUser || SCHICHTLEITER.B === currentUser || SCHICHTLEITER.C === currentUser) {
+            document.getElementById('adminPanel').classList.remove('hidden');
+            let s = SCHICHTLEITER.A === currentUser ? "A" : (SCHICHTLEITER.B === currentUser ? "B" : "C");
+            document.getElementById('adminDisplay').innerHTML = "👔 " + currentUser + " (Schichtleiter " + s + ")";
+            currentFilter = s;
+            loadDashboard();
+        } else {
             document.getElementById('mainApp').classList.remove('hidden');
-            document.getElementById('userDisplay').innerHTML = "👤 Angemeldet: " + username;
+            document.getElementById('userDisplay').innerHTML = "👤 Angemeldet: " + currentUser;
+            setSchicht("B");
             setTodayDate();
         }
-        msgDiv.innerHTML = "";
     } else {
-        msgDiv.innerHTML = "❌ Falscher Benutzername oder Passwort!";
+        msg.innerHTML = "❌ Falsches Passwort! (Girilen şifre/sicil no hatalı)";
     }
 }
 
@@ -184,9 +347,69 @@ function logout() {
     document.getElementById('username').value = '';
     document.getElementById('password').value = '';
     document.getElementById('loginMessage').innerHTML = '';
+    selectedStaff = [];
 }
 
-// İŞÇİ EKRANI
+// ========== ADMIN CONTROLS ==========
+function assignSchichtleiter() {
+    let name = document.getElementById('schichtleiterSelect').value;
+    let s = document.getElementById('schichtSelect').value;
+    if (!name) return;
+    SCHICHTLEITER[s] = name;
+    updateSchichtleiterDisplay();
+    alert(`✅ ${name} leitet jetzt Schicht ${s}`);
+}
+
+function updateSchichtleiterDisplay() {
+    let div = document.getElementById('schichtleiterDisplay');
+    if(div) div.innerHTML = `👔 Schichtleiter: | A: ${SCHICHTLEITER.A || "-"} | B: ${SCHICHTLEITER.B || "-"} | C: ${SCHICHTLEITER.C || "-"}`;
+}
+
+// ========== DASHBOARD LIVE VIEWER ==========
+function filterSchicht(s) {
+    currentFilter = s;
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active-filter');
+        btn.style.background = "#f0f9ff";
+        btn.style.color = "#0369a1";
+    });
+    event.target.classList.add('active-filter');
+    event.target.style.background = "#0284c7";
+    event.target.style.color = "white";
+    loadDashboard();
+}
+
+async function loadDashboard() {
+    let container = document.getElementById('reportsContainer');
+    container.innerHTML = '<div style="text-align:center; font-weight:bold;">📡 Lade Berichte ...</div>';
+    try {
+        let res = await fetch(SCRIPT_URL + "?action=getReports");
+        let data = await res.json();
+        let reports = data.reports || [];
+        let userSchicht = "";
+        if (SCHICHTLEITER.A === currentUser) userSchicht = "A";
+        else if (SCHICHTLEITER.B === currentUser) userSchicht = "B";
+        else if (SCHICHTLEITER.C === currentUser) userSchicht = "C";
+        let show = userSchicht ? userSchicht : currentFilter;
+        let filtered = reports.filter(r => r.schicht === show);
+        if(filtered.length === 0) { container.innerHTML = `<p style="text-align:center; font-weight:bold;">📭 Keine Berichte für Schicht ${show}</p>`; return; }
+        container.innerHTML = filtered.map(r => `
+            <div class="report-box">
+                <div style="display:flex; justify-content:space-between; border-bottom:2px solid #f1f5f9; padding-bottom:6px; margin-bottom:8px; font-size:12px; font-weight:bold; color:#64748b;">
+                    <span>📅 ${r.date || '-'}</span><span>👤 ${r.sender || '-'}</span>
+                </div>
+                <div style="font-size:16px; color:#0369a1;"><b>Anlage: ${r.anlage || '-'}</b> ${r.ft && r.ft !== '-' ? `[FT: ${r.ft}]` : ''}</div>
+                <div style="margin: 4px 0;">📦 <b>Artikel:</b> ${r.artikel || '-'}</div>
+                <div style="margin: 6px 0;">✅ Gut: <b style="color:#16a34a">${r.gut || 0} Stk</b> | ❌ Aus: <b style="color:#dc2626">${r.ausTotal || 0} Stk</b></div>
+                ${r.ausGrund && r.ausGrund !== '-' ? `<div style="font-size:13px; color:#b91c1c;">↳ <b>Grund:</b> ${r.ausGrund} (${r.ausStk || 0} Stk)</div>` : ''}
+                ${r.stoerung && r.stoerung !== '-' ? `<div style="font-size:13px; color:#475569;">⚙️ <b>Störung:</b> ${r.stoerung} (${r.dauer || 0} Min)</div>` : ''}
+                <div style="margin-top:10px; font-size:12px; border-top:1px solid #f1f5f9; padding-top:6px; color:#475569;">👥 <b>Team:</b> ${r.staff || '-'}</div>
+            </div>
+        `).join('');
+    } catch(e) { container.innerHTML = `<p style="color:#dc2626; font-weight:bold;">❌ Fehler beim Laden: ${e.message}</p>`; }
+}
+
+// ========== WORKER FORM CONTROLS ==========
 function setTodayDate() {
     let today = new Date();
     let year = today.getFullYear();
@@ -196,13 +419,20 @@ function setTodayDate() {
 }
 
 function setSchicht(s) {
+    currentSchicht = s;
     document.querySelectorAll('.schicht-btn').forEach(btn => {
         btn.classList.remove('active');
         if (btn.innerText === s) btn.classList.add('active');
     });
+    selectedStaff = [];
+    updateWorkerDisplay();
+    if(s==="A") setSchichtType('Frühschicht');
+    else if(s==="B") setSchichtType('Spätschicht');
+    else setSchichtType('Nachtschicht');
 }
 
 function setSchichtType(t) {
+    currentSchichtType = t;
     document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
     let btns = document.querySelectorAll('.type-btn');
     if(t === 'Frühschicht') btns[0]?.classList.add('active');
@@ -210,23 +440,70 @@ function setSchichtType(t) {
     if(t === 'Nachtschicht') btns[2]?.classList.add('active');
 }
 
-// ADMIN DASHBOARD
-function filterSchicht(s) {
-    currentFilter = s;
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.remove('active-filter');
-        btn.style.background = "#0f172a";
-    });
-    event.target.classList.add('active-filter');
-    event.target.style.background = "#38bdf8";
-    loadDashboard();
+function openWorkerOverlay() {
+    let list = WORKER_DATA[currentSchicht] || [];
+    document.getElementById('workerListOverlay').innerHTML = list.map(w => `<div class="worker-opt" onclick="addStaff('${w.replace(/'/g, "\\'")}')">👤 ${w}</div>`).join('');
+    document.getElementById('workerOverlay').style.display = 'flex';
 }
 
-function loadDashboard() {
-    let container = document.getElementById('reportsContainer');
-    container.innerHTML = `<p style="text-align:center; color:#94a3b8;">📊 Keine Berichte für Schicht ${currentFilter}</p>`;
+function addStaff(name) {
+    if(!selectedStaff.includes(name)) selectedStaff.push(name);
+    closeOverlay();
+    updateWorkerDisplay();
 }
-</script>
 
-</body>
-</html>
+function addManualWorker() {
+    let v = document.getElementById('manualWorker').value.trim();
+    if(v) { selectedStaff.push("✍️ "+v); document.getElementById('manualWorker').value=''; closeOverlay(); updateWorkerDisplay(); }
+}
+
+function closeOverlay() { document.getElementById('workerOverlay').style.display = 'none'; }
+
+function updateWorkerDisplay() {
+    let container = document.getElementById('workerList');
+    if (selectedStaff.length === 0) {
+        container.innerHTML = '<div class="selected-worker" style="color:#64748b; border-color:#cbd5e1; background:#f8fafc;">Keine Mitarbeiter ausgewählt</div>';
+    } else {
+        container.innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s.replace(/'/g, "\\'")}')" style="color:#dc2626; cursor:pointer; font-weight:bold; font-size:16px;">✕</span></div>`).join('');
+    }
+    liveCheck();
+}
+
+function removeStaff(name) { selectedStaff = selectedStaff.filter(x => x !== name); updateWorkerDisplay(); }
+
+function onAnlageChange() {
+    let v = document.getElementById('anlage').value;
+    document.getElementById('ftBox').style.display = v.startsWith("PUR") ? "block" : "none";
+    document.getElementById('comTimeBox').style.display = v === "COM" ? "block" : "none";
+    document.getElementById('artikelContainer').innerHTML = "";
+    document.getElementById('addArtikelBtn').disabled = v === "";
+    artikelCounter = 0;
+    liveCheck();
+}
+
+// ========== ARTIKEL DYNAMIC ROWS ==========
+function addArtikel() {
+    let id = Date.now() + artikelCounter++;
+    let container = document.getElementById('artikelContainer');
+    let isCom = document.getElementById('anlage').value === 'COM';
+    let div = document.createElement('div'); div.className = "section-card artikel-row"; div.id = `art_${id}`;
+    div.innerHTML = `<button onclick="this.parentElement.remove(); liveCheck();" style="position:absolute; right:10px; top:10px; background:#dc2626; border:none; color:white; border-radius:50%; width:28px; height:28px; cursor:pointer; font-weight:bold;">✕</button>
+        <label>Artikelnummer</label><input type="text" class="art-name" placeholder="z.B. 123456">
+        ${isCom ? '<label>Dauer (Min)</label><input type="number" class="art-duration" placeholder="Minuten" oninput="liveCheck()">' : ''}
+        <div class="grid-2">
+            <div><label>Gutteile (Stk)</label><input type="number" class="art-gut" placeholder="Gutmenge"></div>
+            <div><label>Aus Gesamt (Stk)</label><input type="number" class="art-aus-total" placeholder="Ausschuss" oninput="liveCheck()"></div>
+        </div>
+        <div class="status-badge" id="badge_${id}"></div><div id="rows_${id}"></div>
+        <div style="display:flex; gap:8px; margin-top:12px;"><button class="sub-btn" onclick="addRow('${id}','aus')">+ Ausschuss-Code</button><button class="sub-btn" onclick="addRow('${id}','stoer')" style="background:#475569;">+ Störungs-Code</button></div>`;
+    container.appendChild(div);
+}
+
+function addRow(artId, type) {
+    let anlage = document.getElementById('anlage').value;
+    let cat = anlage === 'COM' ? 'COM' : (anlage.startsWith('PUR') ? 'PUR' : 'Spritz');
+    let codes = CODE_DATA[cat][type];
+    let rowsDiv = document.getElementById(`rows_${artId}`);
+    let rowDiv = document.createElement('div'); rowDiv.className = "code-row";
+    rowDiv.innerHTML = `<div class="code-row-inputs">
+        <select class="${type}-select">${codes.map(c => `<option value="${
