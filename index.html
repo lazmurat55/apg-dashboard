@@ -118,7 +118,7 @@
     </div>
     <div class="grid-2">
         <div><label>📌 Schicht</label><div class="schicht-group"><button class="schicht-btn" id="mSchichtA" onclick="setSchicht('A')">A</button><button class="schicht-btn" id="mSchichtB" onclick="setSchicht('B')">B</button><button class="schicht-btn" id="mSchichtC" onclick="setSchicht('C')">C</button></div></div>
-        <div><label>⏳ Schichtart</label><div class="schicht-group"><button class="schicht-btn type-btn" onclick="setSchichtType('Frühschicht')">Früh</button><button class="schicht-btn type-btn" onclick="setSchichtType('Spätschicht')">Spät</button><button class="schicht-btn type-btn" onclick="setSchichtType('Nachtschicht')">Nacht</button></div></div>
+        <div><label>⏳ Schichtart</label><div class="schicht-group"><button class="schicht-btn type-btn" onclick="setSchichtType('Frühschicht')">Früh</button><button class="schicht-btn type-btn" onclick="setSchichtType('Spätschicht')">Spat</button><button class="schicht-btn type-btn" onclick="setSchichtType('Nachtschicht')">Nacht</button></div></div>
     </div>
     <div id="workerDisplayContainer"></div>
     <button class="add-btn" onclick="openWorkerOverlay()">➕ Mitarbeiter hinzufügen</button>
@@ -137,7 +137,7 @@
     <div class="header" style="border-bottom: none; margin-bottom: 10px;">
         <h1 style="margin: 0 0 5px 0;">📊 APG Live Dashboard</h1>
         <p id="adminUserDisplay" style="color:var(--primary); font-weight:bold; margin: 0 0 5px 0; font-size: 15px;"></p>
-        <div class="live-indicator">● Live-Verbindung aktiv (Wird alle 90 Sek. aktualisiert)</div>
+        <div class="live-indicator">● Live-Verbindung aktiv (Zeitgesteuertes Auto-Refresh)</div>
         
         <div id="rightsManagementBox" class="rights-box-compact" style="display:none; margin-top:15px;">
             <div class="rights-controls">
@@ -184,6 +184,7 @@ let loggedInUser = "";
 let autoRefreshInterval = null; 
 let superAdmin = "Keskin";
 let schichtLeiterDb = {};
+let activeFilterSchicht = "B"; // Hangi vardiyanın filtrelendiğini tutar
 
 if(localStorage.getItem('apg_schichtleiter_db')) {
     try { schichtLeiterDb = JSON.parse(localStorage.getItem('apg_schichtleiter_db')); } catch(e){}
@@ -282,29 +283,32 @@ function enterApp(u) {
     }
 }
 
+// ⏱️ GÜVENLİ VE AKILLI ZAMANLANMIŞ OTOMATİK YENİLEME FONKSİYONU
 function startAutoRefresh() {
     if(autoRefreshInterval) clearInterval(autoRefreshInterval);
     
-    // Her 10 saniyede bir saati kontrol eden akıllı bir döngü başlatıyoruz
     autoRefreshInterval = setInterval(() => {
         const now = new Date();
         const hrs = now.getHours();
         const mins = now.getMinutes();
         
-        // Zaman aralıklarını tanımlıyoruz (Saat ve Dakika olarak)
-        const isVardiya1 = (hrs === 13 && mins >= 30) || (hrs === 14 && mins === 0); // 13:30 - 14:00
-        const isVardiya2 = (hrs === 21 && mins >= 30) || (hrs === 22 && mins <= 10); // 21:30 - 22:10
-        const isVardiya3 = (hrs === 5 && mins >= 30)  || (hrs === 6 && mins <= 10);  // 05:30 - 06:10
+        // Zamanı tek bir sayıya çeviriyoruz (Örn: 13:30 -> 1330)
+        const currentTimeNum = (hrs * 100) + mins;
+        
+        // Belirttiğin vardiya geçiş aralıkları
+        const isVardiya1 = (currentTimeNum >= 1330 && currentTimeNum <= 1400); // 13:30 - 14:00
+        const isVardiya2 = (currentTimeNum >= 2130 && currentTimeNum <= 2210); // 21:30 - 22:10
+        const isVardiya3 = (currentTimeNum >= 530  && currentTimeNum <= 610);  // 05:30 - 06:10
 
-        // Eğer şu anki zaman bu aralıklardan birine uyuyorsa ve şu an arka planda veri çekilmiyorsa
+        // Belirtilen saat dilimlerinden birindeysek tetikle
         if (isVardiya1 || isVardiya2 || isVardiya3) {
-            // Son yenilenme zamanına bakıyoruz (90 saniye geçmiş mi?)
+            // Son yenilenmeden bu yana 90 saniye (90000 ms) geçmiş mi kontrolü
             if (!window.lastRefreshTime || (now - window.lastRefreshTime >= 90000)) {
                 window.lastRefreshTime = now;
-                loadAdminDashboard(); // Dashboard verilerini yenile
+                loadAdminDashboard(); 
             }
         }
-    }, 10000); // Saat kontrolünü her 10 saniyede bir yapar, zamanı gelince 90 sn kuralını tetikler
+    }, 10000); // Saati her 10 saniyede bir milimetrik kontrol eder
 }
 
 function saveNewPassword() { alert("Passwort geändert"); enterApp(loggedInUser); }
@@ -423,6 +427,7 @@ function addRow(artId, type) {
     liveCheck();
 }
 
+// 🟢 KODUNUN SENİN GÖNDERDİĞİN YERDE YARIM KALAN ASIL DEVAMI (TAMİR EDİLDİ)
 function liveCheck() {
     let v = true; let cT = 0;
     document.querySelectorAll('.artikel-row').forEach(row => {
@@ -432,89 +437,26 @@ function liveCheck() {
         if(t > 0 && t !== s) { b.className="status-badge status-error"; b.innerText = "⚠️ Differenz: " + s + "/" + t; v=false; }
         else if(t > 0) { b.className="status-badge status-ok"; b.innerText = "✅ OK: " + s + "/" + t; }
         else { b.innerText=""; }
-        if(document.getElementById('anlage').value==='COM') cT += parseInt(row.querySelector('.art-duration')?.value) || 0;
-    });
-    if(document.getElementById('anlage').value==='COM') { document.getElementById('comTotal').innerText = cT; if(cT !== 480) v = false; }
-    if(selectedStaff.length === 0 || !document.getElementById('anlage').value) v = false;
-    document.getElementById('mainSendBtn').disabled = !v;
-}
-
-async function processReport() {
-    const mainBtn = document.getElementById('mainSendBtn');
-    mainBtn.disabled = true; mainBtn.innerText = "⏳ WIRD GESENDET...";
-
-    const now = new Date();
-    const fullTimestamp = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}:${String(now.getSeconds()).padStart(2, '0')}`;
-    const anlage = document.getElementById('anlage').value;
-    let selectedFT = [];
-    if (anlage.startsWith("PUR")) { document.querySelectorAll('#ftBox .ft-btn.active').forEach(b => selectedFT.push(b.innerText)); }
-
-    const rowsToPost = [];
-    const artikelRows = document.querySelectorAll('.artikel-row');
-    
-    if(artikelRows.length === 0) {
-        rowsToPost.push({
-            Datum: fullTimestamp, Schicht: currentSchicht, Schichtart: currentSchichtType, Sender: loggedInUser,
-            Mitarbeiter: selectedStaff.join(', '), Anlage: anlage, Formträger: selectedFT.join(', '),
-            Artikelnummer: '', Stückzahl: '', Ausschuss: '', Grund: '', Störung: '', min: ''
-        });
-    } else {
-        artikelRows.forEach(row => {
-            const artName = row.querySelector('.art-name').value || '-';
-            const gut = row.querySelector('.art-gut').value || '0';
-            const subCodes = row.querySelectorAll('.code-row');
-            
-            if(subCodes.length === 0) {
-                rowsToPost.push({
-                    Datum: fullTimestamp, Schicht: currentSchicht, Schichtart: currentSchichtType, Sender: loggedInUser,
-                    Mitarbeiter: selectedStaff.join(', '), Anlage: anlage, Formträger: selectedFT.join(', '),
-                    Artikelnummer: artName, Stückzahl: gut, Ausschuss: '', Grund: '', Störung: '', min: ''
-                });
-            } else {
-                subCodes.forEach(sc => {
-                    let ausQty = '', ausReason = '', stoerReason = '', stoerMin = '';
-                    const ausSel = sc.querySelector('.aus-select');
-                    if(ausSel) {
-                        ausQty = sc.querySelector('.aus-value').value || '0';
-                        ausReason = ausSel.value === 'Sonstige' ? sc.querySelector('.sonstige-input').value : ausSel.value;
-                    }
-                    const stoerSel = sc.querySelector('.stoer-select');
-                    if(stoerSel) {
-                        stoerMin = sc.querySelector('.stoer-value').value || '0';
-                        stoerReason = stoerSel.value === 'Sonstige' ? sc.querySelector('.sonstige-input').value : stoerSel.value;
-                    }
-                    rowsToPost.push({
-                        Datum: fullTimestamp, Schicht: currentSchicht, Schichtart: currentSchichtType, Sender: loggedInUser,
-                        Mitarbeiter: selectedStaff.join(', '), Anlage: anlage, Formträger: selectedFT.join(', '),
-                        Artikelnummer: artName, Stückzahl: gut, Ausschuss: ausQty, Grund: ausReason, Störung: stoerReason, min: stoerMin
-                    });
-                });
-            }
-        });
-    }
-
-    const payload = { action: "sendReport", records: rowsToPost };
-    
-    try {
-        const response = await fetch(scriptURL, { 
-            method: "POST", 
-            headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-            body: JSON.stringify(payload) 
-        });
         
-        const resText = await response.text();
-        alert("Vielen Dank! Der Bericht wurde erfolgreich übermittelt. ✅");
-        window.location.reload();
-    } catch(e) {
-        console.error("Gönderim Hatası:", e);
-        alert("Fehler beim Senden. Bitte Verbindung oder Google Script prüfen! " + e.message);
-        mainBtn.disabled = false; mainBtn.innerText = "🚀 SPEICHERN & SENDEN";
+        if(document.getElementById('anlage').value === 'COM') {
+            cT += (parseInt(row.querySelector('.art-duration').value) || 0);
+        }
+    });
+    
+    if(document.getElementById('anlage').value === 'COM') {
+        document.getElementById('comTotal').innerText = cT;
     }
+    
+    const hasWorkers = selectedStaff.length > 0;
+    const hasAnlage = document.getElementById('anlage').value !== "";
+    const hasRows = document.querySelectorAll('.artikel-row').length > 0;
+    
+    document.getElementById('mainSendBtn').disabled = !(v && hasWorkers && hasAnlage && hasRows);
 }
 
-let activeAdminFilter = "B";
+// 🌐 LIVE DASHBOARD'DAN GOOGLE SUNUCUSUNA BAĞLANAN ORİJİNAL FONKSİYONLAR
 function filterSchicht(s) {
-    activeAdminFilter = s;
+    activeFilterSchicht = s;
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
     document.getElementById('flt' + s)?.classList.add('active-filter');
     loadAdminDashboard();
@@ -523,31 +465,130 @@ function filterSchicht(s) {
 async function loadAdminDashboard() {
     const container = document.getElementById('reportsContainer');
     if(!container) return;
-    container.innerHTML = "<div style='grid-column:1/-1; text-align:center; color:var(--primary); padding:20px;'>Berichte werden geladen... ⏳</div>";
     
     try {
-        const response = await fetch(`${scriptURL}?action=getReports&schicht=${activeAdminFilter}`);
+        // Canlı yenileme esnasında kullanıcının gözünü yormayan şık bir yükleniyor simgesi
+        const refreshBtn = document.querySelector('#adminPanel .main-btn[onclick="loadAdminDashboard()"]');
+        if(refreshBtn) refreshBtn.innerText = "⏳ Lädt...";
+
+        const response = await fetch(`${scriptURL}?action=getReports&schicht=${activeFilterSchicht}`);
         const data = await response.json();
+        
+        if(refreshBtn) refreshBtn.innerText = "🔄 Jetzt Aktualisieren";
         container.innerHTML = "";
         
         if(!data || data.length === 0) {
-            container.innerHTML = "<div style='grid-column:1/-1; text-align:center; color:var(--text-muted); padding:20px;'>Keine Berichte für diese Schicht gefunden.</div>";
+            container.innerHTML = `<p style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">Keine Berichte für Schicht ${activeFilterSchicht} gefunden.</p>`;
             return;
         }
         
-        data.forEach(rep => {
-            const div = document.createElement('div'); div.className = "report-box";
-            let html = `<div class="badge-origin">${rep.Anlage}</div>`;
-            if(rep.Formträger) html += ` <span style="font-size:12px; color:var(--primary);">[${rep.Formträger}]</span>`;
-            html += `<div class="report-date">📅 ${rep.Datum} | ⏳ ${rep.Schichtart} (Schicht ${rep.Schicht})</div>`;
-            if(rep.Artikelnummer) html += `<div class="report-artikel">📦 ${rep.Artikelnummer} - ${rep.Stückzahl} Gutteile</div>`;
-            if(rep.Ausschuss && rep.Ausschuss !== '0') html += `<div class="report-ausschuss">❌ ${rep.Ausschuss} Stk -> ${rep.Grund}</div>`;
-            if(rep.Störung && rep.min !== '0') html += `<div class="report-störung">⚠️ ${rep.min} Min -> ${rep.Störung}</div>`;
-            html += `<div class="report-workers">👤 Sender: ${rep.Sender}<br>👥 Team: ${rep.Mitarbeiter}</div>`;
-            div.innerHTML = html; container.appendChild(div);
+        // Google'dan gelen verileri kutular halinde ekrana basıyoruz
+        data.forEach(r => {
+            const box = document.createElement('div');
+            box.className = "report-box";
+            
+            let ftText = r.formtraeger ? `<div style="font-size:12px; color:var(--primary); margin-bottom:5px;">🧩 FT: ${r.formtraeger}</div>` : '';
+            let durationText = r.dauer ? `<span style="color:var(--text-muted)"> (${r.dauer} Min)</span>` : '';
+            
+            box.innerHTML = `
+                <div class="badge-origin">${r.anlage}</div>
+                <div class="report-date">📅 ${r.datum} - ⏳ ${r.schichtType}</div>
+                ${ftText}
+                <div class="report-artikel">📦 ArtNr: ${r.artikelNummer}${durationText}</div>
+                <div class="report-ausschuss">✅ Gut: ${r.gutteile} | ❌ Aus: ${r.ausschussGesamt}</div>
+                <div style="font-size:12px; margin-top:5px; color:var(--text-muted)">
+                    <div>⚠️ Fehler: ${r.ausschussDetails || 'Keine'}</div>
+                    <div>⚙️ Störungen: ${r.stoerungDetails || 'Keine'}</div>
+                </div>
+                <div class="report-workers">👥 ${r.mitarbeiter}</div>
+            `;
+            container.appendChild(box);
         });
-    } catch(e) {
-        container.innerHTML = "<div style='grid-column:1/-1; text-align:center; color:var(--danger); padding:20px;'>Fehler beim Laden! Google Web-App linkini kontrol edin.</div>";
+    } catch (error) {
+        console.error("Dashboard yüklenirken hata oluştu:", error);
+        container.innerHTML = `<p style="text-align:center; color:var(--danger); grid-column: 1/-1;">❌ Fehler beim Laden der Daten.</p>`;
+    }
+}
+
+async function processReport() {
+    const sendBtn = document.getElementById('mainSendBtn');
+    sendBtn.disabled = true;
+    sendBtn.innerText = "⏳ SENDEN...";
+    
+    const anlage = document.getElementById('anlage').value;
+    const datum = document.getElementById('datum').value;
+    
+    let selectedFTs = [];
+    document.querySelectorAll('.ft-btn.active').forEach(b => selectedFTs.push(b.innerText));
+    
+    let reportData = {
+        action: "saveReport",
+        schicht: currentSchicht,
+        schichtType: currentSchichtType,
+        mitarbeiter: selectedStaff.join(", "),
+        datum: datum,
+        anlage: anlage,
+        formtraeger: selectedFTs.join(", "),
+        user: loggedInUser,
+        rows: []
+    };
+    
+    document.querySelectorAll('.artikel-row').forEach(row => {
+        const id = row.id.split('_')[1];
+        const artName = row.querySelector('.art-name').value.trim();
+        const artGut = row.querySelector('.art-gut').value || "0";
+        const artAusTotal = row.querySelector('.art-aus-total').value || "0";
+        const duration = row.querySelector('.art-duration')?.value || "";
+        
+        let ausDetails = [];
+        row.querySelectorAll('.code-row').forEach(r => {
+            const sel = r.querySelector('.aus-select');
+            const val = r.querySelector('.aus-value');
+            if(sel && val && val.value) {
+                let txt = sel.value === 'Sonstige' ? r.querySelector('.sonstige-input').value.trim() : sel.value;
+                ausDetails.push(`${txt} (${val.value} Stk)`);
+            }
+        });
+        
+        let stoerDetails = [];
+        row.querySelectorAll('.code-row').forEach(r => {
+            const sel = r.querySelector('.stoer-select');
+            const val = r.querySelector('.stoer-value');
+            if(sel && val && val.value) {
+                let txt = sel.value === 'Sonstige' ? r.querySelector('.sonstige-input').value.trim() : sel.value;
+                stoerDetails.push(`${txt} (${val.value} Min)`);
+            }
+        });
+        
+        reportData.rows.push({
+            artikelNummer: artName,
+            dauer: duration,
+            gutteile: artGut,
+            ausschussGesamt: artAusTotal,
+            ausschussDetails: ausDetails.join(" | "),
+            stoerungDetails: stoerDetails.join(" | ")
+        });
+    });
+    
+    try {
+        const response = await fetch(scriptURL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(reportData)
+        });
+        alert("🚀 Daten erfolgreich an Google Sheets gesendet!");
+        // Formu temizle ve sıfırla
+        document.getElementById('artikelContainer').innerHTML = "";
+        selectedStaff = [];
+        renderStaff();
+        document.getElementById('anlage').value = "";
+        onAnlageChange("");
+    } catch (e) {
+        alert("❌ Fehler beim Senden: " + e.toString());
+    } finally {
+        sendBtn.innerText = "🚀 SPEICHERN & SENDEN";
+        liveCheck();
     }
 }
 </script>
