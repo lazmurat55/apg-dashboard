@@ -174,8 +174,8 @@
 </div>
 
 <script>
-// ⚠️ HIER DEINEN DETEKTIRTEN SCRIPT URL GENAU SO LASSEN ODER ERSETZEN
-const scriptURL = "https://script.google.com/macros/s/AKfycby3D533wQ6_DHp6yUfNp95UgJGDa2xyfw8qayor2hTIEeDNGFnhBQs1MoaYWgT6_QB4Xw/exec";
+// ⚠️ BURAYA GOOGLE APPS SCRIPT'TEN ALDIĞIN EN YENİ /exec LİNKİNİ YAPIŞTIR!
+const scriptURL = "YENI_LINKE_BURAYA_YAPISTIRIN";
 
 let currentSchicht = "B";
 let currentSchichtType = "Spätschicht";
@@ -352,6 +352,7 @@ function updateManagersList() {
     document.getElementById('currentManagersList').innerHTML = listText; 
 }
 
+// 🔀 BUTON AKTİFLİK DURUMUNU VE DEĞİŞKENİ BİREBİR KİLİTLEDİK
 function setSchicht(s) { 
     currentSchicht = s; 
     document.querySelectorAll('.schicht-btn').forEach(btn => btn.classList.remove('active'));
@@ -424,9 +425,7 @@ function addRow(artId, type) {
     liveCheck();
 }
 
-// 🔓 STRIKTE RAKAM KONTROLLERİ VE BLOKAJLAR KALDIRILDI!
 function liveCheck() {
-    let isValid = true; 
     let cT = 0;
     const sendBtn = document.getElementById('mainSendBtn');
     
@@ -438,12 +437,10 @@ function liveCheck() {
         row.querySelectorAll('.aus-value').forEach(i => s += parseInt(i.value) || 0);
         const b = document.getElementById('badge_' + id);
         
-        // Sadece alt detay girilmiş ama üst toplam 0 ise otomatik eşitleme uyarısı ver (Engelleme!)
         if (s > 0 && t === 0) {
             b.className="status-badge status-ok"; 
             b.innerText = "✅ Auto-Anpassung: " + s;
         } 
-        // Eğer alt kodların toplamı, girilen üst toplama uymuyorsa uyar ama buton kilidini aç
         else if(t > 0 && t !== s) { 
             b.className="status-badge status-ok"; 
             b.innerText = "ℹ️ Info: " + s + " von " + t + " erfasst"; 
@@ -477,7 +474,6 @@ function liveCheck() {
         sendBtn.innerText = "📦 ARTIKEL HINZUFÜGEN";
         sendBtn.disabled = true;
     } else {
-        // Artık isValid kontrolü butonu asla devre dışı bırakamaz!
         sendBtn.innerText = "🚀 SPEICHERN & SENDEN";
         sendBtn.disabled = false;
     }
@@ -519,7 +515,7 @@ async function loadAdminDashboard() {
             
             box.innerHTML = `
                 <div class="badge-origin">${r.anlage}</div>
-                <div class="report-date">📅 ${r.datum} - ⏳ ${r.schichtType}</div>
+                <div class="report-date">📅 ${r.datum} - 👤 Sender: ${r.user || 'Unbekannt'}</div>
                 ${ftText}
                 <div class="report-artikel">📦 ArtNr: ${r.artikelNummer}${durationText}</div>
                 <div class="report-ausschuss">✅ Gut: ${r.gutteile} | ❌ Aus: ${r.ausschussGesamt}</div>
@@ -537,6 +533,7 @@ async function loadAdminDashboard() {
     }
 }
 
+// 🚀 GOOGLE EXCEL'E VERİYİ PAKETLEYİP GÖNDEREN KRİTİK ALAN
 async function processReport() {
     const sendBtn = document.getElementById('mainSendBtn');
     sendBtn.disabled = true;
@@ -548,15 +545,16 @@ async function processReport() {
     let selectedFTs = [];
     document.querySelectorAll('.ft-btn.active').forEach(b => selectedFTs.push(b.innerText));
     
+    // Gönderilecek pakette 'schicht' verisinin tam olarak 'currentSchicht' olduğundan emin oluyoruz!
     let reportData = {
         action: "saveReport",
-        schicht: currentSchicht,
+        schicht: String(currentSchicht), 
         schichtType: currentSchichtType,
         mitarbeiter: selectedStaff.join(", "),
         datum: datum,
         anlage: anlage,
         formtraeger: selectedFTs.join(", "),
-        user: loggedInUser,
+        user: String(loggedInUser), // Giriş yapan kişinin adını (Sender) buraya gömüyoruz
         rows: []
     };
     
@@ -564,7 +562,6 @@ async function processReport() {
         const id = row.id.split('_')[1];
         const artName = row.querySelector('.art-name').value.trim() || "Unbekannt";
         
-        // Boş bırakılan alanları burası otomatik olarak "0" yapar
         const artGut = row.querySelector('.art-gut').value || "0";
         let artAusTotal = parseInt(row.querySelector('.art-aus-total').value) || 0;
         const duration = row.querySelector('.art-duration')?.value || "";
@@ -583,7 +580,6 @@ async function processReport() {
             }
         });
         
-        // Eğer el ile toplam yazılmadıysa alt detayların toplamını otomatik eşitle
         if(artAusTotal === 0 && totalAusFromRows > 0) {
             artAusTotal = totalAusFromRows;
         }
