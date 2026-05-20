@@ -212,54 +212,15 @@ async function loadPasswordsFromSheet() {
 
 // YENİ checkLogin fonksiyonu
 async function checkLogin() {
-
     const u = document.getElementById('userInp').value.trim();
     const p = document.getElementById('passInp').value.trim();
-
     const errorDiv = document.getElementById('loginError');
-
+    
     if(!u || !p) {
-
-        errorDiv.innerText =
-            "❌ Bitte Name und Passwort eingeben!";
-
+        errorDiv.innerText = "❌ Bitte Name und Passwort eingeben!";
         errorDiv.style.display = 'block';
-
         return;
     }
-
-    try {
-
-        // 🔥 Google Sheets kullanıcıları çek
-        const sifreler = await loadPasswordsFromSheet();
-
-        // 🔥 EN ÖNEMLİ SATIR
-        initialDB = sifreler;
-
-        if(sifreler[u] && sifreler[u] === p) {
-
-            errorDiv.style.display = 'none';
-
-            enterApp(u);
-
-        } else {
-
-            errorDiv.innerText =
-                "❌ Falscher Benutzername oder Passwort!";
-
-            errorDiv.style.display = 'block';
-        }
-
-    } catch(err) {
-
-        console.error(err);
-
-        errorDiv.innerText =
-            "❌ Verbindung fehlgeschlagen!";
-
-        errorDiv.style.display = 'block';
-    }
-}
     
     // Google Sheets'ten şifreleri al
     const sifreler = await loadPasswordsFromSheet();
