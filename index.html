@@ -175,7 +175,7 @@
 
 <script>
 // ⚠️ HIER DEINEN DETEKTIRTEN SCRIPT URL GENAU SO LASSEN ODER ERSETZEN
-const scriptURL = "https://script.google.com/macros/s/AKfycbw11aqQTin9XgjOwlCi6zC6v7VDUfturL9aWqzrTF8-pxVxsnZllK3xjB_jg97v2iC_NQ/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbxIY5RwgP3Ld6uz92a4vdN5WJSla7cvcud9XqRLY8SFORW10Rnu52_GDhc3Pbxdj7m5wg/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Spätschicht";
@@ -196,48 +196,13 @@ function setInitialTodayDate() {
 }
 
 async function checkLogin() {
-
     const u = document.getElementById('userInp').value.trim();
     const p = document.getElementById('passInp').value.trim();
-
     const errorDiv = document.getElementById('loginError');
-
-    try {
-
-        const response = await fetch(
-            `${scriptURL}?action=login&username=${encodeURIComponent(u)}&password=${encodeURIComponent(p)}`
-        );
-
-        const data = await response.json();
-
-        if (!data.success) {
-            errorDiv.innerText = "❌ Falsches Passwort!";
-            errorDiv.style.display = 'block';
-            return;
-        }
-
-        loggedInUser = data.user;
-
-        // 🔐 İlk giriş zorunlu şifre değişimi
-        if (data.firstLogin === "Hayır") {
-
-            document.getElementById('loginScreen').style.display = 'none';
-            document.getElementById('setPassScreen').style.display = 'flex';
-
-            return;
-        }
-
-        enterApp(data.user);
-
-    } catch(err) {
-
-        console.error(err);
-
-        errorDiv.innerText = "❌ Serverfehler!";
-        errorDiv.style.display = 'block';
-    }
+    if(!initialDB[u]) { errorDiv.innerText = "❌ Benutzer nicht gefunden!"; errorDiv.style.display = 'block'; return; }
+    if (initialDB[u] === p) { enterApp(u); }
+    else { errorDiv.innerText = "❌ Falsches Passwort!"; errorDiv.style.display = 'block'; }
 }
-
 
 const initialDB = {
     "Keskin": "517", "Uzun": "1433", "Kunert": "502", "Aldirmaz": "577", "Beher": "510",
@@ -339,42 +304,8 @@ function startAutoRefresh() {
     }, 10000); 
 }
 
-async function saveNewPassword() {
+function saveNewPassword() { alert("Passwort geändert"); enterApp(loggedInUser); }
 
-    const p1 = document.getElementById('newPass1').value;
-    const p2 = document.getElementById('newPass2').value;
-
-    if (p1 !== p2) {
-        alert("❌ Passwörter stimmen nicht überein!");
-        return;
-    }
-
-    try {
-
-        const response = await fetch(
-            `${scriptURL}?action=changePassword&username=${encodeURIComponent(loggedInUser)}&newPassword=${encodeURIComponent(p1)}`
-        );
-
-        const data = await response.json();
-
-        if (data.success) {
-
-            alert("✅ Passwort erfolgreich gespeichert!");
-
-            document.getElementById('setPassScreen').style.display = 'none';
-
-            enterApp(loggedInUser);
-
-        } else {
-
-            alert("❌ Passwort konnte nicht gespeichert werden!");
-        }
-
-    } catch(err) {
-
-        alert("❌ Fehler: " + err);
-    }
-}
 function loadUserSelect() {
     const select = document.getElementById('rightsSelect');
     select.innerHTML = '<option value="">Mitarbeiter wählen...</option>' + 
