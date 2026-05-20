@@ -195,33 +195,43 @@ function setInitialTodayDate() {
     document.getElementById('datum').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 }
 
+// ESKİ initialDB'yi SİL, yerine bunu koy (BOŞ bırak, şifreler Google'dan gelecek)
+let initialDB = {};
+
+// Google Sheets'ten şifreleri çek
+async function loadPasswordsFromSheet() {
+    try {
+        const response = await fetch(`${scriptURL}?action=getSifreler&_cb=${Date.now()}`);
+        const sifreler = await response.json();
+        return sifreler;
+    } catch(e) {
+        console.error("Şifreler alınamadı:", e);
+        return {};
+    }
+}
+
+// YENİ checkLogin fonksiyonu
 async function checkLogin() {
     const u = document.getElementById('userInp').value.trim();
     const p = document.getElementById('passInp').value.trim();
     const errorDiv = document.getElementById('loginError');
-    if(!initialDB[u]) { errorDiv.innerText = "❌ Benutzer nicht gefunden!"; errorDiv.style.display = 'block'; return; }
-    if (initialDB[u] === p) { enterApp(u); }
-    else { errorDiv.innerText = "❌ Falsches Passwort!"; errorDiv.style.display = 'block'; }
+    
+    if(!u || !p) {
+        errorDiv.innerText = "❌ Bitte Name und Passwort eingeben!";
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    // Google Sheets'ten şifreleri al
+    const sifreler = await loadPasswordsFromSheet();
+    
+    if(sifreler[u] && sifreler[u] === p) {
+        enterApp(u);
+    } else {
+        errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
+        errorDiv.style.display = 'block';
+    }
 }
-
-const initialDB = {
-    "Keskin": "517", "Uzun": "1433", "Kunert": "502", "Aldirmaz": "577", "Beher": "510",
-    "Brand": "1722", "Keskin Mur.": "518", "Naumann": "999", "Schönborn": "1361",
-    "Karali": "533", "Mikuczynski": "1212", "Türkmen": "1213", "Amrouch": "1268",
-    "Stania": "1368", "Kantaroglu": "1382", "Krancioch": "1405", "Held": "1421",
-    "Berisha": "1534", "Neji": "1536", "Mulugeta": "1633", "Udezue": "1686", "Jansen": "1692",
-    "Aksoy": "1704", "Yildirim": "1710", "Louze": "1724", "Blanquez": "1725", "Diallo": "1726",
-    "Sener": "1731", "Klomrit": "1070", "Garcia": "339", "Anderwald": "509", "Bayrakli": "1377",
-    "Kilic": "1384", "Maafi": "1273", "Besche": "1472", "Eickhoff": "1406", "Toth": "1699",
-    "Gibba": "1367", "Helf": "1483", "Isbir": "1715", "Jeyakumar": "1698", "Kalisch": "1451",
-    "Kowarsch": "484", "Nowak": "1390", "Pähler": "1332", "Patarcsity": "1700", "Pulendran": "1498",
-    "Sahin": "1721", "Savas": "1360", "Schiavitelli": "1669", "Uluyüz": "1450", "Keskinmus": "518",
-    "Katenz": "000", "Rafo": "1277", "Gertz": "1357", "Fortes": "1381", "Sakaguchi M.": "1391",
-    "Mercan": "1437", "Krämer": "1449", "Juretzka": "1473", "Kumbara": "1474", "Skupio": "1475",
-    "Skrago": "1484", "Bah": "1684", "Kaya": "1712", "Jdea": "1701", "Toure": "1713",
-    "Schneider": "1714", "Tchaleu": "1723"
-};
-
 const workerData = {
     "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D.", "Kantaroglu A.", "Krancioch A.", "Held D.", "Berisha I.", "Neji M.", "Mulugeta G.", "Udezue P.", "Jansen M.", "Aksoy O.", "Yildirim S.", "Brand N.", "Louze A.", "Blanquez Romero V.", "Diallo M.D.", "Sener E.", "Klomrit", "Garcia"],
     "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T.", "Besche T.", "Eickhoff P.", "Toth Renata", "Gibba n.", "Helf A.", "Isbir J.", "Jeyakumar S.", "Kalisch T.", "Kowarsch R.", "Nowak M.", "Pähler D.", "Patarcsity V.", "Pulendran K.", "Sahin E.", "Savas S.", "Schiavitelli", "Uluyüz B.", "Uzun S.", "Klomrit", "Garcia"],
