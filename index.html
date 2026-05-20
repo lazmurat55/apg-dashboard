@@ -174,62 +174,231 @@
 </div>
 
 <script>
-// ⚠️ HIER DEINEN DETEKTIRTEN SCRIPT URL GENAU SO LASSEN ODER ERSETZEN
+
+// ⚡ SCRIPT URL
 const scriptURL = "https://script.google.com/macros/s/AKfycbwhzsSsyCFQAzZdwEtVTB6itfSVXEp4lXtpX7kg6RxVmS-6HIZtZwkO2W3xNZcle2BXXQ/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Spätschicht";
 let selectedStaff = [];
 let loggedInUser = "";
-let autoRefreshInterval = null; 
+let autoRefreshInterval = null;
 let superAdmin = "Keskin";
 let schichtLeiterDb = {};
-let activeFilterSchicht = "B"; 
+let activeFilterSchicht = "B";
 
-if(localStorage.getItem('apg_schichtleiter_db')) {
-    try { schichtLeiterDb = JSON.parse(localStorage.getItem('apg_schichtleiter_db')); } catch(e){}
-}
-
-function setInitialTodayDate() {
-    const today = new Date();
-    document.getElementById('datum').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-}
-
-// ESKİ initialDB'yi SİL, yerine bunu koy (BOŞ bırak, şifreler Google'dan gelecek)
+// 🔥 EN ÖNEMLİSİ
 let initialDB = {};
 
-// Google Sheets'ten şifreleri çek
-async function loadPasswordsFromSheet() {
+if(localStorage.getItem('apg_schichtleiter_db')) {
+
     try {
-        const response = await fetch(`${scriptURL}?action=getSifreler&_cb=${Date.now()}`);
-        const sifreler = await response.json();
-        return sifreler;
+
+        schichtLeiterDb =
+            JSON.parse(localStorage.getItem('apg_schichtleiter_db'));
+
     } catch(e) {
+
+        console.log(e);
+
+    }
+}
+
+// 🔥 GOOGLE SHEETS'TEN TÜM KULLANICILARI ÇEK
+async function loadPasswordsFromSheet() {
+
+    try {
+
+        const response = await fetch(
+            ${scriptURL}?action=getSifreler&_cb=${Date.now()}
+        );
+
+        const sifreler = await response.json();
+
+        // 🔥 BURADA GLOBAL DB DOLDURULUYOR
+        initialDB = sifreler;
+
+        console.log("Kullanıcılar yüklendi:", initialDB);
+
+        return sifreler;
+
+    } catch(e) {
+
         console.error("Şifreler alınamadı:", e);
+
         return {};
     }
 }
 
-// YENİ checkLogin fonksiyonu
+// 🔥 LOGIN
 async function checkLogin() {
-    const u = document.getElementById('userInp').value.trim();
-    const p = document.getElementById('passInp').value.trim();
-    const errorDiv = document.getElementById('loginError');
-    
+
+    const u =
+        document.getElementById('userInp').value.trim();
+
+    const p =
+        document.getElementById('passInp').value.trim();
+
+    const errorDiv =
+        document.getElementById('loginError');
+
     if(!u || !p) {
-        errorDiv.innerText = "❌ Bitte Name und Passwort eingeben!";
+
+        errorDiv.innerText =
+            "❌ Bitte Name und Passwort eingeben!";
+
         errorDiv.style.display = 'block';
+
         return;
     }
-    
-    // Google Sheets'ten şifreleri al
-    const sifreler = await loadPasswordsFromSheet();
-    
-    if(sifreler[u] && sifreler[u] === p) {
-        enterApp(u);
-    } else {
-        errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
+
+    try {
+
+        // 🔥 GOOGLE SHEETS'TEN ÇEK
+        const sifreler =
+            await loadPasswordsFromSheet();
+
+        // 🔥 GLOBAL DB
+        initialDB = sifreler;
+
+        if(
+            sifreler[u] &&
+            sifreler[u] === p
+        ) {
+
+            errorDiv.style.display = 'none';
+
+            enterApp(u);
+
+        } else {
+
+            errorDiv.innerText =
+                "❌ Falscher Benutzername oder Passwort!";
+
+            errorDiv.style.display = 'block';
+        }
+
+    } catch(err) {
+
+        console.error(err);
+
+        errorDiv.innerText =
+            "❌ Verbindung fehlgeschlagen!";
+
         errorDiv.style.display = 'block';
+    }
+}
+
+// 🔥 SCHICHTLEITER USER LIST FIX
+function loadUserSelect() {
+
+    const select =
+        document.getElementById('rightsSelect');
+
+    // 🔥 EĞER DB BOŞSA TEKRAR ÇEK
+    if(Object.keys(initialDB).length === 0) {
+
+        loadPasswordsFromSheet().then(() => {
+
+            loadUserSelect();
+
+        });
+
+        return;
+    }
+
+    select.innerHTML =
+
+        '<option value="">Mitarbeiter wählen...</option>' +
+
+        '<option value="_CLEAR_ALL_" style="color:var(--danger); font-weight:bold;">⚠️ Alle Berechtigungen löschen</option>' +
+
+        Object.keys(initialDB)
+
+            .sort()
+
+            .filter(
+                x => x !== superAdmin
+            )
+
+            .map(
+                u => <option value="${u}">${u}</option>
+            )
+
+            .join('');
+}
+
+// 🔥 APP GİRİŞİ
+function enterApp(u) {
+
+    loggedInUser = u;
+
+    document.getElementById('loginScreen').style.display = 'none';
+
+    if (u === superAdmin) {
+
+        document.getElementById('adminPanel').style.display = 'block';
+
+        document.getElementById('adminUserDisplay').innerHTML =
+            "👑 Haupt-Admin: " + u;
+
+        document.getElementById('rightsManagementBox').style.display =
+            'flex';
+
+        document.getElementById('adminFilterGroup').style.display =
+            'grid';
+
+        // 🔥 BURASI ÇALIŞACAK
+        loadUserSelect();
+
+        updateManagersList();
+
+        filterSchicht('B');
+
+        startAutoRefresh();
+
+    }
+
+    else if (schichtLeiterDb[u]) {
+
+        const assignedSchicht =
+            schichtLeiterDb[u];
+
+        document.getElementById('adminPanel').style.display =
+            'block';
+
+        document.getElementById('adminUserDisplay').innerHTML =
+            🏃 Schichtleiter: ${u} (Schicht ${assignedSchicht});
+
+        document.getElementById('rightsManagementBox').style.display =
+            'none';
+
+        document.querySelectorAll('.filter-btn')
+            .forEach(btn => btn.style.display = 'none');
+
+        const targetBtn =
+            document.getElementById('flt' + assignedSchicht);
+
+        if(targetBtn) {
+
+            targetBtn.style.display = 'inline-block';
+
+            targetBtn.classList.add('active-filter');
+        }
+
+        filterSchicht(assignedSchicht);
+
+        startAutoRefresh();
+
+    }
+
+    else {
+
+        document.getElementById('mainApp').style.display =
+            'block';
+
+        document.getElementById('currentUserDisplay').innerHTML =
+            "👤 Angemeldet: " + u;
     }
 }
 const workerData = {
