@@ -21,11 +21,11 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
-        body { background-color: var(--bg-main); color: var(--text-main); padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
+        body { background-color: var(--bg-main); color: var(--text-main); padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; flex-direction: column; }
         
-        .container { width: 100%; max-width: 1100px; background: transparent; transition: max-width 0.3s ease; }
+        .container { width: 100%; max-width: 1100px; margin: 0 auto; background: transparent; transition: max-width 0.3s ease; }
         .container.wide { max-width: 1200px; }
-        .app-wrapper { max-width: 620px; margin: 0 auto; }
+        .app-wrapper { max-width: 620px; margin: 0 auto; width: 100%; }
         
         .form-card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2), 0 2px 4px -2px rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
         
@@ -59,7 +59,6 @@
         
         .com-tracker-box { display: none; background: rgba(59, 130, 246, 0.1); border: 1px dashed var(--primary); border-radius: 8px; padding: 14px; margin: 15px 0; font-size: 14px; font-weight: 600; text-align: center; color: #fff; }
         
-        /* Orijinal İkinci Resimdeki Stilize Kart Yapısı */
         .artikel-row { background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 20px; position: relative; }
         
         .code-row-container { background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 8px; margin-top: 12px; border: 1px solid var(--border-color); }
@@ -72,11 +71,9 @@
         
         .sonstige-input { display: none; margin-top: -4px; margin-bottom: 8px; font-size: 14px; padding: 10px; width: 100%; background: var(--bg-card); }
         
-        /* Onay Rozeti - Badge */
         .status-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--danger); color: white; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 20px; margin-top: 5px; margin-bottom: 8px; }
         .status-badge.ok { background: var(--success); }
 
-        /* Alt ikili buton grubu */
         .code-action-group { display: flex; gap: 10px; margin-top: 12px; }
         .code-action-group button { flex: 1; padding: 10px; font-size: 13px; font-weight: 600; border-radius: 8px; }
         .btn-add-aus { background: #2563eb; color: white; }
@@ -114,12 +111,15 @@
         .badge-origin { position: absolute; right: 12px; top: 12px; background: var(--primary); padding: 4px 12px; border-radius: 6px; font-size: 14px; font-weight: 700; color: #fff; }
         .report-box .report-date { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
         .report-box .report-title { font-size: 17px; font-weight: 700; color: #fff; margin: 6px 0; line-height: 1.4; }
-        .report-box .report-danger { font-size: 15px; color: var(--dash-danger) !important; font-weight: 700; margin: 4px 0; line-height: 1.4; }
+        .report-box .report-details-list { list-style: none; padding: 0; margin: 8px 0; border-top: 1px dashed var(--border-color); padding-top: 8px; }
+        .report-box .report-danger { font-size: 14px; color: var(--dash-danger) !important; font-weight: 600; margin: 4px 0; }
         .report-box .report-warning { font-size: 14px; color: var(--orange-bright); font-weight: 600; margin: 4px 0; }
         .report-box .report-user { font-size: 13px; color: var(--success); margin-top: 8px; font-weight: 600; border-top: 1px solid var(--border-color); padding-top: 8px; }
 
         #loginScreen { display: block; max-width: 400px; margin: 60px auto 0; }
         #mainApp, #adminPanel { display: none; }
+
+        .thank-you-footer { width: 100%; max-width: 1100px; margin: 20px auto 0; text-align: center; font-size: 14px; color: var(--text-muted); padding: 15px; border-top: 1px solid var(--border-color); }
     </style>
 </head>
 <body>
@@ -142,7 +142,7 @@
         </div>
         
         <div class="form-card">
-            <h3>Vardiya Bilgileri / Schicht</h3>
+            <h3>Schichtinformationen / Schicht</h3>
             <label>Schicht</label>
             <div class="schicht-group">
                 <button class="schicht-btn" id="mSchichtA" onclick="setSchicht('A')">Schicht A</button>
@@ -266,6 +266,10 @@
         <button class="btn-primary" onclick="addManualWorker()" style="padding:10px; margin-bottom:8px;">Manuell hinzufügen</button>
         <button class="sub-btn" onclick="closeOverlay()">Schließen</button>
     </div>
+</div>
+
+<div class="thank-you-footer">
+    Vielen Dank, dass Sie dieses System nutzen!
 </div>
 
 <script>
@@ -401,17 +405,13 @@ function enterApp(u) {
 
 function startAutoRefresh() {
     if(autoRefreshInterval) clearInterval(autoRefreshInterval);
-    
-    // İlk açılışta hemen bir kontrol yapıp doğru tempoyu ayarlasın
     checkAndSetDynamicRefresh();
-    
-    // Her 60 saniyede bir saati kontrol edip modu güncelleyen ana motor
     autoRefreshInterval = setInterval(() => {
         checkAndSetDynamicRefresh();
     }, 60000); 
 }
 
-let currentRefreshTempo = null; // Mevcut tempoyu hafızada tutmak için
+let currentRefreshTempo = null; 
 let dashboardExecutionInterval = null;
 
 function checkAndSetDynamicRefresh() {
@@ -419,11 +419,6 @@ function checkAndSetDynamicRefresh() {
     const hours = now.getHours();
     const minutes = now.getMinutes();
     const currentTimeInMinutes = (hours * 60) + minutes;
-
-    // Hedef Zaman Aralıklarının Dakika Cinsinden Hesabı:
-    // 13:30 - 14:10 aralığı (810 - 850. dakika)
-    // 21:30 - 22:10 aralığı (1290 - 1330. dakika)
-    // 05:30 - 06:10 aralığı (330 - 370. dakika)
     
     const isYoğunSaat = 
         (currentTimeInMinutes >= 810 && currentTimeInMinutes <= 850) || 
@@ -432,18 +427,15 @@ function checkAndSetDynamicRefresh() {
 
     let targetTempo = isYoğunSaat ? "hizli" : "sakin";
 
-    // Eğer tempo değiştiyse veya ilk defa kuruluyorsa tetikle
     if (currentRefreshTempo !== targetTempo) {
         currentRefreshTempo = targetTempo;
         if(dashboardExecutionInterval) clearInterval(dashboardExecutionInterval);
         
         if (targetTempo === "hizli") {
-            // Rapor yoğunluğu var -> 90 saniyede bir (90000 ms) yenile
             loadAdminDashboard(true);
             dashboardExecutionInterval = setInterval(() => { loadAdminDashboard(true); }, 90000);
             document.getElementById('refreshStatus').innerText = "Modus: Live (90s)";
         } else {
-            // Sakin zaman -> 30 dakikada bir (1800000 ms) yenile
             loadAdminDashboard(true);
             dashboardExecutionInterval = setInterval(() => { loadAdminDashboard(true); }, 1800000);
             document.getElementById('refreshStatus').innerText = "Modus: Eco (30m)";
@@ -547,348 +539,459 @@ function setSchichtType(t) {
 }
 
 function openWorkerOverlay() {
-    document.getElementById('workerList').innerHTML = workerData[currentSchicht].map(w => `<div class="worker-opt" onclick="addStaff('${w}')">${w}</div>`).join("");
+    document.getElementById('workerList').innerHTML = workerData[currentSchicht].map(w => `<div class="worker-opt" onclick="addStaff('${w}')">${w}</div>`).join('');
     document.getElementById('workerOverlay').style.display = 'flex';
 }
-function addStaff(n) { if(!selectedStaff.includes(n)) selectedStaff.push(n); closeOverlay(); renderStaff(); }
-function addManualWorker() { const v = document.getElementById('manualWorker').value.trim(); if(v) { selectedStaff.push(v); document.getElementById('manualWorker').value=""; closeOverlay(); renderStaff(); } }
-function closeOverlay() { document.getElementById('workerOverlay').style.display = 'none'; }
-function renderStaff() { document.getElementById('workerDisplayContainer').innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')" style="color:var(--danger); cursor:pointer;">✕</span></div>`).join(""); liveCheck(); }
-function removeStaff(n) { selectedStaff = selectedStaff.filter(x => x !== n); renderStaff(); }
 
-function onAnlageChange(v) {
-    document.getElementById('ftBox').style.display = v.startsWith("PUR") ? "block" : "none";
-    const tracker = document.getElementById('comTracker');
-    if(v === "COM") {
-        tracker.style.display = "block";
-    } else {
-        tracker.style.display = "none";
+function closeOverlay() {
+    document.getElementById('workerOverlay').style.display = 'none';
+}
+
+function addStaff(name) {
+    if(!selectedStaff.includes(name)) {
+        selectedStaff.push(name);
+        renderStaff();
     }
-    document.querySelectorAll('.ft-btn').forEach(b => b.classList.remove('active'));
-    
-    const btn = document.getElementById('addArtikelBtn');
-    if(v) {
-        btn.removeAttribute('disabled');
-        document.getElementById('artikelContainer').innerHTML = "";
-        addArtikel();
+    closeOverlay();
+}
+
+function addManualWorker() {
+    const inp = document.getElementById('manualWorker');
+    const name = inp.value.trim();
+    if(name && !selectedStaff.includes(name)) {
+        selectedStaff.push(name);
+        renderStaff();
+        inp.value = "";
+    }
+    closeOverlay();
+}
+
+function removeStaff(name) {
+    selectedStaff = selectedStaff.filter(s => s !== name);
+    renderStaff();
+}
+
+function renderStaff() {
+    const container = document.getElementById('workerDisplayContainer');
+    if(selectedStaff.length === 0) {
+        container.innerHTML = `<span style="color:var(--text-muted); font-size:13px;">Keine Mitarbeiter ausgewählt</span>`;
     } else {
-        btn.setAttribute('disabled', 'true');
-        document.getElementById('artikelContainer').innerHTML = "";
+        container.innerHTML = selectedStaff.map(s => `<div class="selected-worker">${s} <span style="cursor:pointer; color:var(--danger);" onclick="removeStaff('${s}')">✕</span></div>`).join('');
     }
     liveCheck();
 }
 
-// -------------------------------------------------------------------------
-// 👑 GÖRSEL-2'DEKİ GİBİ AYRI BUTONLU ARTIKEL TASARIMI
-// -------------------------------------------------------------------------
-function addArtikel() {
-    const container = document.getElementById('artikelContainer');
-    const index = container.children.length;
-    const anlage = document.getElementById('anlage').value;
+function filterSchicht(s) {
+    activeFilterSchicht = s;
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
+    document.getElementById('flt' + s)?.classList.add('active-filter');
+    renderDashboardData();
+}
+
+let cachedDashboardData = [];
+
+async function loadAdminDashboard(isBackground) {
+    if(!navigator.onLine) return;
+    try {
+        const response = await fetch(`${scriptURL}?action=getDashboardData&_cb=${Date.now()}`);
+        const data = await response.json();
+        if(Array.isArray(data)) {
+            cachedDashboardData = data;
+            renderDashboardData();
+        }
+    } catch(e) {
+        console.error("Dashboard-Ladefehler", e);
+    }
+}
+
+/* KONSOLIDIERTE KARTEN-FUNKTION (Fehler gesammelt in einer Box) */
+function renderDashboardData() {
+    const container = document.getElementById('reportsContainer');
+    if(!container) return;
     
-    const div = document.createElement('div');
-    div.className = 'artikel-row';
-    div.id = `artikelRow_${index}`;
+    const filtered = cachedDashboardData.filter(r => r.schicht === activeFilterSchicht);
     
-    let specificFields = "";
-    if (anlage === "COM") {
-        specificFields = `
-            <div class="grid-2">
-                <div>
-                    <label>VERBRAUCH (KG)</label>
-                    <input type="number" class="art-verbrauch" placeholder="0" oninput="trackComTime(); liveCheck();">
-                </div>
-                <div>
-                    <label>AUS GESAMT (KG)</label>
-                    <input type="number" class="art-ausschuss-kg" placeholder="0" oninput="liveCheck();">
-                </div>
-            </div>
-            <input type="hidden" class="art-gutteile" value="0">
-            <input type="hidden" class="art-ausschuss" value="0">
-        `;
-    } else {
-        specificFields = `
-            <div class="grid-2">
-                <div>
-                    <label>GUT</label>
-                    <input type="number" class="art-gutteile" placeholder="0" oninput="liveCheck();">
-                </div>
-                <div>
-                    <label>AUS GESAMT</label>
-                    <input type="number" class="art-ausschuss" placeholder="0" oninput="liveCheck();">
-                </div>
-            </div>
-            <input type="hidden" class="art-verbrauch" value="0">
-            <input type="hidden" class="art-ausschuss-kg" value="0">
-        `;
+    if(filtered.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-muted);">Keine Berichte für Schicht ${activeFilterSchicht} gefunden.</div>`;
+        return;
     }
 
+    container.innerHTML = filtered.map(r => {
+        let detailsHtml = "";
+        
+        // Versuchen, die Artikeldaten zu parsen, um Ausschuss/Störungen zu bündeln
+        if(r.artikelData) {
+            try {
+                const artikelList = JSON.parse(r.artikelData);
+                let combinedRows = [];
+
+                artikelList.forEach(art => {
+                    if(art.rows && Array.isArray(art.rows)) {
+                        art.rows.forEach(row => {
+                            combinedRows.push({
+                                type: row.type === "aus" ? "Ausschuss" : "Störung",
+                                code: row.code,
+                                qty: row.qty,
+                                styleClass: row.type === "aus" ? "report-danger" : "report-warning"
+                            });
+                        });
+                    }
+                });
+
+                if(combinedRows.length > 0) {
+                    detailsHtml = `<ul class="report-details-list">`;
+                    combinedRows.forEach(item => {
+                        detailsHtml += `<li class="${item.styleClass}">• [${item.type}] ${item.code} -> <b>${item.qty}</b></li>`;
+                    });
+                    detailsHtml += `</ul>`;
+                } else {
+                    detailsHtml = `<p style="color:var(--success); font-size:13px; margin: 8px 0;">✓ Keine Fehler erfasst</p>`;
+                }
+
+            } catch(e) {
+                // Fallback, falls JSON ungültig ist
+                detailsHtml = `<p class="report-danger">${r.fehlerDetails || ''}</p>`;
+            }
+        } else if(r.fehlerDetails) {
+            detailsHtml = `<p class="report-danger">${r.fehlerDetails}</p>`;
+        }
+
+        return `
+            <div class="report-box">
+                <span class="badge-origin">${r.anlage || 'N/A'}</span>
+                <div>
+                    <div class="report-date">${r.datum || ''} - ${r.schichtType || ''}</div>
+                    <div class="report-title">Mitarbeiter: ${r.mitarbeiterAnzahl || 0} Pers.</div>
+                    ${detailsHtml}
+                </div>
+                <div class="report-user">Erstellt von: ${r.user || 'System'}</div>
+            </div>
+        `;
+    }).join('');
+}
+
+function onAnlageChange(val) {
+    const ftBox = document.getElementById('ftBox');
+    const comTracker = document.getElementById('comTracker');
+    
+    if(val.startsWith("PUR")) {
+        ftBox.style.display = "block";
+    } else {
+        ftBox.style.display = "none";
+        document.querySelectorAll('.ft-btn').forEach(b => b.classList.remove('active'));
+    }
+
+    if(val === "COM") {
+        comTracker.style.display = "block";
+    } else {
+        comTracker.style.display = "none";
+    }
+    
+    // Bestehende Einträge löschen bei Anlagenwechsel
+    document.getElementById('artikelContainer').innerHTML = "";
+    document.getElementById('addArtikelBtn').disabled = (val === "");
+    
+    liveCheck();
+}
+
+function getActiveAnlageGroup() {
+    const anlage = document.getElementById('anlage').value;
+    if(!anlage) return null;
+    if(anlage.startsWith("PUR")) return "PUR";
+    if(anlage.startsWith("IM") || anlage.startsWith("CIM")) return "Spritz";
+    if(anlage === "COM") return "COM";
+    return null;
+}
+
+let artikelCounter = 0;
+function addArtikel() {
+    artikelCounter++;
+    const container = document.getElementById('artikelContainer');
+    const div = document.createElement('div');
+    div.className = "artikel-row";
+    div.id = `artikelRow_${artikelCounter}`;
+    
     div.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:700; color:#38bdf8; font-size:14px;">ARTIKEL</span>
-            ${index > 0 ? `<span onclick="removeArtikel(${index})" style="color:var(--danger); cursor:pointer; font-size:13px; font-weight:600;">Löschen ✕</span>` : ''}
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <span style="font-weight:700; color:#38bdf8; font-size:15px;">Artikel #${artikelCounter}</span>
+            <button onclick="removeArtikel(${artikelCounter})" style="width:auto; padding:4px 10px; background:rgba(244,63,94,0.1); color:var(--danger); font-size:12px; border-radius:6px;">Entfernen</button>
         </div>
         
-        <input type="text" class="art-name" placeholder="Artikelbezeichnung..." oninput="liveCheck();" style="margin-bottom:10px;">
+        <label>Artikelnummer / Artikelbezeichnung</label>
+        <input type="text" placeholder="z.B. 123456 - Heckblende" class="artikel-name-input" oninput="liveCheck()">
         
-        ${specificFields}
-        
-        <div id="badgeArea_${index}"></div>
+        <div class="grid-2" style="margin-top:10px;">
+            <div>
+                <label>Gutteile (Stück)</label>
+                <input type="number" min="0" value="0" class="gut-input" oninput="liveCheck()">
+            </div>
+            <div>
+                <label>Status</label>
+                <div style="margin-top:6px;"><span class="status-badge ok" id="statusBadge_${artikelCounter}">✓ OK</span></div>
+            </div>
+        </div>
 
-        <div class="code-row-container" id="codeWrapper_${index}" style="display:none;"></div>
-        
+        <div class="code-row-container" id="codeRowContainer_${artikelCounter}"></div>
+
         <div class="code-action-group">
-            <button class="btn-add-aus" onclick="addSpecificCodeRow(${index}, 'aus')">+ Ausschuss</button>
-            <button class="btn-add-stoer" onclick="addSpecificCodeRow(${index}, 'stoer')">+ Störung</button>
+            <button class="btn-add-aus" onclick="addCodeRow(${artikelCounter}, 'aus')">+ Ausschuss (A)</button>
+            <button class="btn-add-stoer" onclick="addCodeRow(${artikelCounter}, 'stoer')">+ Störung (S)</button>
         </div>
     `;
-    
     container.appendChild(div);
     liveCheck();
     scrollToBottom();
 }
 
-function removeArtikel(idx) {
-    const row = document.getElementById(`artikelRow_${idx}`);
-    if(row) {
-        row.remove();
-        reindexArtikelRows();
-        trackComTime();
-        liveCheck();
-    }
+function removeArtikel(id) {
+    document.getElementById(`artikelRow_${id}`)?.remove();
+    liveCheck();
 }
 
-function reindexArtikelRows() {
-    const container = document.getElementById('artikelContainer');
-    Array.from(container.children).forEach((div, newIdx) => {
-        div.id = `artikelRow_${newIdx}`;
-        
-        const deleteSpan = div.querySelector('span[onclick*="removeArtikel"]');
-        if(deleteSpan) deleteSpan.setAttribute('onclick', `removeArtikel(${newIdx})`);
-        
-        const badgeDiv = div.querySelector('[id^="badgeArea_"]');
-        if(badgeDiv) badgeDiv.id = `badgeArea_${newIdx}`;
-        
-        const codeWrapper = div.querySelector('[id^="codeWrapper_"]');
-        if(codeWrapper) codeWrapper.id = `codeWrapper_${newIdx}`;
-        
-        const actGroup = div.querySelector('.code-action-group');
-        if(actGroup) {
-            actGroup.innerHTML = `
-                <button class="btn-add-aus" onclick="addSpecificCodeRow(${newIdx}, 'aus')">+ Ausschuss</button>
-                <button class="btn-add-stoer" onclick="addSpecificCodeRow(${newIdx}, 'stoer')">+ Störung</button>
-            `;
-        }
+function addCodeRow(artikelId, type) {
+    const container = document.getElementById(`codeRowContainer_${artikelId}`);
+    const group = getActiveAnlageGroup();
+    if(!group) return;
+
+    const options = codeData[group][type];
+    const rowId = Date.now() + Math.random().toString(36).substr(2, 5);
+
+    const rowDiv = document.createElement('div');
+    rowDiv.className = "code-row";
+    rowDiv.id = `row_${rowId}`;
+    rowDiv.setAttribute('data-type', type);
+
+    let selectHtml = `<select onchange="onCodeSelectChange('${rowId}', this.value); liveCheck();">`;
+    options.forEach(opt => {
+        selectHtml += `<option value="${opt}">${opt}</option>`;
     });
-}
+    selectHtml += `</select>`;
 
-// 👑 Hata ve Duruş butonlarına tıklandığında ilgili listeyi getiren özel mantık
-function addSpecificCodeRow(artIdx, category) {
-    const wrapper = document.getElementById(`codeWrapper_${artIdx}`);
-    wrapper.style.display = "block"; // İlk eleman eklendiğinde kapsayıcıyı görünür yap
-    
-    const codeIdx = wrapper.children.length;
-    const anlage = document.getElementById('anlage').value;
-    
-    let typeKey = "PUR";
-    if(anlage.startsWith("IM") || anlage.startsWith("CIM")) typeKey = "Spritz";
-    if(anlage === "COM") typeKey = "COM";
-    
-    const div = document.createElement('div');
-    div.className = `code-row ${category === 'aus' ? 'aus-type' : 'stoer-type'}`;
-    div.id = `codeRow_${artIdx}_${codeIdx}`;
-    
-    let optionsHtml = "";
-    if(category === 'aus') {
-        optionsHtml = codeData[typeKey].aus.map(x => `<option value="${x}">${x}</option>`).join('');
-    } else {
-        optionsHtml = codeData[typeKey].stoer.map(x => `<option value="${x}">${x}</option>`).join('');
-    }
-    
-    div.innerHTML = `
-        <select class="code-select" onchange="handleCodeSelectChange(${artIdx}, ${codeIdx}, this.value)">
-            <option value="">-- Code wählen --</option>
-            ${optionsHtml}
-        </select>
-        <input type="number" class="code-wert" placeholder="${category === 'aus' ? 'Menge' : 'Min'}" oninput="liveCheck();">
-        <span class="remove-row-btn" onclick="removeCodeRow(${artIdx}, ${codeIdx})">❌</span>
+    rowDiv.innerHTML = `
+        <span style="font-weight:bold; font-size:12px; color:${type==='aus'?'var(--danger)':'var(--orange-bright)'}">${type==='aus'?'A':'S'}</span>
+        ${selectHtml}
+        <input type="number" min="1" value="1" oninput="liveCheck();" class="code-qty-input">
+        <button class="remove-row-btn" onclick="document.getElementById('row_${rowId}').remove(); liveCheck();">✕</button>
     `;
-    
-    // Altına gizli elle yazma alanı entegre et
+
     const sonstigeInp = document.createElement('input');
     sonstigeInp.type = "text";
     sonstigeInp.className = "sonstige-input";
-    sonstigeInp.id = `sonstige_${artIdx}_${codeIdx}`;
-    sonstigeInp.placeholder = "Grund manuell beschreiben...";
+    sonstigeInp.id = `sonstige_${rowId}`;
+    sonstigeInp.placeholder = "Spezifischen Grund angeben...";
+    sonstigeInp.oninput = liveCheck;
 
-    wrapper.appendChild(div);
-    wrapper.appendChild(sonstigeInp);
+    container.appendChild(rowDiv);
+    container.appendChild(sonstigeInp);
+    
     liveCheck();
 }
 
-function removeCodeRow(artIdx, codeIdx) {
-    const row = document.getElementById(`codeRow_${artIdx}_${codeIdx}`);
-    const sonstige = document.getElementById(`sonstige_${artIdx}_${codeIdx}`);
-    if(row) row.remove();
-    if(sonstige) sonstige.remove();
-    liveCheck();
-}
-
-function handleCodeSelectChange(artIdx, codeIdx, val) {
-    const sonstigeInp = document.getElementById(`sonstige_${artIdx}_${codeIdx}`);
-    if(!sonstigeInp) return;
-    if(val === "Sonstige") {
-        sonstigeInp.style.display = "block";
-    } else {
-        sonstigeInp.style.display = "none";
-        sonstigeInp.value = "";
-    }
-    liveCheck();
-}
-
-function trackComTime() {
-    const anlage = document.getElementById('anlage').value;
-    if(anlage !== "COM") return;
-    
-    let totalVerbrauch = 0;
-    document.querySelectorAll('.art-verbrauch').forEach(inp => {
-        totalVerbrauch += parseFloat(inp.value) || 0;
-    });
-    
-    const calculatedMinutes = Math.round(totalVerbrauch * 1.5);
-    const tracker = document.getElementById('comTracker');
-    
-    if(calculatedMinutes > 480) {
-        tracker.style.background = "rgba(244, 63, 94, 0.15)";
-        tracker.style.borderColor = "var(--danger)";
-        tracker.innerHTML = `⚠️ COM Schichtzeit-Konto: ${calculatedMinutes} / 480 Min (Zeit überschritten!)`;
-    } else {
-        tracker.style.background = "rgba(16, 185, 129, 0.15)";
-        tracker.style.borderColor = "var(--success)";
-        tracker.innerHTML = `⏱️ COM Schichtzeit-Konto: ${calculatedMinutes} / 480 Min`;
+function onCodeSelectChange(rowId, val) {
+    const sInp = document.getElementById(`sonstige_${rowId}`);
+    if(sInp) {
+        sInp.style.display = (val === "Sonstige") ? "block" : "none";
     }
 }
 
-// -------------------------------------------------------------------------
-// 🟢 GERÇEK ZAMANLI VERİ KONTROLÜ VE TARAYICI ONAY ROZETİ (GÖRSEL-2)
-// -------------------------------------------------------------------------
 function liveCheck() {
     const anlage = document.getElementById('anlage').value;
-    const datum = document.getElementById('datum').value;
-    const mainSendBtn = document.getElementById('mainSendBtn');
-    
-    let formValid = true;
-    if(!datum || !anlage || selectedStaff.length === 0) formValid = false;
-
+    const staffCount = selectedStaff.length;
+    const sendBtn = document.getElementById('mainSendBtn');
     const artikelRows = document.querySelectorAll('.artikel-row');
-    if(artikelRows.length === 0) formValid = false;
+    
+    let comTotalMinutes = 0;
+    let formElementValid = true;
 
-    artikelRows.forEach((row, rIdx) => {
-        const name = row.querySelector('.art-name').value.trim();
-        const gutteile = parseFloat(row.querySelector('.art-gutteile').value) || 0;
-        const ausschuss = parseFloat(row.querySelector('.art-ausschuss').value) || 0;
-        const verbrauch = parseFloat(row.querySelector('.art-verbrauch').value) || 0;
-        const ausschussKg = parseFloat(row.querySelector('.art-ausschuss-kg').value) || 0;
-        const badgeArea = document.getElementById(`badgeArea_${rIdx}`);
+    if(!anlage) {
+        sendBtn.disabled = true;
+        sendBtn.innerText = "⚠️ Bitte Anlage wählen";
+        return;
+    }
 
-        if(!name) formValid = false;
+    if(staffCount === 0) {
+        sendBtn.disabled = true;
+        sendBtn.innerText = "⚠️ Bitte Personal auswählen";
+        return;
+    }
 
-        const targetAusschuss = (anlage === "COM") ? ausschussKg : ausschuss;
+    if(anlage.startsWith("PUR")) {
+        const activeFTs = document.querySelectorAll('.ft-grid .ft-btn.active').length;
+        if(activeFTs === 0) {
+            sendBtn.disabled = true;
+            sendBtn.innerText = "⚠️ Mind. einen Formträger wählen";
+            return;
+        }
+    }
 
-        // Kodları say ve topla
-        const codeRows = row.querySelectorAll('.code-row.aus-type');
-        let totalCodeMenge = 0;
-        let hasEmptyCode = false;
+    if(artikelRows.length === 0) {
+        sendBtn.disabled = true;
+        sendBtn.innerText = "⚠️ Mind. einen Artikel hinzufügen";
+        return;
+    }
 
-        row.querySelectorAll('.code-row').forEach(cRow => {
-            const select = cRow.querySelector('.code-select').value;
-            const wert = parseFloat(cRow.querySelector('.code-wert').value) || 0;
-            if(!select || wert <= 0) hasEmptyCode = true;
-        });
+    artikelRows.forEach(row => {
+        const id = row.id.split('_')[1];
+        const name = row.querySelector('.artikel-name-input').value.trim();
+        const gutQty = parseInt(row.querySelector('.gut-input').value) || 0;
+        const badge = document.getElementById(`statusBadge_${id}`);
+        
+        let rowHasError = false;
+        let totalFehler = 0;
 
+        if(!name) formElementValid = false;
+
+        const codeRows = document.getElementById(`codeRowContainer_${id}`).querySelectorAll('.code-row');
         codeRows.forEach(cRow => {
-            const wert = parseFloat(cRow.querySelector('.code-wert').value) || 0;
-            totalCodeMenge += wert;
+            const rId = cRow.id.split('_')[1];
+            const type = cRow.getAttribute('data-type');
+            const selectVal = cRow.querySelector('select').value;
+            const qty = parseInt(cRow.querySelector('.code-qty-input').value) || 0;
+            
+            if(qty <= 0) formElementValid = false;
+
+            if(selectVal === "Sonstige") {
+                const sInp = document.getElementById(`sonstige_${rId}`);
+                if(!sInp || !sInp.value.trim()) formElementValid = false;
+            }
+
+            if(type === 'aus') {
+                totalFehler += qty;
+            } else if(type === 'stoer' && anlage === "COM") {
+                comTotalMinutes += qty;
+            }
         });
 
-        if(hasEmptyCode) formValid = false;
-
-        // Görsel 2'deki o meşhur yeşil ve kırmızı durum rozet sistemi
-        if(targetAusschuss > 0) {
-            badgeArea.style.display = "block";
-            if(totalCodeMenge === targetAusschuss) {
-                badgeArea.innerHTML = `<div class="status-badge ok">✅ OK: ${totalCodeMenge}/${targetAusschuss}</div>`;
-            } else {
-                formValid = false;
-                badgeArea.innerHTML = `<div class="status-badge">⚠️ Fehler: ${totalCodeMenge}/${targetAusschuss} (Codes abgleichen)</div>`;
-            }
+        if(totalFehler > 0) {
+            badge.className = "status-badge";
+            badge.innerText = `⚠️ Ausschuss: ${totalFehler}`;
         } else {
-            badgeArea.innerHTML = "";
-            badgeArea.style.display = "none";
+            badge.className = "status-badge ok";
+            badge.innerText = "✓ OK";
         }
     });
 
-    if(formValid) {
-        mainSendBtn.removeAttribute('disabled');
-        mainSendBtn.style.background = "var(--success)";
-        mainSendBtn.innerHTML = "✓ Daten absenden";
+    if(anlage === "COM") {
+        const tracker = document.getElementById('comTracker');
+        tracker.innerText = `⏱️ COM Schichtzeit-Konto: ${comTotalMinutes} / 480 Min`;
+        if(comTotalMinutes > 480) {
+            tracker.style.borderColor = "var(--danger)";
+            tracker.style.background = "rgba(244,63,94,0.1)";
+            formElementValid = false;
+        } else {
+            tracker.style.borderColor = "var(--primary)";
+            tracker.style.background = "rgba(59,130,246,0.1)";
+        }
+    }
+
+    if(!formElementValid) {
+        sendBtn.disabled = true;
+        sendBtn.innerText = "⚠️ Formulardaten unvollständig/inkorrekt";
     } else {
-        mainSendBtn.setAttribute('disabled', 'true');
-        mainSendBtn.style.background = "#334155";
-        mainSendBtn.innerHTML = "⚠️ Bitte Formular korrekt ausfüllen (Mitarbeiter, Name veya Hataları doğrulayın)";
+        sendBtn.disabled = false;
+        sendBtn.innerText = "🚀 DATEN SENDEN & SPEICHERN";
+    }
+}
+
+function compileArtikelData() {
+    const rows = document.querySelectorAll('.artikel-row');
+    let data = [];
+    rows.forEach(row => {
+        const id = row.id.split('_')[1];
+        const name = row.querySelector('.artikel-name-input').value.trim();
+        const gutQty = parseInt(row.querySelector('.gut-input').value) || 0;
+        
+        let codeRowsData = [];
+        const codeRows = document.getElementById(`codeRowContainer_${id}`).querySelectorAll('.code-row');
+        codeRows.forEach(cRow => {
+            const rId = cRow.id.split('_')[1];
+            const type = cRow.getAttribute('data-type');
+            let selectVal = cRow.querySelector('select').value;
+            const qty = parseInt(cRow.querySelector('.code-qty-input').value) || 0;
+
+            if(selectVal === "Sonstige") {
+                const sInp = document.getElementById(`sonstige_${rId}`);
+                if(sInp) selectVal = `Sonstige (${sInp.value.trim()})`;
+            }
+
+            codeRowsData.push({ type, code: selectVal, qty });
+        });
+
+        data.push({ artikel: name, gutTeile: gutQty, rows: codeRowsData });
+    });
+    return data;
+}
+
+function saveOfflineReport(payload) {
+    let puffer = [];
+    try { puffer = JSON.parse(localStorage.getItem('apg_offline_puffer')) || []; } catch(e){}
+    puffer.push({ id: Date.now(), payload: payload });
+    localStorage.setItem('apg_offline_puffer', JSON.stringify(puffer));
+}
+
+async function checkOfflinePuffer() {
+    if(!navigator.onLine) return;
+    let puffer = [];
+    try { puffer = JSON.parse(localStorage.getItem('apg_offline_puffer')) || []; } catch(e){}
+    if(puffer.length === 0) return;
+
+    localStorage.removeItem('apg_offline_puffer'); 
+    
+    for(let item of puffer) {
+        try {
+            await fetch(scriptURL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: new URLSearchParams(item.payload)
+            });
+        } catch(e) {
+            saveOfflineReport(item.payload); 
+        }
     }
 }
 
 async function processReport() {
-    const mainSendBtn = document.getElementById('mainSendBtn');
-    mainSendBtn.setAttribute('disabled', 'true');
-    mainSendBtn.innerHTML = "⏳ Wird gesendet...";
+    const sendBtn = document.getElementById('mainSendBtn');
+    sendBtn.disabled = true;
+    sendBtn.innerText = "⏳ Wird übertragen...";
 
-    const anlage = document.getElementById('anlage').value;
-    const datum = document.getElementById('datum').value;
+    const dateVal = document.getElementById('datum').value;
+    const anlageVal = document.getElementById('anlage').value;
     
     let fts = [];
-    document.querySelectorAll('.ft-btn.active').forEach(b => fts.push(b.innerText));
+    if(anlageVal.startsWith("PUR")) {
+        document.querySelectorAll('.ft-grid .ft-btn.active').forEach(b => fts.push(b.innerText));
+    }
+    const finalAnlageString = anlageVal + (fts.length > 0 ? ` (${fts.join(',')})` : '');
 
-    let payload = {
+    const compiledData = compileArtikelData();
+    
+    let summaryList = [];
+    compiledData.forEach(art => {
+        art.rows.forEach(r => {
+            summaryList.push(`[${art.artikel}] ${r.code} (${r.qty}x)`);
+        });
+    });
+    const fehlerDetailsString = summaryList.join(' | ');
+
+    const payload = {
         action: "submitReport",
+        user: loggedInUser,
         schicht: currentSchicht,
         schichtType: currentSchichtType,
-        datum: datum,
-        anlage: anlage,
-        formtraeger: fts.join(', '),
+        datum: dateVal,
         mitarbeiter: selectedStaff.join(', '),
-        user: loggedInUser,
-        eintraege: []
+        mitarbeiterAnzahl: selectedStaff.length,
+        anlage: finalAnlageString,
+        artikelData: JSON.stringify(compiledData),
+        fehlerDetails: fehlerDetailsString,
+        _cb: Date.now()
     };
 
-    document.querySelectorAll('.artikel-row').forEach((row, rIdx) => {
-        let artData = {
-            artikelName: row.querySelector('.art-name').value,
-            gutteile: row.querySelector('.art-gutteile').value,
-            ausschuss: row.querySelector('.art-ausschuss').value,
-            verbrauchKg: row.querySelector('.art-verbrauch').value,
-            ausschussKg: row.querySelector('.art-ausschuss-kg').value,
-            gesamtIst: (anlage === "COM") ? (parseFloat(row.querySelector('.art-verbrauch').value)||0) : ((parseFloat(row.querySelector('.art-gutteile').value)||0) + (parseFloat(row.querySelector('.art-ausschuss').value)||0)),
-            gesamtSoll: "0",
-            codes: []
-        };
-
-        row.querySelectorAll('.code-row').forEach((cRow, cIdx) => {
-            const sonstigeInp = row.querySelector(`#sonstige_${rIdx}_${cIdx}`);
-            artData.codes.push({
-                code: cRow.querySelector('.code-select').value,
-                wert: cRow.querySelector('.code-wert').value,
-                kommentar: sonstigeInp ? sonstigeInp.value : ""
-            });
-        });
-
-        payload.eintraege.push(artData);
-    });
-
     if(!navigator.onLine) {
-        saveToOfflinePuffer(payload);
-        alert("💾 Offline-Modus: Bericht wurde lokal gespeichert!");
+        saveOfflineReport(payload);
+        alert("💾 Lokal gespeichert! Keine Netzverbindung (wird automatisch gesendet, sobald Internet da ist).");
         location.reload();
         return;
     }
@@ -897,88 +1000,15 @@ async function processReport() {
         await fetch(scriptURL, {
             method: "POST",
             mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(payload)
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams(payload)
         });
-        alert("✅ Veriler başarıyla aktarıldı!");
+        alert("🎉 Daten erfolgreich an Google Sheets übertragen!");
         location.reload();
     } catch(e) {
-        saveToOfflinePuffer(payload);
-        alert("💾 Bericht lokal gespeichert!");
+        saveOfflineReport(payload);
+        alert("💾 Fehler bei Übertragung. Daten wurden offline gesichert!");
         location.reload();
-    }
-}
-
-function saveToOfflinePuffer(data) {
-    let puffer = [];
-    try { puffer = JSON.parse(localStorage.getItem('apg_offline_puffer')) || []; }catch(e){}
-    puffer.push({ id: Date.now(), content: data });
-    localStorage.setItem('apg_offline_puffer', JSON.stringify(puffer));
-}
-
-async function checkOfflinePuffer() {
-    if(!navigator.onLine) return;
-    let puffer = [];
-    try { puffer = JSON.parse(localStorage.getItem('apg_offline_puffer')) || []; }catch(e){}
-    if(puffer.length === 0) return;
-
-    for(let item of puffer) {
-        try {
-            await fetch(scriptURL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(item.content)
-            });
-            puffer = puffer.filter(x => x.id !== item.id);
-        } catch(e) { break; }
-    }
-    localStorage.setItem('apg_offline_puffer', JSON.stringify(puffer));
-}
-
-function filterSchicht(schicht) {
-    activeFilterSchicht = schicht;
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
-    document.getElementById('flt' + schicht)?.classList.add('active-filter');
-    loadAdminDashboard(false);
-}
-
-async function loadAdminDashboard(isSilent) {
-    const container = document.getElementById('reportsContainer');
-    if(!isSilent) container.innerHTML = "<div style='color:var(--text-muted); grid-column: 1/-1; text-align:center;'>Berichte werden geladen...</div>";
-    
-    if(!navigator.onLine) {
-        container.innerHTML = "<div style='color:var(--danger); grid-column: 1/-1; text-align:center;'>Keine Internetverbindung!</div>";
-        return;
-    }
-
-    try {
-        const res = await fetch(`${scriptURL}?action=getDashboardData&schicht=${activeFilterSchicht}&_cb=${Date.now()}`);
-        const list = await res.json();
-        
-        if(!list || list.length === 0) {
-            container.innerHTML = `<div style='color:var(--text-muted); grid-column:1/-1; text-align:center;'>Keine Berichte für Schicht ${activeFilterSchicht} heute gefunden.</div>`;
-            return;
-        }
-        
-        container.innerHTML = list.map(item => {
-            let errorStyleClass = item.hasError ? "report-danger" : "report-warning";
-            let formattedFehlerText = item.fehlerDet ? item.fehlerDet.replace(/\n/g, '<br>') : 'Keine';
-            
-            return `
-                <div class="report-box">
-                    <span class="badge-origin">${item.anlage || 'N/A'}</span>
-                    <div>
-                        <div class="report-date">${item.zeit || ''} - ${item.schichtType || ''}</div>
-                        <div class="report-title">${item.artikelInfo || 'Kein Artikel'}</div>
-                        <div class="${errorStyleClass}">⚠️ Ausschuss/Fehler:<br>${formattedFehlerText}</div>
-                    </div>
-                    <div class="report-user">👤 Erstellt von: ${item.user || 'Unbekannt'}</div>
-                </div>
-            `;
-        }).join('');
-    } catch(e) {
-        if(!isSilent) container.innerHTML = "<div style='color:var(--danger); grid-column:1/-1; text-align:center;'>Fehler beim Laden des Dashboards.</div>";
     }
 }
 </script>
