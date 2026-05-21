@@ -401,7 +401,54 @@ function enterApp(u) {
 
 function startAutoRefresh() {
     if(autoRefreshInterval) clearInterval(autoRefreshInterval);
-    autoRefreshInterval = setInterval(() => { loadAdminDashboard(true); }, 300000); 
+    
+    // İlk açılışta hemen bir kontrol yapıp doğru tempoyu ayarlasın
+    checkAndSetDynamicRefresh();
+    
+    // Her 60 saniyede bir saati kontrol edip modu güncelleyen ana motor
+    autoRefreshInterval = setInterval(() => {
+        checkAndSetDynamicRefresh();
+    }, 60000); 
+}
+
+let currentRefreshTempo = null; // Mevcut tempoyu hafızada tutmak için
+let dashboardExecutionInterval = null;
+
+function checkAndSetDynamicRefresh() {
+    const now = new Date();
+    const hours = now.getHours();
+    const minutes = now.getMinutes();
+    const currentTimeInMinutes = (hours * 60) + minutes;
+
+    // Hedef Zaman Aralıklarının Dakika Cinsinden Hesabı:
+    // 13:30 - 14:10 aralığı (810 - 850. dakika)
+    // 21:30 - 22:10 aralığı (1290 - 1330. dakika)
+    // 05:30 - 06:10 aralığı (330 - 370. dakika)
+    
+    const isYoğunSaat = 
+        (currentTimeInMinutes >= 810 && currentTimeInMinutes <= 850) || 
+        (currentTimeInMinutes >= 1290 && currentTimeInMinutes <= 1330) || 
+        (currentTimeInMinutes >= 330 && currentTimeInMinutes <= 370);
+
+    let targetTempo = isYoğunSaat ? "hizli" : "sakin";
+
+    // Eğer tempo değiştiyse veya ilk defa kuruluyorsa tetikle
+    if (currentRefreshTempo !== targetTempo) {
+        currentRefreshTempo = targetTempo;
+        if(dashboardExecutionInterval) clearInterval(dashboardExecutionInterval);
+        
+        if (targetTempo === "hizli") {
+            // Rapor yoğunluğu var -> 90 saniyede bir (90000 ms) yenile
+            loadAdminDashboard(true);
+            dashboardExecutionInterval = setInterval(() => { loadAdminDashboard(true); }, 90000);
+            document.getElementById('refreshStatus').innerText = "Modus: Live (90s)";
+        } else {
+            // Sakin zaman -> 30 dakikada bir (1800000 ms) yenile
+            loadAdminDashboard(true);
+            dashboardExecutionInterval = setInterval(() => { loadAdminDashboard(true); }, 1800000);
+            document.getElementById('refreshStatus').innerText = "Modus: Eco (30m)";
+        }
+    }
 }
 
 async function manualRefreshDashboard() {
