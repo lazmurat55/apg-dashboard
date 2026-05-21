@@ -1,123 +1,115 @@
-<! DOCTYPE html>
-<html lang="of">
-<Kopf>
-<meta charset="UTF-8">
-<metaname="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<TITEL>APG BOCHUM SICHERE PRO</TITEL>
-   
-<Link rel="apple-touch-icon" href="logo.jpg">
-<Link rel="apple-touch-icon" sizes="152x152" href="logo.jpg">
-<Link rel="apple-touch-icon" sizes="180x180" href="logo.jpg">
-<link rel="icon" type="image/jpeg" sizes="192x192" href="logo.jpg">
-<metaname="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<metaname="apple-mobile-web-app-title" content="APG Secure">
-<metaname="mobile-web-app-capable" content="yes">
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>APG BOCHUM SECURE PRO</title>
+    
+    <link rel="apple-touch-icon" href="logo.jpg">
+    <link rel="apple-touch-icon" sizes="152x152" href="logo.jpg">
+    <link rel="apple-touch-icon" sizes="180x180" href="logo.jpg">
+    <link rel="icon" type="image/jpeg" sizes="192x192" href="logo.jpg">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="APG Secure">
+    <meta name="mobile-web-app-capable" content="yes">
 
-
-
-<Stil>
-:Wurzel {
---BG-Gradient: linear-gradient(135°, #0f172a, #1e293b);
---Karte: #1e293b;
---karten-inner: #334155;
---primär: #38bdf8;
---blau-dunkel: #0284c7;
---text: #f8fafc;
---textstumm: #94a3b8;
---Gefahr: #f43f5e;
---erfolg: #4ade80;
---Rand: #475569;
---orange-hell: #fb923c;
---text-bright: #ffffff;
---gelb-leuchtend: #e9f838;
-}
-body { background: var(--bg-gradient); color: var(--text); font-family: 'Segoe UI', sans-serif; Margin: 0; Padding: 10px; min-height: 100vh; box-size: border-box; }
-#loginScreen, #setPassScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-gradient); z-index: 9999; display: flex; justify-content: center; align-items: center; }
-.login-card { background: var(--card); padding: 30px; border-radius: 20px; border: 2px solid var(--primary); width: 95%; max-width: 450px; text-align: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
-.card { Breite: 100%; max-Breite: 700px; Hintergrund: var(--card); Padding: 20px; Randradius: 20px; Rand: Auto; Rand: 1px solide var(--Rand); Anzeige: keine; Box-Shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
-.header { text-align: center; border-bottom: 3px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
-label { display: block; margin: 15px 0 5px; color: var(--primary); schriftstärke: fett; schriftgröße: 13px; texttransformation: Großbuchstaben; Buchstabenabstand: 0,5px; }
-select, input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-inner); color: var(--text); box-size: border-box; font-size: 14px; }
-select:focus, input:focus { outline: none; border-color: var(--primary); }
-.schicht-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
-.schicht-btn { Padding: 12px; Hintergrund: #334155; Rand: 1px solid var(--Rand); Randradius: 10px; Farbe: var(--text); Cursor: Zeiger; Schriftstärke: fett; Schriftgröße: 14px; Übergang: alle 0.2s; }
-.schicht-btn.active { background: var(--primary); color: #0f172a; border-color: var(--primary); box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
-#workerOverlay { display: none; position: fixed; ob: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
-.overlay-content { background: var(--card); width: 95%; max-width: 450px; max-height: 80vh; overflow-y: auto; border-radius: 20px; padding: 25px; border: 1px solid var(--border); }
-.worker-opt { padding: 12px; border-bottom: 1px solid var(--border); cursor: zeiger; font-size: 14px; color: var(--text); }
-.worker-opt:hover { background: var(--card-inner); color: var(--primary); }
-.selected-worker { display: flex; justify-content: space-between; padding: 12px; background: rgba(56, 189, 248, 0.15); border-radius: 10px; margin-top: 6px; border: 1px solid var(--primary); font-size: 14px; }
-.section-card { background: var(--card-inner); padding: 15px; randradius: 15px; margin-top: 15px; border: 1px solid var(--border); position: relative; }
-.ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
-.ft-btn { Padding: 10px; Hintergrund: #334155; Rand: 1px solide var(--Rand); Randradius: 8px; Farbe: var(--text); Cursor: Zeiger; Schriftgröße: 13px; Schriftstärke: fett; }
-.ft-btn.active { background: var(--blue-dark); color: white; border-color: var(--primary); box-shadow: 0 0 8px rgba(2, 132, 199, 0.5); }
-.main-btn { width: 100%; padding: 16px; background: var(--primary); color: #0f172a; border: none; border-radius: 12px; font-weight: fett; font-size: 16px; margin-top: 20px; cursor: zeiger; transition: alle 0.2s; }
-.main-btn:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; box-shadow: none; }
-.add-btn { width: 100%; padding: 10px; margin-top: 10px; background: transparent; border: 2px gestrichelt var(--primary); color: var(--primary); border-radius: 10px; cursor: zeiger; schriftgröße: 13px; schriftstärke: fett; transition: alle 0.2s; }
-.add-btn:hover { hintergrund: rgba(56, 189, 248, 0.1); }
-.sub-btn { background: var(--blue-dark); color: white; padding: 8px 12px; border-radius: 8px; border: none; cursor: zeiger; schriftgröße: 13px; schriftstärke: fett; weiß raum: nowrap; }
-.status-badge { display: inline-block; padding: 4px 10px; randradius: 15px; font-size: 11px; font-weight: fett; margin-top: 8px; }
-.status-ok { background: var(--success); color: #0f172a; }
-.status-error { background: var(--danger); color: white; }
-.code-row { margin-top: 10px; padding: 10px; background: var(--card); border-radius: 10px; border: 1px solid var(--border); }
-.code-row-inputs { display: flex; gap: 8px; align-items: center; width: 100%; }
-.code-row-inputs select { flex: 3; margin: 0; }
-.code-row-inputs eingabe { flex: 1; min-width: 70px; margin: 0; }
-.sonstige-eingabe { width: 100%; margin-top: 6px; display: none; border-color: var(--primary); }
-.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-       
-/* 📊 DASHBOARD-STILE */
-.dashboard-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; width: 100%; max-width: 1400px; margin: auto; display: none; box-size: border-box; }
-.reports-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
-@media(min-width: 768px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
-@media(min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
-.report-box { background: var(--card-inner); border: 1px solid var(--border); Padding: 18px; Randradius: 18px; Übergang: rand-farbe 0.2s; Margin-bottom: 10px; }
-.report-box:hover { border-color: var(--primary); }
-.badge-origin { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: fett; background: var(--primary); color: #0f172a; margin-bottom: 8px; }
-.report-box .report-date { font-size: 12px; color: #e2e8f0; font-weight: 500; margin-bottom: 8px; }
-.report-box .report-artikel { font-size: 14px; font-weight: fett; margin-bottom: 6px; color: #ffffff; }
-.report-box .report-ausschuss { font-size: 13px; color: var(--yellow-bright); font-weight: fett; margin-bottom: 4px; }
-.report-box .report-störung { font-size: 13px; color: var(--orange-bright); font-weight: fett; }
-.report-box .report-workers { font-size: 13px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; color: var(--text-bright); font-weight: fett; }
-.rights-box-compact { background: rgba(56, 189, 248, 0.08); rand: 1px solid var(--rand); Padding: 12px 18px; Randradius: 12px; Rand-unten: 20px; Anzeige: flex; flex-wrap: Hülle; Lücke: 12px; align-items: center; justify-content: space-between; }
-.right-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; flex; flex: 1; max-width: 850px; }
-.rights-controls select { padding: 8px 12px; background: var(--card-inner); border: 1px solid var(--border); color: var(--text); border-radius: 8px; schriftgröße: 13px; width: auto; min-width: 160px; }
-.filter-btn { Padding: 10px 16px; Hintergrund: #334155; Rand: 1px Solid var(--Rand); Randradius: 8px; Farbe: var(--text); Cursor: Zeiger; Schriftstärke: fett; }
-.filter-btn.active-filter { border-color: var(--primary); background: var(--blue-dark); }
-.delete-manager-btn { color: var(--danger); margin-left: 4px; cursor: zeiger; schriftstärke: fett; padding: 0 4px; randradius: 4px; }
-.live-indicator { font-size: 12px; color: var(--success); margin-top: 5px; animation: blink 2s infinite; }
-@keyframes blink { 0% { Opazität: 0,4; } 50% { Opazität: 1; } 100% { Opazität: 0,4; } }
-</Stil>
-</Kopf>
-<Körper>
-
-
+    <style>
+        :root { 
+            --bg-gradient: linear-gradient(135deg, #0f172a, #1e293b);
+            --card: #1e293b; 
+            --card-inner: #334155;
+            --primary: #38bdf8; 
+            --blue-dark: #0284c7; 
+            --text: #f8fafc; 
+            --text-muted: #94a3b8;
+            --danger: #f43f5e; 
+            --success: #4ade80; 
+            --border: #475569; 
+            --orange-bright: #fb923c; 
+            --text-bright: #ffffff;    
+            --yellow-bright: #e9f838; 
+        }
+        body { background: var(--bg-gradient); color: var(--text); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 10px; min-height: 100vh; box-sizing: border-box; }
+        #loginScreen, #setPassScreen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-gradient); z-index: 9999; display: flex; justify-content: center; align-items: center; }
+        .login-card { background: var(--card); padding: 30px; border-radius: 20px; border: 2px solid var(--primary); width: 95%; max-width: 450px; text-align: center; box-shadow: 0 10px 25px -5px rgba(0,0,0,0.3); }
+        .card { width: 100%; max-width: 700px; background: var(--card); padding: 20px; border-radius: 20px; margin: auto; border: 1px solid var(--border); display: none; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2); }
+        .header { text-align: center; border-bottom: 3px solid var(--primary); margin-bottom: 20px; padding-bottom: 10px; }
+        label { display: block; margin: 15px 0 5px; color: var(--primary); font-weight: bold; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; }
+        select, input { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--border); background: var(--card-inner); color: var(--text); box-sizing: border-box; font-size: 14px; }
+        select:focus, input:focus { outline: none; border-color: var(--primary); }
+        .schicht-group { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px; }
+        .schicht-btn { padding: 12px; background: #334155; border: 1px solid var(--border); border-radius: 10px; color: var(--text); cursor: pointer; font-weight: bold; font-size: 14px; transition: all 0.2s; }
+        .schicht-btn.active { background: var(--primary); color: #0f172a; border-color: var(--primary); box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
+        #workerOverlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center; }
+        .overlay-content { background: var(--card); width: 95%; max-width: 450px; max-height: 80vh; overflow-y: auto; border-radius: 20px; padding: 25px; border: 1px solid var(--border); }
+        .worker-opt { padding: 12px; border-bottom: 1px solid var(--border); cursor: pointer; font-size: 14px; color: var(--text); }
+        .worker-opt:hover { background: var(--card-inner); color: var(--primary); }
+        .selected-worker { display: flex; justify-content: space-between; padding: 12px; background: rgba(56, 189, 248, 0.15); border-radius: 10px; margin-top: 6px; border: 1px solid var(--primary); font-size: 14px; }
+        .section-card { background: var(--card-inner); padding: 15px; border-radius: 15px; margin-top: 15px; border: 1px solid var(--border); position: relative; }
+        .ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 10px; }
+        .ft-btn { padding: 10px; background: #334155; border: 1px solid var(--border); border-radius: 8px; color: var(--text); cursor: pointer; font-size: 13px; font-weight: bold; }
+        .ft-btn.active { background: var(--blue-dark); color: white; border-color: var(--primary); box-shadow: 0 0 8px rgba(2, 132, 199, 0.5); }
+        .main-btn { width: 100%; padding: 16px; background: var(--primary); color: #0f172a; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; margin-top: 20px; cursor: pointer; transition: all 0.2s; }
+        .main-btn:disabled { background: #475569; color: #94a3b8; cursor: not-allowed; box-shadow: none; }
+        .add-btn { width: 100%; padding: 10px; margin-top: 10px; background: transparent; border: 2px dashed var(--primary); color: var(--primary); border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: bold; transition: all 0.2s; }
+        .add-btn:hover { background: rgba(56, 189, 248, 0.1); }
+        .sub-btn { background: var(--blue-dark); color: white; padding: 8px 12px; border-radius: 8px; border: none; cursor: pointer; font-size: 13px; font-weight: bold; white-space: nowrap; }
+        .status-badge { display: inline-block; padding: 4px 10px; border-radius: 15px; font-size: 11px; font-weight: bold; margin-top: 8px; }
+        .status-ok { background: var(--success); color: #0f172a; }
+        .status-error { background: var(--danger); color: white; }
+        .code-row { margin-top: 10px; padding: 10px; background: var(--card); border-radius: 10px; border: 1px solid var(--border); }
+        .code-row-inputs { display: flex; gap: 8px; align-items: center; width: 100%; }
+        .code-row-inputs select { flex: 3; margin: 0; }
+        .code-row-inputs input { flex: 1; min-width: 70px; margin: 0; }
+        .sonstige-input { width: 100%; margin-top: 6px; display: none; border-color: var(--primary); }
+        .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        
+        /* 📊 DASHBOARD STYLES */
+        .dashboard-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 25px; width: 100%; max-width: 1400px; margin: auto; display: none; box-sizing: border-box; }
+        .reports-grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
+        @media(min-width: 768px) { .reports-grid { grid-template-columns: repeat(2, 1fr); } }
+        @media(min-width: 1200px) { .reports-grid { grid-template-columns: repeat(3, 1fr); } }
+        .report-box { background: var(--card-inner); border: 1px solid var(--border); padding: 18px; border-radius: 18px; transition: border-color 0.2s; margin-bottom: 10px; }
+        .report-box:hover { border-color: var(--primary); }
+        .badge-origin { display: inline-block; padding: 4px 10px; border-radius: 8px; font-size: 12px; font-weight: bold; background: var(--primary); color: #0f172a; margin-bottom: 8px; }
+        .report-box .report-date { font-size: 12px; color: #e2e8f0; font-weight: 500; margin-bottom: 8px; } 
+        .report-box .report-artikel { font-size: 14px; font-weight: bold; margin-bottom: 6px; color: #ffffff; }
+        .report-box .report-ausschuss { font-size: 13px; color: var(--yellow-bright); font-weight: bold; margin-bottom: 4px; }
+        .report-box .report-störung { font-size: 13px; color: var(--orange-bright); font-weight: bold; } 
+        .report-box .report-workers { font-size: 13px; margin-top: 8px; border-top: 1px solid var(--border); padding-top: 8px; color: var(--text-bright); font-weight: bold; } 
+        .rights-box-compact { background: rgba(56, 189, 248, 0.08); border: 1px solid var(--border); padding: 12px 18px; border-radius: 12px; margin-bottom: 20px; display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+        .rights-controls { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; flex: 1; max-width: 850px; }
+        .rights-controls select { padding: 8px 12px; background: var(--card-inner); border: 1px solid var(--border); color: var(--text); border-radius: 8px; font-size: 13px; width: auto; min-width: 160px; }
+        .filter-btn { padding: 10px 16px; background: #334155; border: 1px solid var(--border); border-radius: 8px; color: var(--text); cursor: pointer; font-weight: bold; }
+        .filter-btn.active-filter { border-color: var(--primary); background: var(--blue-dark); }
+        .delete-manager-btn { color: var(--danger); margin-left: 4px; cursor: pointer; font-weight: bold; padding: 0 4px; border-radius: 4px; }
+        .live-indicator { font-size: 12px; color: var(--success); margin-top: 5px; animation: blink 2s infinite; }
+        @keyframes blink { 0% { opacity: 0.4; } 50% { opacity: 1; } 100% { opacity: 0.4; } }
+    </style>
+</head>
+<body>
 
 <div id="loginScreen">
-<div class="login-card">
-<h2 style="color:var(--primary); Margin-oben: 0;" > ⚡ APG-LOGIN</H2>
-<p style="font-size:14px; color: var(--text-muted);" >Bitte Nachname und Passwort eingeben</p>
-<Eingabetyp="text" id="userInp" Platzhalter="Nachname" style="margin-bottom: 10px;" >
-<Eingabetyp="Passwort", ID="passInp", Platzhalter="Passwort">
-<button class="main-btn" onclick="checkLogin()">REGISTER</button>
-<p id="loginError" style="color:var(--danger); Schriftgröße: 14px; Margin-Top: 12 Prozent; anzeigen:keine;" ></p>
-</Div>
-</Div>
-
-
-
-<div id="setPassScreen" style="display:none;" >
-<div class="login-card">
-<h3 style="color:var(--primary);" > 📌 ERSTES LOGIN</H3>
-<p>Neues Passwort festlegen (min. 4 Zeichen)</p>
-<Eingabetyp="Passwort" id="newPass1" Platzhalter="Neues Passwort" style="margin-bottom: 10px;" >
-<Eingabetyp="Passwort", id="newPass2" Platzhalter="Wiederholen">
-        <button class="main-btn" onclick="saveNewPassword()">PASSWORT AKTIVIEREN</button>
+    <div class="login-card">
+        <h2 style="color:var(--primary); margin-top: 0;">⚡ APG LOGIN</h2>
+        <p style="font-size:14px; color: var(--text-muted);">Bitte Nachname und Passwort eingeben</p>
+        <input type="text" id="userInp" placeholder="Nachname" style="margin-bottom: 10px;">
+        <input type="password" id="passInp" placeholder="Passwort">
+        <button class="main-btn" onclick="checkLogin()">ANMELDEN</button>
+        <p id="loginError" style="color:var(--danger); font-size:14px; margin-top:12px; display:none;"></p>
     </div>
 </div>
 
-
+<div id="setPassScreen" style="display:none;">
+    <div class="login-card">
+        <h3 style="color:var(--primary);">📌 ERSTES LOGIN</h3>
+        <p>Neues Passwort festlegen (min. 4 Zeichen)</p>
+        <input type="password" id="newPass1" placeholder="Neues Passwort" style="margin-bottom: 10px;">
+        <input type="password" id="newPass2" placeholder="Wiederholen">
+        <button class="main-btn" onclick="saveNewPassword()">PASSWORT AKTIVIEREN</button>
+    </div>
+</div>
 
 <div class="card" id="mainApp">
     <div class="header">
@@ -141,14 +133,12 @@ select:focus, input:focus { outline: none; border-color: var(--primary); }
     <button id="mainSendBtn" class="main-btn" disabled onclick="processReport()">🚀 SPEICHERN & SENDEN</button>
 </div>
 
-
-
 <div class="dashboard-card" id="adminPanel">
     <div class="header" style="border-bottom: none; margin-bottom: 10px;">
         <h1 style="margin: 0 0 5px 0;">📊 APG Live Dashboard</h1>
         <p id="adminUserDisplay" style="color:var(--primary); font-weight:bold; margin: 0 0 5px 0; font-size: 15px;"></p>
         <div class="live-indicator">● Live-Verbindung aktiv (Automatischer Refresh)</div>
-       
+        
         <div id="rightsManagementBox" class="rights-box-compact" style="display:none; margin-top:15px;">
             <div class="rights-controls">
                 <span style="font-size: 13px; font-weight: bold; color: var(--primary); white-space: nowrap;">🔐 Schichtleiter zuweisen:</span>
@@ -163,8 +153,6 @@ select:focus, input:focus { outline: none; border-color: var(--primary); }
             <div id="currentManagersList" style="font-size:12px; color: var(--text-muted); text-align: right;"></div>
         </div>
 
-
-
         <div class="schicht-group" id="adminFilterGroup" style="max-width:450px; margin:15px auto 5px auto;">
             <button class="filter-btn" id="fltA" onclick="filterSchicht('A')">🔵 Schicht A</button>
             <button class="filter-btn" id="fltB" onclick="filterSchicht('B')">🟢 Schicht B</button>
@@ -174,8 +162,6 @@ select:focus, input:focus { outline: none; border-color: var(--primary); }
     </div>
     <div id="reportsContainer" class="reports-grid"></div>
 </div>
-
-
 
 <div id="workerOverlay">
     <div class="overlay-content">
@@ -187,47 +173,35 @@ select:focus, input:focus { outline: none; border-color: var(--primary); }
     </div>
 </div>
 
-
-
 <script>
 // ⚠️ HIER DEINEN DETEKTIRTEN SCRIPT URL GENAU SO LASSEN ODER ERSETZEN
-const scriptURL = "https://script.google.com/macros/s/AKfycbyoAdB6EhCy1CD2rQehG0uZKL6At2VxTgjGXOpNyxi6FVMJOQ9npEyRXeOHvDdtGRiMoA/exec";
-
-
+const scriptURL = "https://script.google.com/macros/s/AKfycbwhzsSsyCFQAzZdwEtVTB6itfSVXEp4lXtpX7kg6RxVmS-6HIZtZwkO2W3xNZcle2BXXQ/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Spätschicht";
 let selectedStaff = [];
 let loggedInUser = "";
-let autoRefreshInterval = null;
+let autoRefreshInterval = null; 
 let superAdmin = "Keskin";
 let schichtLeiterDb = {};
 let activeFilterSchicht = "B"; 
-
-
 
 if(localStorage.getItem('apg_schichtleiter_db')) {
     try { schichtLeiterDb = JSON.parse(localStorage.getItem('apg_schichtleiter_db')); } catch(e){}
 }
 
-
-
 function setInitialTodayDate() {
     const today = new Date();
-    document.getElementById('datum').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+    document.getElementById('datum').value = ${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')};
 }
-
-
 
 // ESKİ initialDB'yi SİL, yerine bunu koy (BOŞ bırak, şifreler Google'dan gelecek)
 let initialDB = {};
 
-
-
 // Google Sheets'ten şifreleri çek
 async function loadPasswordsFromSheet() {
     try {
-        const response = await fetch(`${scriptURL}?action=getSifreler&_cb=${Date.now()}`);
+        const response = await fetch(${scriptURL}?action=getSifreler&_cb=${Date.now()});
         const sifreler = await response.json();
         return sifreler;
     } catch(e) {
@@ -236,23 +210,21 @@ async function loadPasswordsFromSheet() {
     }
 }
 
-
-
 // YENİ checkLogin fonksiyonu
 async function checkLogin() {
     const u = document.getElementById('userInp').value.trim();
     const p = document.getElementById('passInp').value.trim();
     const errorDiv = document.getElementById('loginError');
-   
+    
     if(!u || !p) {
         errorDiv.innerText = "❌ Bitte Name und Passwort eingeben!";
         errorDiv.style.display = 'block';
         return;
     }
-   
+    
     // Google Sheets'ten şifreleri al
     const sifreler = await loadPasswordsFromSheet();
-   
+    
     if(sifreler[u] && sifreler[u] === p) {
         enterApp(u);
     } else {
@@ -265,8 +237,6 @@ const workerData = {
     "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T.", "Besche T.", "Eickhoff P.", "Toth Renata", "Gibba n.", "Helf A.", "Isbir J.", "Jeyakumar S.", "Kalisch T.", "Kowarsch R.", "Nowak M.", "Pähler D.", "Patarcsity V.", "Pulendran K.", "Sahin E.", "Savas S.", "Schiavitelli", "Uluyüz B.", "Uzun S.", "Klomrit", "Garcia"],
     "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin", "Gertz S.", "Schönborn Ch.", "Fortes Ch.", "Sakaguchi M.", "Mercan M.", "Krämer Ch.", "Juretzka T.", "Kumbara E.", "Skupio D.", "Skrago T.", "Bah A.", "Kaya A.", "Jdea A.", "Toure A.", "Schneider D.", "Tchaleu Bertrand", "Keskinmus", "Klomrit", "Garcia"]
 };
-
-
 
 const codeData = {
     PUR: {
@@ -283,13 +253,11 @@ const codeData = {
     }
 };
 
-
-
-function enterApp(u) {
-    loggedInUser = u;
-    document.getElementById('loginScreen').style.display = 'none';
+function enterApp(u) { 
+    loggedInUser = u; 
+    document.getElementById('loginScreen').style.display = 'none'; 
     setInitialTodayDate();
-   
+    
     if (u === superAdmin) {
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerHTML = "👑 Haupt-Admin: " + u;
@@ -298,14 +266,14 @@ function enterApp(u) {
         loadUserSelect();
         updateManagersList();
         filterSchicht('B');
-        startAutoRefresh();
-    }
+        startAutoRefresh(); 
+    } 
     else if (schichtLeiterDb[u]) {
         const assignedSchicht = schichtLeiterDb[u];
         document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('adminUserDisplay').innerHTML = `🏃 Schichtleiter: ${u} (Schicht ${assignedSchicht})`;
+        document.getElementById('adminUserDisplay').innerHTML = 🏃 Schichtleiter: ${u} (Schicht ${assignedSchicht});
         document.getElementById('rightsManagementBox').style.display = 'none';
-       
+        
         document.querySelectorAll('.filter-btn').forEach(btn => btn.style.display = 'none');
         const targetBtn = document.getElementById('flt' + assignedSchicht);
         if(targetBtn) {
@@ -313,19 +281,17 @@ function enterApp(u) {
             targetBtn.classList.add('active-filter');
         }
         filterSchicht(assignedSchicht);
-        startAutoRefresh();
-    }
+        startAutoRefresh(); 
+    } 
     else {
-        document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('currentUserDisplay').innerHTML = "👤 Angemeldet: " + u;
+        document.getElementById('mainApp').style.display = 'block'; 
+        document.getElementById('currentUserDisplay').innerHTML = "👤 Angemeldet: " + u; 
         let foundSchicht = "B";
         if(workerData["A"].some(w => w.includes(u) || u.includes(w.split(" ")[0]))) foundSchicht = "A";
         if(workerData["C"].some(w => w.includes(u) || u.includes(w.split(" ")[0]))) foundSchicht = "C";
-        setSchicht(foundSchicht);
+        setSchicht(foundSchicht); 
     }
 }
-
-
 
 function startAutoRefresh() {
     if(autoRefreshInterval) clearInterval(autoRefreshInterval);
@@ -334,39 +300,31 @@ function startAutoRefresh() {
         const hrs = now.getHours();
         const mins = now.getMinutes();
         const currentTimeNum = (hrs * 100) + mins;
-       
-        const isVardiya1 = (currentTimeNum >= 1330 && currentTimeNum <= 1400);
-        const isVardiya2 = (currentTimeNum >= 2130 && currentTimeNum <= 2210);
+        
+        const isVardiya1 = (currentTimeNum >= 1330 && currentTimeNum <= 1400); 
+        const isVardiya2 = (currentTimeNum >= 2130 && currentTimeNum <= 2210); 
         const isVardiya3 = (currentTimeNum >= 530  && currentTimeNum <= 610);  
-
-
 
         if (isVardiya1 || isVardiya2 || isVardiya3) {
             if (!window.lastRefreshTime || (now - window.lastRefreshTime >= 90000)) {
                 window.lastRefreshTime = now;
-                loadAdminDashboard();
+                loadAdminDashboard(); 
             }
         }
-    }, 10000);
+    }, 10000); 
 }
-
-
 
 function saveNewPassword() { alert("Passwort geändert"); enterApp(loggedInUser); }
 
-
-
 function loadUserSelect() {
     const select = document.getElementById('rightsSelect');
-    select.innerHTML = '<option value="">Mitarbeiter wählen...</option>' +
-                       '<option value="__CLEAR_ALL__" style="color:var(--danger); font-weight:bold;">⚠️ Alle Berechtigungen löschen</option>' +
-                       Object.keys(initialDB).filter(x => x !== superAdmin).map(u => `<option value="${u}">${u}</option>`).join('');
+    select.innerHTML = '<option value="">Mitarbeiter wählen...</option>' + 
+                       '<option value="_CLEAR_ALL_" style="color:var(--danger); font-weight:bold;">⚠️ Alle Berechtigungen löschen</option>' +
+                       Object.keys(initialDB).filter(x => x !== superAdmin).map(u => <option value="${u}">${u}</option>).join('');
 }
 
-
-
 function handleRightsSelectChange(value) {
-    if (value === "__CLEAR_ALL__") {
+    if (value === "_CLEAR_ALL_") {
         if (confirm("Möchten Sie wirklich ALLE Schichtleiter-Berechtigungen löschen?")) {
             schichtLeiterDb = {};
             localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
@@ -377,8 +335,6 @@ function handleRightsSelectChange(value) {
     }
 }
 
-
-
 function grantSchichtleiterRights() {
     const name = document.getElementById('rightsSelect').value;
     const schicht = document.getElementById('assignedSchichtSelect').value;
@@ -386,83 +342,69 @@ function grantSchichtleiterRights() {
     schichtLeiterDb[name] = schicht;
     localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
     updateManagersList();
-    alert(`✅ ${name} wurde für Schicht ${schicht} autorisiert.`);
+    alert(✅ ${name} wurde für Schicht ${schicht} autorisiert.);
 }
 
-
-
 function removeSchichtleiterRight(name) {
-    if (confirm(`Möchten Sie die Berechtigung für ${name} wirklich löschen?`)) {
+    if (confirm(Möchten Sie die Berechtigung für ${name} wirklich löschen?)) {
         delete schichtLeiterDb[name];
         localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
         updateManagersList();
-        alert(`❌ Berechtigung für ${name} wurde aufgehoben.`);
+        alert(❌ Berechtigung für ${name} wurde aufgehoben.);
     }
 }
 
-
-
-function updateManagersList() {
+function updateManagersList() { 
     let listText = "Aktiv: ";
     const entries = Object.entries(schichtLeiterDb);
-    if(entries.length === 0) { listText += "Keine Leiter zugewiesen"; }
-    else { listText += entries.map(([name, schicht]) => `${name} (${schicht})<span class="delete-manager-btn" onclick="removeSchichtleiterRight('${name}')" title="Löschen">✕</span>`).join(', '); }
-    document.getElementById('currentManagersList').innerHTML = listText;
+    if(entries.length === 0) { listText += "Keine Leiter zugewiesen"; } 
+    else { listText += entries.map(([name, schicht]) => ${name} (${schicht})<span class="delete-manager-btn" onclick="removeSchichtleiterRight('${name}')" title="Löschen">✕</span>).join(', '); }
+    document.getElementById('currentManagersList').innerHTML = listText; 
 }
 
-
-
-function setSchicht(s) {
-    currentSchicht = s;
+function setSchicht(s) { 
+    currentSchicht = s; 
     document.querySelectorAll('.schicht-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById('mSchicht' + s)?.classList.add('active');
-   
-    selectedStaff = [];
-    renderStaff();
-   
+    
+    selectedStaff = []; 
+    renderStaff(); 
+    
     if (s === "A") setSchichtType('Frühschicht');
     else if (s === "B") setSchichtType('Spätschicht');
     else if (s === "C") setSchichtType('Nachtschicht');
 }
 
-
-
-function setSchichtType(t) {
-    currentSchichtType = t;
+function setSchichtType(t) { 
+    currentSchichtType = t; 
     document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
     if(t === 'Frühschicht') document.getElementById('tFrueh')?.classList.add('active');
     if(t === 'Spätschicht') document.getElementById('tSpaet')?.classList.add('active');
     if(t === 'Nachtschicht') document.getElementById('tNacht')?.classList.add('active');
 }
 
-
-
-function openWorkerOverlay() {
-    document.getElementById('workerList').innerHTML = workerData[currentSchicht].map(w => `<div class="worker-opt" onclick="addStaff('${w}')">${w}</div>`).join("");
-    document.getElementById('workerOverlay').style.display='flex';
+function openWorkerOverlay() { 
+    document.getElementById('workerList').innerHTML = workerData[currentSchicht].map(w => <div class="worker-opt" onclick="addStaff('${w}')">${w}</div>).join(""); 
+    document.getElementById('workerOverlay').style.display='flex'; 
 }
 function addStaff(n) { if(!selectedStaff.includes(n)) selectedStaff.push(n); closeOverlay(); renderStaff(); }
 function addManualWorker() { const v = document.getElementById('manualWorker').value.trim(); if(v) { selectedStaff.push("✍️ "+v); document.getElementById('manualWorker').value=""; closeOverlay(); renderStaff(); } }
 function closeOverlay() { document.getElementById('workerOverlay').style.display='none'; }
-function renderStaff() { document.getElementById('workerDisplayContainer').innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')" style="color:var(--danger); cursor:pointer;">✕</span></div>`).join(""); liveCheck(); }
+function renderStaff() { document.getElementById('workerDisplayContainer').innerHTML = selectedStaff.map(s => <div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')" style="color:var(--danger); cursor:pointer;">✕</span></div>).join(""); liveCheck(); }
 function removeStaff(n) { selectedStaff = selectedStaff.filter(x => x !== n); renderStaff(); }
 
-
-
-function onAnlageChange(v) {
-    document.getElementById('ftBox').style.display = v.startsWith("PUR") ? "block" : "none";
-    document.getElementById('comTimeBox').style.display = v === "COM" ? "block" : "none";
-    document.getElementById('artikelContainer').innerHTML = "";
+function onAnlageChange(v) { 
+    document.getElementById('ftBox').style.display = v.startsWith("PUR") ? "block" : "none"; 
+    document.getElementById('comTimeBox').style.display = v === "COM" ? "block" : "none"; 
+    document.getElementById('artikelContainer').innerHTML = ""; 
     document.getElementById('addArtikelBtn').disabled = v === "";
-    liveCheck();
+    liveCheck(); 
 }
-
-
 
 let artikelCounter = 0;
 function addArtikel() {
-    const id = Date.now() + artikelCounter++;
-    const div = document.createElement('div'); div.className = "section-card artikel-row"; div.id = `art_${id}`;
+    const id = Date.now() + artikelCounter++; 
+    const div = document.createElement('div'); div.className = "section-card artikel-row"; div.id = art_${id};
     div.innerHTML = `<button onclick="this.parentElement.remove(); liveCheck();" style="position:absolute; right:10px; top:10px; background:var(--danger); color:white; border:none; border-radius:5px; width:26px; height:26px; cursor:pointer;">✕</button>
         <label>📌 Artikelnummer</label><input type="text" class="art-name" placeholder="z.B. 123456">
         ${document.getElementById('anlage').value==='COM' ? '<label>⏱️ Dauer (Min)</label><input type="number" class="art-duration" placeholder="Minuten" oninput="liveCheck()">' : ''}
@@ -473,72 +415,68 @@ function addArtikel() {
     liveCheck();
 }
 
-
-
 function addRow(artId, type) {
-    const anl = document.getElementById('anlage').value;
+    const anl = document.getElementById('anlage').value; 
     const cat = anl==='COM'?'COM':(anl.startsWith("PUR")?'PUR':'Spritz');
     const div = document.createElement('div'); div.className="code-row";
     div.innerHTML = `<div class="code-row-inputs">
         <select class="${type}-select" style="flex:3;">
-            ${codeData[cat][type].map(c => `<option value="${c}">${c}</option>`).join("")}
+            ${codeData[cat][type].map(c => <option value="${c}">${c}</option>).join("")}
         </select>
         <input type="number" class="${type}-value" style="flex:1; min-width:80px;" placeholder="${type==='aus'?'Stk':'Min'}" oninput="liveCheck()">
         <button onclick="this.parentElement.parentElement.remove(); liveCheck();" style="color:var(--danger); background:none; border:none; font-size:18px; cursor:pointer;">✕</button></div>
         <input type="text" class="sonstige-input" placeholder="Grund manuell...">`;
-   
-    document.getElementById(`rows_${artId}`).appendChild(div);
-    const select = div.querySelector(`.${type}-select`);
+    
+    document.getElementById(rows_${artId}).appendChild(div);
+    const select = div.querySelector(.${type}-select);
     const sonstInput = div.querySelector('.sonstige-input');
     select.onchange = () => { sonstInput.style.display = select.value === 'Sonstige' ? 'block' : 'none'; };
     liveCheck();
 }
 
-
-
 // 🔓 STRIKTE RAKAM KONTROLLERİ VE BLOKAJLAR KALDIRILDI!
 function liveCheck() {
-    let isValid = true;
+    let isValid = true; 
     let cT = 0;
     const sendBtn = document.getElementById('mainSendBtn');
-   
+    
     document.querySelectorAll('.artikel-row').forEach(row => {
-        const id = row.id.split('_')[1];
+        const id = row.id.split('_')[1]; 
         const t = parseInt(row.querySelector('.art-aus-total').value) || 0;
-       
-        let s = 0;
+        
+        let s = 0; 
         row.querySelectorAll('.aus-value').forEach(i => s += parseInt(i.value) || 0);
         const b = document.getElementById('badge_' + id);
-       
+        
         // Sadece alt detay girilmiş ama üst toplam 0 ise otomatik eşitleme uyarısı ver (Engelleme!)
         if (s > 0 && t === 0) {
-            b.className="status-badge status-ok";
+            b.className="status-badge status-ok"; 
             b.innerText = "✅ Auto-Anpassung: " + s;
-        }
+        } 
         // Eğer alt kodların toplamı, girilen üst toplama uymuyorsa uyar ama buton kilidini aç
-        else if(t > 0 && t !== s) {
-            b.className="status-badge status-ok";
-            b.innerText = "ℹ️ Info: " + s + " von " + t + " erfasst";
-        } else if(t > 0) {
-            b.className="status-badge status-ok";
-            b.innerText = "✅ OK: " + s + "/" + t;
-        } else {
-            b.innerText="";
+        else if(t > 0 && t !== s) { 
+            b.className="status-badge status-ok"; 
+            b.innerText = "ℹ️ Info: " + s + " von " + t + " erfasst"; 
+        } else if(t > 0) { 
+            b.className="status-badge status-ok"; 
+            b.innerText = "✅ OK: " + s + "/" + t; 
+        } else { 
+            b.innerText=""; 
         }
-       
+        
         if(document.getElementById('anlage').value === 'COM') {
             cT += (parseInt(row.querySelector('.art-duration').value) || 0);
         }
     });
-   
+    
     if(document.getElementById('anlage').value === 'COM') {
         document.getElementById('comTotal').innerText = cT;
     }
-   
+    
     const hasWorkers = selectedStaff.length > 0;
     const hasAnlage = document.getElementById('anlage').value !== "";
     const hasRows = document.querySelectorAll('.artikel-row').length > 0;
-   
+    
     if(!hasWorkers) {
         sendBtn.innerText = "👥 MITARBEITER WÄHLEN";
         sendBtn.disabled = true;
@@ -555,8 +493,6 @@ function liveCheck() {
     }
 }
 
-
-
 function filterSchicht(s) {
     activeFilterSchicht = s;
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
@@ -564,37 +500,33 @@ function filterSchicht(s) {
     loadAdminDashboard();
 }
 
-
-
 async function loadAdminDashboard() {
     const container = document.getElementById('reportsContainer');
     if(!container) return;
-   
+    
     try {
         const refreshBtn = document.querySelector('#adminPanel .main-btn[onclick="loadAdminDashboard()"]');
         if(refreshBtn) refreshBtn.innerText = "⏳ Lädt...";
 
-
-
-        const response = await fetch(`${scriptURL}?action=getReports&schicht=${activeFilterSchicht}&_cb=${Date.now()}`);
-       
+        const response = await fetch(${scriptURL}?action=getReports&schicht=${activeFilterSchicht}&_cb=${Date.now()});
+        
         if (!response.ok) throw new Error("Server error: " + response.status);
         const data = await response.json();
-       
+        
         if(refreshBtn) refreshBtn.innerText = "🔄 Jetzt Aktualisieren";
         container.innerHTML = "";
-       
+        
         if(!data || data.length === 0) {
-            container.innerHTML = `<p style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">Keine Berichte für Schicht ${activeFilterSchicht} gefunden.</p>`;
+            container.innerHTML = <p style="text-align:center; color:var(--text-muted); grid-column: 1/-1;">Keine Berichte für Schicht ${activeFilterSchicht} gefunden.</p>;
             return;
         }
-       
+        
         data.forEach(r => {
             const box = document.createElement('div');
             box.className = "report-box";
-            let ftText = r.formtraeger ? `<div style="font-size:12px; color:var(--primary); margin-bottom:5px;">🧩 FT: ${r.formtraeger}</div>` : '';
-            let durationText = r.dauer ? `<span style="color:var(--text-muted)"> (${r.dauer} Min)</span>` : '';
-           
+            let ftText = r.formtraeger ? <div style="font-size:12px; color:var(--primary); margin-bottom:5px;">🧩 FT: ${r.formtraeger}</div> : '';
+            let durationText = r.dauer ? <span style="color:var(--text-muted)"> (${r.dauer} Min)</span> : '';
+            
             box.innerHTML = `
                 <div class="badge-origin">${r.anlage}</div>
                 <div class="report-date">📅 ${r.datum} - ⏳ ${r.schichtType}</div>
@@ -611,23 +543,21 @@ async function loadAdminDashboard() {
         });
     } catch (error) {
         console.error("Dashboard error:", error);
-        container.innerHTML = `<p style="text-align:center; color:var(--danger); grid-column: 1/-1;">❌ Daten konnten nicht geladen werden.</p>`;
+        container.innerHTML = <p style="text-align:center; color:var(--danger); grid-column: 1/-1;">❌ Daten konnten nicht geladen werden.</p>;
     }
 }
-
-
 
 async function processReport() {
     const sendBtn = document.getElementById('mainSendBtn');
     sendBtn.disabled = true;
     sendBtn.innerText = "⏳ SENDEN...";
-   
+    
     const anlage = document.getElementById('anlage').value;
     const datum = document.getElementById('datum').value;
-   
+    
     let selectedFTs = [];
     document.querySelectorAll('.ft-btn.active').forEach(b => selectedFTs.push(b.innerText));
-   
+    
     let reportData = {
         action: "saveReport",
         schicht: currentSchicht,
@@ -639,19 +569,19 @@ async function processReport() {
         user: loggedInUser,
         rows: []
     };
-   
+    
     document.querySelectorAll('.artikel-row').forEach(row => {
         const id = row.id.split('_')[1];
         const artName = row.querySelector('.art-name').value.trim() || "Unbekannt";
-       
+        
         // Boş bırakılan alanları burası otomatik olarak "0" yapar
         const artGut = row.querySelector('.art-gut').value || "0";
         let artAusTotal = parseInt(row.querySelector('.art-aus-total').value) || 0;
         const duration = row.querySelector('.art-duration')?.value || "";
-       
+        
         let ausDetails = [];
         let totalAusFromRows = 0;
-       
+        
         row.querySelectorAll('.code-row').forEach(r => {
             const sel = r.querySelector('.aus-select');
             const val = r.querySelector('.aus-value');
@@ -659,25 +589,25 @@ async function processReport() {
                 let pieceCount = parseInt(val.value) || 0;
                 totalAusFromRows += pieceCount;
                 let txt = sel.value === 'Sonstige' ? r.querySelector('.sonstige-input').value.trim() : sel.value;
-                ausDetails.push(`${txt} (${pieceCount} Stk)`);
+                ausDetails.push(${txt} (${pieceCount} Stk));
             }
         });
-       
+        
         // Eğer el ile toplam yazılmadıysa alt detayların toplamını otomatik eşitle
         if(artAusTotal === 0 && totalAusFromRows > 0) {
             artAusTotal = totalAusFromRows;
         }
-       
+        
         let stoerDetails = [];
         row.querySelectorAll('.code-row').forEach(r => {
             const sel = r.querySelector('.stoer-select');
             const val = r.querySelector('.stoer-value');
             if(sel && val && val.value) {
                 let txt = sel.value === 'Sonstige' ? r.querySelector('.sonstige-input').value.trim() : sel.value;
-                stoerDetails.push(`${txt} (${val.value} Min)`);
+                stoerDetails.push(${txt} (${val.value} Min));
             }
         });
-       
+        
         reportData.rows.push({
             artikelNummer: artName,
             dauer: duration,
@@ -687,17 +617,17 @@ async function processReport() {
             stoerungDetails: stoerDetails.join(" | ") || "Keine"
         });
     });
-   
+    
     try {
         await fetch(scriptURL, {
             method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "text/plain" },
+            mode: "no-cors", 
+            headers: { "Content-Type": "text/plain" }, 
             body: JSON.stringify(reportData)
         });
-       
+        
         alert("🚀 Daten erfolgreich an Google Sheets gesendet!");
-       
+        
         document.getElementById('artikelContainer').innerHTML = "";
         selectedStaff = [];
         renderStaff();
