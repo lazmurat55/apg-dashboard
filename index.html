@@ -13,18 +13,24 @@
             --primary: #3b82f6;        /* Standart mavi */
             --primary-hover: #1d4ed8;  /* Koyu mavi hover */
             --success: #10b981;        /* Başarılı / Gutteile yeşili */
-            --danger: #f43f5e;         /* Hata / Ausschuss kırmızısı */
+            --danger: #f43f5e;         /* Hata / Genel kırmızı */
             --orange-bright: #f59e0b;  /* Admin / Uyarı turuncusu */
             --text-main: #f8fafc;      /* Parlak beyaz yerine mat beyaz (göz dostu) */
             --text-muted: #94a3b8;     /* İkinci derece yazılar için gri ton */
+            
+            /* Yenilenen Parlak Kırmızı - Dashboard için */
+            --dash-danger: #ff4d6d;    
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, Roboto, sans-serif; }
         body { background-color: var(--bg-main); color: var(--text-main); padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
         
-        .container { width: 100%; max-width: 620px; background: transparent; }
+        .container { width: 100%; max-width: 1100px; background: transparent; transition: max-width 0.3s ease; }
+        /* Admin paneli açıldığında ekranı genişletiyoruz ki 3'lü yan yana düzen rahat sığsın */
+        .container.wide { max-width: 1200px; }
+        .app-wrapper { max-width: 620px; margin: 0 auto; }
         
-        /* Kart Yapısı: Bilgileri gruplayıp gözün hemen anlamasını sağlar */
+        /* Kart Yapısı */
         .form-card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2), 0 2px 4px -2px rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
         
         h2 { text-align: center; margin-bottom: 24px; color: #fff; font-weight: 700; letter-spacing: 0.5px; }
@@ -96,16 +102,75 @@
         .refresh-btn { background: #334155; color: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 18px; font-size: 13px; width: auto; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; }
         .refresh-btn:hover { background: var(--success); border-color: var(--success); }
         
-        .report-box { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 8px; padding: 14px; margin-bottom: 12px; position: relative; }
-        .badge-origin { position: absolute; right: 12px; top: 12px; background: var(--border-color); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; color: #fff; }
+        /* ---------------------------------------------------- */
+        /* 👑 YENİ DASHBOARD GRİD DÜZENİ VE BÜYÜK YAZI STİLLERİ */
+        /* ---------------------------------------------------- */
+        #reportsContainer { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); /* Yan yana 3 kare */
+            gap: 16px; 
+            max-height: 650px; 
+            overflow-y: auto; 
+            padding-right: 4px; 
+            margin-top: 15px; 
+        }
         
+        @media (max-width: 900px) {
+            #reportsContainer { grid-template-columns: repeat(2, 1fr); } /* Orta ekranlarda 2'li */
+        }
+        @media (max-width: 650px) {
+            #reportsContainer { grid-template-columns: 1fr; } /* Mobilde tekli */
+        }
+
+        .report-box { 
+            background: var(--bg-input); 
+            border: 1px solid var(--border-color); 
+            border-radius: 12px; 
+            padding: 18px; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); 
+            min-height: 190px; /* Kare formunu korur */
+        }
+        
+        .badge-origin { 
+            position: absolute; 
+            right: 12px; 
+            top: 12px; 
+            background: var(--primary); 
+            padding: 4px 12px; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            font-weight: 700; 
+            color: #fff; 
+        }
+        
+        .report-box .report-date { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
+        .report-box .report-title { font-size: 17px; font-weight: 700; color: #fff; margin: 6px 0; line-height: 1.4; }
+        
+        /* Parlak yüksek kontrastlı ve büyük kırmızı */
+        .report-box .report-danger { font-size: 15px; color: var(--dash-danger) !important; font-weight: 700; margin: 4px 0; line-height: 1.4; }
+        .report-box .report-warning { font-size: 14px; color: var(--orange-bright); font-weight: 600; margin: 4px 0; }
+        
+        .report-box .report-user { 
+            font-size: 13px; 
+            color: var(--success); 
+            margin-top: 8px; 
+            font-weight: 600; 
+            border-top: 1px solid var(--border-color); 
+            padding-top: 8px; 
+        }
+        /* ---------------------------------------------------- */
+
         #loginScreen { display: block; max-width: 400px; margin: 60px auto 0; }
         #mainApp, #adminPanel { display: none; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container" id="mainContainer">
     <div id="loginScreen" class="form-card">
         <h2>APG BOCHUM LOGIN</h2>
         <label>Benutzername</label>
@@ -116,7 +181,7 @@
         <div id="loginError" style="color:var(--danger); text-align:center; margin-top:14px; display:none; font-size:14px; font-weight: 600;"></div>
     </div>
 
-    <div id="mainApp">
+    <div id="mainApp" class="app-wrapper">
         <div class="form-card" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; padding: 14px 20px;">
             <span id="currentUserDisplay" style="font-weight:700; color:var(--success);"></span>
             <button onclick="location.reload()" style="width:auto; padding:6px 14px; font-size:13px; background:var(--border-color); border-radius: 6px;">Abmelden</button>
@@ -198,7 +263,7 @@
 
     <div id="adminPanel" class="form-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
-            <span id="adminUserDisplay" style="font-weight:700; color:var(--orange-bright);"></span>
+            <span id="adminUserDisplay" style="font-weight:700; color:var(--orange-bright); font-size: 16px;"></span>
             <div style="display:flex; gap:8px;">
                 <button id="toggleRightsBtn" class="admin-action-btn" onclick="toggleRightsPanel()" style="display:none;">⚙️ Admin-Optionen</button>
                 <button onclick="location.reload()" style="width:auto; padding:6px 14px; font-size:13px; background:var(--danger); border-radius:6px;">Abmelden</button>
@@ -222,7 +287,7 @@
             <div class="managers-list" id="currentManagersList">Aktiv: Keine Leiter zugewiesen</div>
         </div>
 
-        <h3>Schichtleiter Dashboard</h3>
+        <h3 style="font-size: 20px; margin-bottom: 20px;">Schichtleiter Dashboard</h3>
         
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <button id="manualRefreshBtn" class="refresh-btn" onclick="manualRefreshDashboard()">🔄 Aktualisieren</button>
@@ -235,7 +300,7 @@
             <button class="schicht-btn filter-btn" id="fltC" onclick="filterSchicht('C')">Schicht C</button>
         </div>
 
-        <div id="reportsContainer" style="max-height:450px; overflow-y:auto; padding-right: 4px;"></div>
+        <div id="reportsContainer"></div>
     </div>
 </div>
 
@@ -343,6 +408,7 @@ function enterApp(u) {
     setInitialTodayDate();
     
     if (u === superAdmin) {
+        document.getElementById('mainContainer').classList.add('wide'); // Ekranı genişlet
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerHTML = "👑 Admin: " + u;
         document.getElementById('toggleRightsBtn').style.display = 'inline-block';
@@ -353,6 +419,7 @@ function enterApp(u) {
     } 
     else if (schichtLeiterDb[u]) {
         const assignedSchicht = schichtLeiterDb[u];
+        document.getElementById('mainContainer').classList.add('wide'); // Ekranı genişlet
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerHTML = `🏃 Leiter: ${u} (Schicht ${assignedSchicht})`;
         document.getElementById('toggleRightsBtn').style.display = 'none'; 
@@ -368,6 +435,7 @@ function enterApp(u) {
         startAutoRefresh();
     } 
     else {
+        document.getElementById('mainContainer').classList.remove('wide');
         document.getElementById('mainApp').style.display = 'block';
         document.getElementById('currentUserDisplay').innerHTML = "👤 Angemeldet: " + u;
         setSchicht('B');
@@ -811,6 +879,9 @@ function clearForm() {
     onAnlageChange("");
 }
 
+/* ---------------------------------------------------- */
+/* 👑 EN GÜNCELİ EN ÜSTE ALAN VE 3'LÜ GRİD YAPAN YENİ METOT */
+/* ---------------------------------------------------- */
 async function loadAdminDashboard(isBackground = false) {
     if(!navigator.onLine) return;
     const container = document.getElementById('reportsContainer');
@@ -818,23 +889,26 @@ async function loadAdminDashboard(isBackground = false) {
     
     try {
         const response = await fetch(`${scriptURL}?action=getReports&schicht=${activeFilterSchicht}&_cb=${Date.now()}`);
-        const reports = await response.json();
+        let reports = await response.json();
         
         if(!reports || reports.length === 0) {
-            container.innerHTML = "<div style='color:var(--text-muted); text-align:center; padding:20px;'>Keine Berichte für heute vorhanden.</div>";
+            container.innerHTML = "<div style='color:var(--text-muted); text-align:center; padding:20px; grid-column: span 3;'>Keine Berichte für heute vorhanden.</div>";
             return;
         }
+
+        // Listeyi ters çevirerek EN GÜNCEL raporu EN BAŞA/ÜSTE getiriyoruz.
+        reports.reverse();
 
         container.innerHTML = reports.map(rep => {
             const unit = rep.anlage === 'COM' ? 'Kg' : 'Stk';
             return `
                 <div class="report-box">
                     <div class="badge-origin">${rep.anlage}</div>
-                    <div style="font-size:12px; color:var(--text-muted);">${rep.datum}</div>
-                    <div style="font-size:14px; font-weight:bold; margin:4px 0;">📦 Art-Nr: ${rep.artikelNummer} - ${rep.stueckzahl} ${unit}</div>
-                    <div style="font-size:13px; color:var(--danger); font-weight:600;">❌ Ausschuss: ${rep.ausschuss} ${unit} (${rep.grund})</div>
-                    <div style="font-size:13px; color:var(--text-main);">⚠️ Störung: ${rep.stoerung} (${rep.min} min)</div>
-                    <div style="font-size:12px; color:var(--primary); margin-top:4px; font-weight:600;">👤 Erfasst von: ${rep.sender}</div>
+                    <div class="report-date">📅 ${rep.datum}</div>
+                    <div class="report-title">📦 Art-Nr: ${rep.artikelNummer}<br>👉 ${rep.stueckzahl} ${unit}</div>
+                    <div class="report-danger">❌ Ausschuss: ${rep.ausschuss} ${unit}<br>⚠️ (${rep.grund})</div>
+                    <div class="report-warning">⏱️ Störung: ${rep.stoerung} (${rep.min} min)</div>
+                    <div class="report-user">👤 Erfasst von: ${rep.sender}</div>
                 </div>
             `;
         }).join('');
@@ -844,7 +918,9 @@ async function loadAdminDashboard(isBackground = false) {
             const status = document.getElementById('refreshStatus');
             if(status) status.innerText = `Auto: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
         }
-    } catch(e){}
+    } catch(e){
+        console.error("Dashboard hatası:", e);
+    }
 }
 
 function filterSchicht(schicht) {
