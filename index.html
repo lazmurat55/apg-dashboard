@@ -339,7 +339,7 @@ const workerData = {
 const codeData = {
     PUR: {
         aus: ["6-2-01 Temperatur zu niedrig", "6-2-02 Schaum haftet nicht am Bauteil", "6-2-03 Einlegefehler", "6-2-04 Schussabbruch", "6-2-05 CIM nicht voll ausgeschäumt", "6-2-06 Lippe gerissen", "6-2-07 CIM gerissen", "7-2-01 Nacharbeit am Bauteil (Entgraten, Nachkleben etc.)", "Sonstige"],
-        stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-2-01 Ungepl. Inst. WZ", "4-2-02 Ungepl. Inst. Masch", "4-2-03 Poly/Iso Überdruck", "4-2-04 Mischkopf nio", "4-2-05 Fehler Lichtschr.", "4-2-06 Trennmittelpist.", "4-2-07 Formträger Prob.", "4-2-08 Reinigung WZ", "4-2-09 Not Aus", "5-2-01 Logistik Mangel", "5-2-02 Keine Teile IM/CIM", "5-2-04 Wartezeit Einrichter", "5-2-10 Poly/Iso leer", "Sonstige"]
+        stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-2-01 Ungepl. Inst. WZ", "4-2-02 Ungepl. Inst. Masch", "4-2-04 Mischkopf nio", "4-2-05 Fehler Lichtschr.", "4-2-06 Trennmittelpist.", "4-2-07 Formträger Prob.", "4-2-08 Reinigung WZ", "4-2-09 Not Aus", "5-2-01 Logistik Mangel", "5-2-02 Keine Teile IM/CIM", "5-2-04 Wartezeit Einrichter", "5-2-10 Poly/Iso leer", "Sonstige"]
     },
     Spritz: {
         aus: ["6-1-01 Anfahrschrott", "6-1-02 Mat-Umst.", "6-1-03 CIM n.voll", "6-1-04 CIM gerissen", "6-1-06 Einfallstellen", "6-1-07 Brandstellen", "6-1-08 Silberstreifen", "Sonstige"],
@@ -356,10 +356,6 @@ function setInitialTodayDate() {
     document.getElementById('datum').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 }
 
-function scrollToBottom() {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-}
-
 async function checkLogin() {
     const u = document.getElementById('userInp').value.trim();
     const p = document.getElementById('passInp').value.trim();
@@ -374,17 +370,6 @@ async function checkLogin() {
     errorDiv.innerText = "⏳ Prüfe Login...";
     errorDiv.style.display = 'block';
     errorDiv.style.color = "var(--primary)";
-
-    if (!navigator.onLine) {
-        if (u === superAdmin || schichtLeiterDb[u]) {
-            errorDiv.style.display = 'none';
-            enterApp(u);
-            return;
-        }
-        errorDiv.style.color = "var(--danger)";
-        errorDiv.innerText = "❌ Keine Netzverbindung!";
-        return;
-    }
 
     try {
         const response = await fetch(`${scriptURL}?action=verifyLogin&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}&_cb=${Date.now()}`);
@@ -408,7 +393,7 @@ function enterApp(u) {
     setInitialTodayDate();
     
     if (u === superAdmin) {
-        document.getElementById('mainContainer').classList.add('wide'); // Ekranı genişlet
+        document.getElementById('mainContainer').classList.add('wide');
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerHTML = "👑 Admin: " + u;
         document.getElementById('toggleRightsBtn').style.display = 'inline-block';
@@ -419,7 +404,7 @@ function enterApp(u) {
     } 
     else if (schichtLeiterDb[u]) {
         const assignedSchicht = schichtLeiterDb[u];
-        document.getElementById('mainContainer').classList.add('wide'); // Ekranı genişlet
+        document.getElementById('mainContainer').classList.add('wide');
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerHTML = `🏃 Leiter: ${u} (Schicht ${assignedSchicht})`;
         document.getElementById('toggleRightsBtn').style.display = 'none'; 
@@ -439,15 +424,70 @@ function enterApp(u) {
         document.getElementById('mainApp').style.display = 'block';
         document.getElementById('currentUserDisplay').innerHTML = "👤 Angemeldet: " + u;
         setSchicht('B');
+        addArtikel(); 
     }
-    
-    window.addEventListener('online', checkOfflinePuffer);
-    checkOfflinePuffer();
 }
 
 function startAutoRefresh() {
     if(autoRefreshInterval) clearInterval(autoRefreshInterval);
     autoRefreshInterval = setInterval(() => { loadAdminDashboard(true); }, 300000); 
+}
+
+function filterSchicht(s) {
+    activeFilterSchicht = s;
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('flt' + s)?.classList.add('active');
+    loadAdminDashboard(false);
+}
+
+// 📊 CANLI DASHBOARD YÜKLEME VE GÖSTERME (EKSİKSİZ VE SAATİ AYIKLANMIŞ)
+async function loadAdminDashboard(isAuto) {
+    const container = document.getElementById('reportsContainer');
+    if(!container) return;
+    
+    if(!isAuto) container.innerHTML = "<div style='text-align:center; padding:20px;'>⏳ Veriler yükleniyor...</div>";
+    
+    try {
+        const response = await fetch(`${scriptURL}?action=getReports&schicht=${activeFilterSchicht}&_cb=${Date.now()}`);
+        const data = await response.json();
+        
+        if(!data || data.length === 0) {
+            container.innerHTML = "<div style='text-align:center; padding:20px; color:var(--text-muted);'>Bugün bu vardiyada henüz kayıt yok.</div>";
+            return;
+        }
+        
+        let finalHTML = "";
+        data.forEach(rapor => {
+            // Zaman verisinden sadece Saat ve Dakika kısmını (HH:mm) çeker
+            let saatGosterimi = "00:00";
+            if(rapor.datum && String(rapor.datum).includes(" ")) {
+                let fullTime = String(rapor.datum).split(" ")[1];
+                saatGosterimi = fullTime.substring(0, 5); 
+            } else if(rapor.datum && String(rapor.datum).includes("T")) {
+                let fullTime = String(rapor.datum).split("T")[1];
+                saatGosterimi = fullTime.substring(0, 5);
+            } else {
+                saatGosterimi = String(rapor.datum).substring(11, 16) || "00:00";
+            }
+
+            finalHTML += `
+                <div class="report-box">
+                    <span class="badge-origin">${rapor.anlage} ${rapor.formTraeger ? '(' + rapor.formTraeger + ')' : ''}</span>
+                    <div class="report-date">⏱️ Saat: ${saatGosterimi}</div>
+                    <div class="report-title">Art-Nr: ${rapor.artikelNummer}</div>
+                    <div class="report-warning" style="color: var(--success);">O.K. Stück: ${rapor.stueckzahl || 0} Stk</div>
+                    <div class="report-danger">Ausschuss: ${rapor.ausschuss || 0} Stk</div>
+                    ${rapor.grund && rapor.grund !== "Sonstige" ? `<div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">❌ Grund: ${rapor.grund}</div>` : ''}
+                    ${rapor.stoerung ? `<div style="font-size:12px; color:var(--orange-bright); margin-bottom:4px;">⚠️ Störung: ${rapor.stoerung} (${rapor.min || 0} min)</div>` : ''}
+                    <div class="report-user">👤 Personel: ${rapor.mitarbeiter || 'Girilmedi'}</div>
+                </div>
+            `;
+        });
+        container.innerHTML = finalHTML;
+    } catch(e) {
+        console.error(e);
+        container.innerHTML = "<div style='text-align:center; padding:20px; color:var(--danger);'>⚠️ Fehler beim Laden!</div>";
+    }
 }
 
 async function manualRefreshDashboard() {
@@ -555,398 +595,183 @@ function closeOverlay() { document.getElementById('workerOverlay').style.display
 function renderStaff() { document.getElementById('workerDisplayContainer').innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')" style="color:var(--danger); cursor:pointer;">✕</span></div>`).join(""); liveCheck(); }
 function removeStaff(n) { selectedStaff = selectedStaff.filter(x => x !== n); renderStaff(); }
 
+// 🔄 MAKİNE SEÇİM DEĞİŞİKLİĞİ (TAMAMLANDI)
 function onAnlageChange(v) {
     document.getElementById('ftBox').style.display = v.startsWith("PUR") ? "block" : "none";
+    document.getElementById('addArtikelBtn').disabled = v === "";
     
     const tracker = document.getElementById('comTracker');
     if(v === "COM") {
         tracker.style.display = "block";
         tracker.style.background = "rgba(59, 130, 246, 0.08)";
         tracker.style.borderColor = "var(--primary)";
-        tracker.innerText = "⏱️ COM Schichtzeit-Konto: 0 / 480 Min (Noch 480 Min offen)";
     } else {
         tracker.style.display = "none";
     }
-
+    
+    // Temiz bir başlangıç için her makine değişiminde artikel satırlarını sıfırla ve 1 tane boş ekle
     document.getElementById('artikelContainer').innerHTML = "";
-    document.getElementById('addArtikelBtn').disabled = v === "";
+    if(v !== "") { addArtikel(); }
     liveCheck();
-    setTimeout(scrollToBottom, 50);
 }
 
 let artikelCounter = 0;
 function addArtikel() {
-    const id = Date.now() + "_" + artikelCounter++;
-    const div = document.createElement('div'); div.className = "artikel-row"; div.id = `art_${id}`;
-    const anl = document.getElementById('anlage').value;
-    
-    const labelGut = anl === "COM" ? "✅ Gutteile (Kg)" : "✅ Gutteile (Stk)";
-    const labelAus = anl === "COM" ? "❌ Ausschuss (Kg)" : "❌ Ausschuss (Gesamt)";
-    const placeholderUnit = anl === "COM" ? "Kg" : "Stk";
+    artikelCounter++;
+    const anlageVal = document.getElementById('anlage').value;
+    let typeKey = "PUR";
+    if(anlageVal.startsWith("IM") || anlageVal.startsWith("CIM")) typeKey = "Spritz";
+    if(anlageVal === "COM") typeKey = "COM";
 
-    let dauerFieldHtml = "";
-    if (anl === "COM") {
-        dauerFieldHtml = `
-            <div>
-                <label>⏱️ Dauer (Min)</label>
-                <input type="number" class="art-dauer" placeholder="z.B. 120" oninput="liveCheck()">
-            </div>
-        `;
-    }
+    const ausOptions = codeData[typeKey].aus.map(c => `<option value="${c}">${c}</option>`).join('');
+    const stoerOptions = codeData[typeKey].stoer.map(c => `<option value="${c}">${c}</option>`).join('');
 
-    div.innerHTML = `<button onclick="this.parentElement.remove(); liveCheck();" style="position:absolute; right:12px; top:12px; background:var(--danger); color:white; border:none; border-radius:6px; width:24px; height:24px; cursor:pointer; font-weight:700;">✕</button>
-        
-        <div class="grid-2" style="margin-top: 10px;">
-            <div>
-                <label>📌 Artikelnummer</label>
-                <input type="text" class="art-name" placeholder="z.B. 123456">
+    const rowHTML = `
+        <div class="artikel-row" id="artRow_${artikelCounter}">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                <h4 style="font-size:14px; color:var(--primary);">📦 Artikel #${artikelCounter}</h4>
+                ${artikelCounter > 1 ? `<span style="color:var(--danger); cursor:pointer; font-size:13px;" onclick="removeArtikelRow(${artikelCounter})">✕ Satırı Sil</span>` : ''}
             </div>
-            ${dauerFieldHtml}
+            <div class="grid-2">
+                <div>
+                    <label>Artikelnummer</label>
+                    <input type="text" class="inp-art-num" placeholder="z.B. 123456" oninput="liveCheck()">
+                </div>
+                <div>
+                    <label>Stückzahl (Gut)</label>
+                    <input type="number" class="inp-gut" placeholder="0" oninput="liveCheck()">
+                </div>
+            </div>
+            <div class="code-row err-border">
+                <label>Ausschuss / Hata Kartı</label>
+                <div class="code-row-inputs">
+                    <select class="sel-aus"><option value="">-- Kein Ausschuss --</option>${ausOptions}</select>
+                    <input type="number" class="inp-aus" placeholder="0" oninput="liveCheck()">
+                </div>
+            </div>
+            <div class="code-row">
+                <label>Störung / Arıza Kartı</label>
+                <div class="code-row-inputs">
+                    <select class="sel-stoer"><option value="">-- Keine Störung --</option>${stoerOptions}</select>
+                    <input type="number" class="inp-stoer" placeholder="min" oninput="liveCheck()">
+                </div>
+            </div>
         </div>
-        
-        <div class="grid-2">
-            <div>
-                <label>${labelGut}</label>
-                <input type="number" class="art-gut" placeholder="${placeholderUnit}" oninput="liveCheck()">
-            </div>
-            <div>
-                <label>${labelAus}</label>
-                <input type="number" class="art-total-aus" placeholder="${placeholderUnit}" value="0" oninput="liveCheck()">
-            </div>
-        </div>
-        
-        <div id="rows_${id}"></div>
-        <div style="display:flex; gap:10px; margin-top:14px; border-top: 1px solid var(--border-color); padding-top: 10px;">
-            <button class="sub-btn" style="flex:1;" onclick="addRow('${id}','aus')">+ Ausschuss-Grund</button>
-            <button class="sub-btn" style="flex:1;" onclick="addRow('${id}','stoer')">+ Störung</button>
-        </div>`;
-        
-    document.getElementById('artikelContainer').appendChild(div);
+    `;
+    document.getElementById('artikelContainer').insertAdjacentHTML('beforeend', rowHTML);
     liveCheck();
-    setTimeout(scrollToBottom, 50);
 }
 
-function addRow(artId, type) {
-    const anl = document.getElementById('anlage').value;
-    const cat = anl === 'COM' ? 'COM' : (anl.startsWith("PUR") ? 'PUR' : 'Spritz');
-    const div = document.createElement('div'); div.className = "code-row";
-    
-    const valPlaceholder = type === 'aus' ? (anl === 'COM' ? 'Kg' : 'Stk') : 'Min';
-    
-    div.innerHTML = `<div class="code-row-inputs">
-        <select class="${type}-select">
-            ${codeData[cat][type].map(c => `<option value="${c}">${c}</option>`).join("")}
-        </select>
-        <input type="number" class="${type}-value" placeholder="${valPlaceholder}" oninput="liveCheck()">
-        <span class="remove-row-btn" onclick="this.parentElement.parentElement.remove(); liveCheck();">✕</span>
-    </div>
-    <input type="text" class="sonstige-input" placeholder="Grund manuell...">`;
-    
-    document.getElementById(`rows_${artId}`).appendChild(div);
-    const select = div.querySelector(`.${type}-select`);
-    const sonstInput = div.querySelector('.sonstige-input');
-    select.onchange = () => { sonstInput.style.display = select.value === 'Sonstige' ? 'block' : 'none'; };
-    
+function removeArtikelRow(id) {
+    document.getElementById(`artRow_${id}`)?.remove();
     liveCheck();
-    setTimeout(scrollToBottom, 50);
 }
 
+// 🔐 FORM KONTROL SİSTEMİ
 function liveCheck() {
-    const sendBtn = document.getElementById('mainSendBtn');
     const anlage = document.getElementById('anlage').value;
-    const hasWorkers = selectedStaff.length > 0;
-    const hasAnlage = anlage !== "";
-    const artikelRows = document.querySelectorAll('.artikel-row');
-    const tracker = document.getElementById('comTracker');
+    const datum = document.getElementById('datum').value;
+    const sendBtn = document.getElementById('mainSendBtn');
     
-    if(!hasWorkers) { sendBtn.disabled = true; sendBtn.innerText = "⚠️ Bitte Mitarbeiter hinzufügen"; return; }
-    if(!hasAnlage) { sendBtn.disabled = true; sendBtn.innerText = "⚠️ Bitte Anlage auswählen"; return; }
-    if(artikelRows.length === 0) { sendBtn.disabled = true; sendBtn.innerText = "⚠️ Bitte Artikel hinzufügen"; return; }
-    
-    let totalComMinutes = 0;
-    let validationFailed = false;
-    let reasonMessage = "🚀 SPEICHERN & SENDEN";
+    let valid = true;
+    let msg = "✓ Daten absenden";
 
-    artikelRows.forEach(row => {
-        const totalAusRequired = parseFloat(row.querySelector('.art-total-aus').value) || 0;
+    if(!anlage) { valid = false; msg = "⚠️ Bitte Anlage wählen"; }
+    if(selectedStaff.length === 0) { valid = false; msg = "⚠️ Bitte Mitarbeiter auswählen"; }
+    if(!datum) { valid = false; msg = "⚠️ Bitte Datum wählen"; }
+
+    // Artikel satırlarının kontrolü
+    const rows = document.querySelectorAll('.artikel-row');
+    if(rows.length === 0) { valid = false; msg = "⚠️ Bitte mindestens 1 Artikel hinzufügen"; }
+    
+    let totalComMin = 0;
+    rows.forEach(row => {
+        const artNum = row.querySelector('.inp-art-num').value.trim();
+        const gutVal = row.querySelector('.inp-gut').value.trim();
+        const stoerMin = parseFloat(row.querySelector('.inp-stoer').value) || 0;
         
-        if (anlage === "COM") {
-            const dauerInput = row.querySelector('.art-dauer');
-            if (dauerInput) {
-                totalComMinutes += parseInt(dauerInput.value) || 0;
-            }
-        }
-
-        let sumOfAusReasons = 0;
-        row.querySelectorAll('.code-row').forEach(codeRow => {
-            const ausVal = codeRow.querySelector('.aus-value');
-            if (ausVal) sumOfAusReasons += parseFloat(ausVal.value) || 0;
-        });
-
-        if (Math.abs(totalAusRequired - sumOfAusReasons) > 0.01) {
-            validationFailed = true;
-            reasonMessage = "⚠️ Ausschuss-Summe stimmt nicht überein!";
-            row.querySelectorAll('.code-row').forEach(cr => { if(cr.querySelector('.aus-value')) cr.classList.add('err-border'); });
-        } else {
-            row.querySelectorAll('.code-row').forEach(cr => cr.classList.remove('err-border'));
-        }
+        if(!artNum) { valid = false; msg = "⚠️ Artikelnummer fehlt"; }
+        if(!gutVal) { valid = false; msg = "⚠️ Stückzahl fehlt"; }
+        totalComMin += stoerMin;
     });
 
-    if (anlage === "COM") {
-        if (totalComMinutes === 480) {
-            tracker.style.background = "rgba(16, 185, 129, 0.1)";
-            tracker.style.borderColor = "var(--success)";
-            tracker.style.color = "var(--success)";
-            tracker.innerText = `⏱️ COM Schichtzeit-Konto: ${totalComMinutes} / 480 Min - Perfekt!`;
-        } 
-        else if (totalComMinutes < 480) {
-            let diff = 480 - totalComMinutes;
-            tracker.style.background = "rgba(59, 130, 246, 0.08)";
-            tracker.style.borderColor = "var(--primary)";
-            tracker.style.color = "#fff";
-            tracker.innerText = `⏱️ COM Schichtzeit-Konto: ${totalComMinutes} / 480 Min (Noch ${diff} Min offen)`;
-            
-            validationFailed = true;
-            reasonMessage = `⚠️ Fehlende Zeit! Bitte noch ${diff} Min buchen.`;
-        } 
-        else {
-            let diff = totalComMinutes - 480;
-            tracker.style.background = "rgba(244, 63, 94, 0.1)";
-            tracker.style.borderColor = "var(--danger)";
-            tracker.style.color = "var(--danger)";
-            tracker.innerText = `⚠️ COM Schichtzeit-Konto: ${totalComMinutes} / 480 Min (+ ${diff} Min zu viel!)`;
-            
-            validationFailed = true;
-            reasonMessage = `⚠️ Limit überschritten! Max. 480 Min.`;
-        }
+    if(anlage === "COM") {
+        document.getElementById('comTracker').innerText = `⏱️ COM Schichtzeit-Konto: ${totalComMin} / 480 Min`;
     }
 
-    if(validationFailed) {
-        sendBtn.disabled = true;
-        sendBtn.innerText = reasonMessage;
-        sendBtn.style.background = "var(--danger)";
-    } else {
-        sendBtn.disabled = false;
-        sendBtn.innerText = "🚀 SPEICHERN & SENDEN";
-        sendBtn.style.background = "var(--primary)";
-    }
+    sendBtn.disabled = !valid;
+    sendBtn.innerText = msg;
+    sendBtn.className = valid ? "btn-primary" : "btn-primary disabled";
 }
 
+// 📤 VERİLERİ ETABLOYA GÖNDEREN ANA METOT
 async function processReport() {
     const sendBtn = document.getElementById('mainSendBtn');
     sendBtn.disabled = true;
-    sendBtn.innerText = "⏳ Bitte warten...";
+    sendBtn.innerText = "⏳ Wird gesendet...";
 
-    const n = new Date();
-    const localTimestamp = `${n.getFullYear()}-${String(n.getMonth()+1).padStart(2,'0')}-${String(n.getDate()).padStart(2,'0')} ${String(n.getHours()).padStart(2,'0')}:${String(n.getMinutes()).padStart(2,'0')}:${String(n.getSeconds()).padStart(2,'0')}`;
+    const anlage = document.getElementById('anlage').value;
+    const datum = document.getElementById('datum').value;
+    
+    // Seçilen Formträger butonlarını diziye alıyoruz
+    let selectedFTs = [];
+    document.querySelectorAll('.ft-btn.active').forEach(btn => selectedFTs.push(btn.innerText));
+    const formTraegerStr = selectedFTs.join(', ');
+
+    // 👥 TÜM SEÇİLEN İŞÇİ İSİMLERİNİ BİRLEŞTİRİP METİN OLARAK BACKEND'E VERİYORUZ
+    const mitarbeiterStr = selectedStaff.join(', ');
+
+    // Tüm dinamik artikel satırlarını döngüye alıyoruz
+    let artikelArray = [];
+    document.querySelectorAll('.artikel-row').forEach(row => {
+        artikelArray.push({
+            artikelNummer: row.querySelector('.inp-art-num').value.trim(),
+            gutteile: row.querySelector('.inp-gut').value || 0,
+            wert_aus: row.querySelector('.inp-aus').value || 0,
+            code_aus: row.querySelector('.sel-aus').value || "",
+            code_stoer: row.querySelector('.sel-stoer').value || "",
+            wert_stoer: row.querySelector('.inp-stoer').value || 0
+        });
+    });
 
     const payload = {
-        id: "rep_" + Date.now() + "_" + Math.random().toString(36).substr(2, 5),
-        timestamp: localTimestamp,
-        datum: document.getElementById('datum').value,
-        sender: loggedInUser,
-        anlage: document.getElementById('anlage').value,
-        schicht: currentSchicht,
-        schichtArt: currentSchichtType,
-        mitarbeiter: selectedStaff.join(", "),
-        formTraeger: "",
-        artikel: []
+        action: "insertReport",
+        data: {
+            schicht: currentSchicht,
+            schichtType: currentSchichtType,
+            datum: datum,
+            timestamp: new Date().toISOString(),
+            sender: loggedInUser,
+            mitarbeiter: mitarbeiterStr, // Artık backend kolon C'ye güvenle yazılacak
+            anlage: anlage,
+            formTraeger: formTraegerStr,
+            artikel: artikelArray
+        }
     };
 
-    if (document.getElementById('ftBox').style.display !== 'none') {
-        payload.formTraeger = Array.from(document.querySelectorAll('.ft-btn.active')).map(btn => btn.innerText).join(", ");
-    }
-
-    document.querySelectorAll('.artikel-row').forEach(row => {
-        const artNum = row.querySelector('.art-name').value.trim() || "Unbekannt";
-        const gutteile = parseFloat(row.querySelector('.art-gut').value) || 0;
-        
-        let durationVal = 0;
-        if (payload.anlage === 'COM') {
-            const dauerInput = row.querySelector('.art-dauer');
-            durationVal = dauerInput ? (parseInt(dauerInput.value) || 0) : 0;
-        }
-        
-        let hatEintrag = false;
-
-        row.querySelectorAll('.code-row').forEach(codeRow => {
-            const ausSelect = codeRow.querySelector('.aus-select');
-            const ausVal = codeRow.querySelector('.aus-value');
-            const stoerSelect = codeRow.querySelector('.stoer-select');
-            const stoerVal = codeRow.querySelector('.stoer-value');
-            const sonstInput = codeRow.querySelector('.sonstige-input');
-
-            let code_aus = "Keine", wert_aus = 0;
-            let code_stoer = "Keine", wert_stoer = "";
-
-            if (ausSelect && ausVal && parseFloat(ausVal.value) > 0) {
-                code_aus = ausSelect.value === 'Sonstige' ? "Sonstige: " + sonstInput.value.trim() : ausSelect.value;
-                wert_aus = parseFloat(ausVal.value);
-                hatEintrag = true;
-            }
-
-            if (stoerSelect && stoerVal && parseInt(stoerVal.value) > 0) {
-                code_stoer = stoerSelect.value === 'Sonstige' ? "Sonstige: " + sonstInput.value.trim() : stoerSelect.value;
-                wert_stoer = parseInt(stoerVal.value);
-                hatEintrag = true;
-            }
-
-            if (hatEintrag) {
-                payload.artikel.push({
-                    artikelNummer: artNum,
-                    gutteile: gutteile,
-                    duration: durationVal,
-                    wert_aus: wert_aus,
-                    code_aus: code_aus,
-                    code_stoer: code_stoer,
-                    wert_stoer: wert_stoer
-                });
-            }
-        });
-
-        if (!hatEintrag) {
-            payload.artikel.push({
-                artikelNummer: artNum,
-                gutteile: gutteile,
-                duration: durationVal,
-                wert_aus: 0,
-                code_aus: "Keine",
-                code_stoer: "Keine",
-                wert_stoer: ""
-            });
-        }
-    });
-
-    pufferReport(payload);
-}
-
-function pufferReport(data) {
-    let puffer = [];
-    if(localStorage.getItem('apg_offline_puffer')) {
-        try { puffer = JSON.parse(localStorage.getItem('apg_offline_puffer')); } catch(e){}
-    }
-    if(!puffer.some(x => x.id === data.id)) {
-        puffer.push(data);
-        localStorage.setItem('apg_offline_puffer', JSON.stringify(puffer));
-    }
-    alert("Gesendet! Vielen Dank, dass Sie dieses System nutzen.");
-    clearForm();
-    liveCheck();
-    checkOfflinePuffer();
-}
-
-async function checkOfflinePuffer() {
-    if(!localStorage.getItem('apg_offline_puffer')) return;
-    if(!navigator.onLine) return;
-
-    let puffer = [];
-    try { puffer = JSON.parse(localStorage.getItem('apg_offline_puffer')); } catch(e){}
-    if(puffer.length === 0) return;
-
-    let activePuffer = [...puffer];
-
-    for(let i = 0; i < activePuffer.length; i++) {
-        const currentReport = activePuffer[i];
-        try {
-            const controller = new AbortController();
-            const timeoutId = setTimeout(() => controller.abort(), 15000);
-
-            const response = await fetch(scriptURL, {
-                method: 'POST',
-                body: JSON.stringify({ action: "insertReport", data: currentReport }),
-                signal: controller.signal
-            });
-            
-            clearTimeout(timeoutId);
-            const res = await response.json();
-            
-            if(res.success) {
-                puffer = puffer.filter(x => x.id !== currentReport.id);
-                localStorage.setItem('apg_offline_puffer', JSON.stringify(puffer));
-            }
-        } catch(e) {
-            break; 
-        }
-    }
-}
-
-function clearForm() {
-    document.getElementById('artikelContainer').innerHTML = "";
-    document.querySelectorAll('.ft-btn').forEach(b => b.classList.remove('active'));
-    selectedStaff = [];
-    renderStaff();
-    document.getElementById('anlage').value = "";
-    onAnlageChange("");
-}
-
-/* ---------------------------------------------------- */
-/* 👑 EN GÜNCELİ EN ÜSTE ALAN VE 3'LÜ GRİD YAPAN YENİ METOT */
-/* ---------------------------------------------------- */
-// HTML dosyanızın içindeki bu fonksiyonu bulun ve bu şekilde güncelleyin:
-async function loadAdminDashboard(isAuto) {
-    const container = document.getElementById('reportsContainer');
-    if(!container) return;
-    
-    if(!isAuto) container.innerHTML = "<div style='text-align:center; padding:20px;'>⏳ Veriler yükleniyor...</div>";
-    
     try {
-        // Aktif filtrelenen vardiyaya göre backend'den verileri çeker
-        const response = await fetch(`${scriptURL}?action=getReports&schicht=${activeFilterSchicht}&_cb=${Date.now()}`);
-        const data = await response.json();
-        
-        if(!data || data.length === 0) {
-            container.innerHTML = "<div style='text-align:center; padding:20px; color:var(--text-muted);'>Bugün için bu vardiyada henüz kayıt yok.</div>";
-            return;
-        }
-        
-        let finalHTML = "";
-        
-        // Gelen her bir rapor satırı için bir kart (report-box) oluşturuyoruz
-        data.forEach(rapor => {
-            // Backend'den gelen "yyyy-MM-dd HH:mm:ss" formatındaki tarihten sadece Saat:Dakika kısmını çekelim
-            let saatKismi = "00:00";
-            if(rapor.datum && rapor.datum.includes(" ")) {
-                let fullTime = rapor.datum.split(" ")[1]; // HH:mm:ss kısmını alır
-                saatKismi = fullTime.substring(0, 5);     // Sadece HH:mm kısmını alır (Örn: 15:30)
-            } else {
-                saatKismi = String(rapor.datum);
-            }
-
-            // 👑 YENİ EKLENEN KISIM BAŞLANGICI
-            finalHTML += `
-                <div class="report-box">
-                    <span class="badge-origin">${rapor.anlage} ${rapor.formTraeger ? '(' + rapor.formTraeger + ')' : ''}</span>
-                    
-                    <div class="report-date">⏱️ Saat: ${saatKismi}</div> 
-                    
-                    <div class="report-title">Art-Nr: ${rapor.artikelNummer}</div>
-                    <div class="report-warning" style="color: var(--success);">O.K. Parça: ${rapor.stueckzahl || 0} Adet</div>
-                    <div class="report-danger">Ausschuss: ${rapor.ausschuss || 0} Adet</div>
-                    
-                    ${rapor.grund && rapor.grund !== "Sonstige" ? `<div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">❌ Nedeni: ${rapor.grund}</div>` : ''}
-                    
-                    <div class="report-user">👤 Personel: ${rapor.mitarbeiter || 'Girilmedi'}</div>
-                </div>
-            `;
-            // 👑 YENİ EKLENEN KISIM BİTİŞİ
+        const response = await fetch(scriptURL, {
+            method: "POST",
+            mode: "no-cors", // Google redirection uyumluluğu için
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
         });
         
-        container.innerHTML = finalHTML;
-        
+        alert("✓ Rapor başarıyla etabloya gönderildi!");
+        // Formu temizle ve sıfırla
+        selectedStaff = [];
+        document.getElementById('anlage').value = "";
+        document.getElementById('artikelContainer').innerHTML = "";
+        document.getElementById('ftBox').style.display = "none";
+        renderStaff();
     } catch(e) {
-        console.error("Dashboard yüklenirken hata oluştu:", e);
-        container.innerHTML = "<div style='text-align:center; padding:20px; color:var(--danger);'>⚠️ Veriler çekilemedi!</div>";
+        console.error(e);
+        alert("❌ Ein Fehler ist aufgetreten!");
+        liveCheck();
     }
 }
 
-function filterSchicht(schicht) {
-    activeFilterSchicht = schicht;
-    document.querySelectorAll('.filter-btn').forEach(btn => {
-        if(btn.id === 'flt' + schicht) btn.classList.add('active-filter');
-        else btn.classList.remove('active-filter');
-    });
-    loadAdminDashboard();
-}
+function checkOfflinePuffer() {}
 </script>
 </body>
 </html>
