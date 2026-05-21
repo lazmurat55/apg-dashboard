@@ -882,35 +882,47 @@ function clearForm() {
 /* ---------------------------------------------------- */
 /* 👑 EN GÜNCELİ EN ÜSTE ALAN VE 3'LÜ GRİD YAPAN YENİ METOT */
 /* ---------------------------------------------------- */
-async function loadAdminDashboard(isAuto) {
+async function loadAdminDashboard(isBackground = false) {
+    if(!navigator.onLine) return;
+    const container = document.getElementById('reportsContainer');
+    if(!container) return;
+    
     try {
-        // 1. Verileri Google Script'ten çek
-        const response = await fetch(`${scriptURL}?action=getReports&_cb=${Date.now()}`);
+        const response = await fetch(`${scriptURL}?action=getReports&schicht=${activeFilterSchicht}&_cb=${Date.now()}`);
         let reports = await response.json();
+        
+        if(!reports || reports.length === 0) {
+            container.innerHTML = "<div style='color:var(--text-muted); text-align:center; padding:20px; grid-column: span 3;'>Keine Berichte für heute vorhanden.</div>";
+            return;
+        }
 
-        // 2. Tarihe göre sıralama (En güncel en üstte)
-        reports.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        // Listeyi ters çevirerek EN GÜNCEL raporu EN BAŞA/ÜSTE getiriyoruz.
+        reports.reverse();
 
-        // 3. Filtreleme (Seçili vardiyaya göre)
-        const filtered = reports.filter(r => r.schicht === activeFilterSchicht);
-
-        // 4. HTML'e basma
-        const container = document.getElementById('reportsContainer');
-        container.innerHTML = filtered.map(r => `
-            <div class="report-box">
-                <span class="badge-origin">${r.anlage}</span>
-                <div class="report-date">${new Date(r.timestamp).toLocaleString()}</div>
-                <div class="report-title">Art-Nr: ${r.artikel} | ${r.menge} Stk</div>
-                <div class="report-danger">❌ Ausschuss: ${r.ausschuss}</div>
-                <div class="report-warning">⚠️ ${r.hataKodu || 'Keine'}</div>
-                <div class="report-warning">⏱️ Störung: ${r.stoerung || 'Keine'}</div>
-                <div class="report-user">👤 ${r.mitarbeiter}</div>
-            </div>
-        `).join('');
-    } catch(e) {
-        console.error("Dashboard yüklenemedi:", e);
+        container.innerHTML = reports.map(rep => {
+            const unit = rep.anlage === 'COM' ? 'Kg' : 'Stk';
+            return `
+                <div class="report-box">
+                    <div class="badge-origin">${rep.anlage}</div>
+                    <div class="report-date">📅 ${rep.datum}</div>
+                    <div class="report-title">📦 Art-Nr: ${rep.artikelNummer}<br>👉 ${rep.stueckzahl} ${unit}</div>
+                    <div class="report-danger">❌ Ausschuss: ${rep.ausschuss} ${unit}<br>⚠️ (${rep.grund})</div>
+                    <div class="report-warning">⏱️ Störung: ${rep.stoerung} (${rep.min} min)</div>
+                    <div class="report-user">👤 Erfasst von: ${rep.sender}</div>
+                </div>
+            `;
+        }).join('');
+        
+        if(isBackground) {
+            const now = new Date();
+            const status = document.getElementById('refreshStatus');
+            if(status) status.innerText = `Auto: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+        }
+    } catch(e){
+        console.error("Dashboard hatası:", e);
     }
 }
+
 function filterSchicht(schicht) {
     activeFilterSchicht = schicht;
     document.querySelectorAll('.filter-btn').forEach(btn => {
