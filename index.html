@@ -6,19 +6,17 @@
     <title>APG Bochum - Betriebsdatenerfassung</title>
     <style>
         :root {
-            --bg-main: #0f172a;        /* Gözü yormayan modern koyu arka plan */
-            --bg-card: #1e293b;        /* Kartlar için hafif açık, net ayrışan ton */
-            --bg-input: #0f172a;       /* Giriş alanları arka planı */
-            --border-color: #334155;   /* Yumuşak sınır çizgileri */
-            --primary: #3b82f6;        /* Standart mavi */
-            --primary-hover: #1d4ed8;  /* Koyu mavi hover */
-            --success: #10b981;        /* Başarılı / Gutteile yeşili */
-            --danger: #f43f5e;         /* Hata / Genel kırmızı */
-            --orange-bright: #f59e0b;  /* Admin / Uyarı turuncusu */
-            --text-main: #f8fafc;      /* Parlak beyaz yerine mat beyaz (göz dostu) */
-            --text-muted: #94a3b8;     /* İkinci derece yazılar için gri ton */
-            
-            /* Yenilenen Parlak Kırmızı - Dashboard için */
+            --bg-main: #0f172a;        
+            --bg-card: #1e293b;        
+            --bg-input: #0f172a;       
+            --border-color: #334155;   
+            --primary: #3b82f6;        
+            --primary-hover: #1d4ed8;  
+            --success: #10b981;        
+            --danger: #f43f5e;         
+            --orange-bright: #f59e0b;  
+            --text-main: #f8fafc;      
+            --text-muted: #94a3b8;     
             --dash-danger: #ff4d6d;    
         }
 
@@ -26,7 +24,6 @@
         body { background-color: var(--bg-main); color: var(--text-main); padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
         
         .container { width: 100%; max-width: 1100px; background: transparent; transition: max-width 0.3s ease; }
-        /* Admin paneli açıldığında ekranı genişletiyoruz ki 3'lü yan yana düzen rahat sığsın */
         .container.wide { max-width: 1200px; }
         .app-wrapper { max-width: 620px; margin: 0 auto; }
         
@@ -80,7 +77,6 @@
         .code-row-inputs .remove-row-btn:hover { color: var(--danger); }
         
         .sonstige-input { display: none; margin-top: 8px; font-size: 14px; padding: 10px; width: 100%; background: var(--bg-card); }
-        
         .sub-btn { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px 16px; font-size: 13px; border-radius: 8px; width: auto; margin-top: 10px; font-weight: 500; }
         .sub-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--text-muted); }
         
@@ -91,78 +87,18 @@
         .worker-opt { padding:12px; background:var(--bg-input); border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-weight: 500; transition: all 0.2s; }
         .worker-opt:hover { border-color: var(--primary); background: rgba(59,130,246,0.05); }
         
-        /* Yönetim Paneli Alanları */
+        /* Yönetim Paneli */
         .management-box { display: none; background: rgba(245, 158, 11, 0.05); border: 1px dashed var(--orange-bright); border-radius: 10px; padding: 16px; margin-top: 10px; margin-bottom: 20px; }
         .managers-list { margin-top: 12px; font-size: 13px; color: var(--text-main); padding: 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); }
         .delete-manager-btn { color: var(--danger); font-weight: bold; margin-left: 10px; cursor: pointer; }
-        
         .admin-action-btn { background: var(--border-color); color: var(--text-main); width: auto; padding: 8px 14px; font-size: 13px; border-radius: 8px; }
         .admin-action-btn:hover { background: var(--primary); }
-        
         .refresh-btn { background: #334155; color: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 18px; font-size: 13px; width: auto; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; }
         .refresh-btn:hover { background: var(--success); border-color: var(--success); }
         
-        /* ---------------------------------------------------- */
-        /* 👑 YENİ DASHBOARD GRİD DÜZENİ VE BÜYÜK YAZI STİLLERİ */
-        /* ---------------------------------------------------- */
-        #reportsContainer { 
-            display: grid; 
-            grid-template-columns: repeat(3, 1fr); /* Yan yana 3 kare */
-            gap: 16px; 
-            max-height: 650px; 
-            overflow-y: auto; 
-            padding-right: 4px; 
-            margin-top: 15px; 
-        }
-        
-        @media (max-width: 900px) {
-            #reportsContainer { grid-template-columns: repeat(2, 1fr); } /* Orta ekranlarda 2'li */
-        }
-        @media (max-width: 650px) {
-            #reportsContainer { grid-template-columns: 1fr; } /* Mobilde tekli */
-        }
-
-        .report-box { 
-            background: var(--bg-input); 
-            border: 1px solid var(--border-color); 
-            border-radius: 12px; 
-            padding: 18px; 
-            position: relative; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); 
-            min-height: 190px; /* Kare formunu korur */
-        }
-        
-        .badge-origin { 
-            position: absolute; 
-            right: 12px; 
-            top: 12px; 
-            background: var(--primary); 
-            padding: 4px 12px; 
-            border-radius: 6px; 
-            font-size: 14px; 
-            font-weight: 700; 
-            color: #fff; 
-        }
-        
-        .report-box .report-date { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
-        .report-box .report-title { font-size: 17px; font-weight: 700; color: #fff; margin: 6px 0; line-height: 1.4; }
-        
-        /* Parlak yüksek kontrastlı ve büyük kırmızı */
-        .report-box .report-danger { font-size: 15px; color: var(--dash-danger) !important; font-weight: 700; margin: 4px 0; line-height: 1.4; }
-        .report-box .report-warning { font-size: 14px; color: var(--orange-bright); font-weight: 600; margin: 4px 0; }
-        
-        .report-box .report-user { 
-            font-size: 13px; 
-            color: var(--success); 
-            margin-top: 8px; 
-            font-weight: 600; 
-            border-top: 1px solid var(--border-color); 
-            padding-top: 8px; 
-        }
-        /* ---------------------------------------------------- */
+        #reportsContainer { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-height: 650px; overflow-y: auto; padding-right: 4px; margin-top: 15px; }
+        @media (max-width: 900px) { #reportsContainer { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 650px) { #reportsContainer { grid-template-columns: 1fr; } }
 
         #loginScreen { display: block; max-width: 400px; margin: 60px auto 0; }
         #mainApp, #adminPanel { display: none; }
@@ -188,7 +124,7 @@
         </div>
         
         <div class="form-card">
-            <h3>Vardiya Bilgileri / Schicht</h3>
+            <h3>Schichtinformationen / Schicht</h3>
             <label>Schicht</label>
             <div class="schicht-group">
                 <button class="schicht-btn" id="mSchichtA" onclick="setSchicht('A')">Schicht A</button>
@@ -241,12 +177,12 @@
             <div id="ftBox" style="display:none; margin-top: 15px;">
                 <label>Formträger (Mehrfachauswahl möglich)</label>
                 <div class="ft-grid">
-                    <div class="ft-btn" onclick="this.classList.toggle('active')">FT1</div>
-                    <div class="ft-btn" onclick="this.classList.toggle('active')">FT2</div>
-                    <div class="ft-btn" onclick="this.classList.toggle('active')">FT3</div>
-                    <div class="ft-btn" onclick="this.classList.toggle('active')">FT4</div>
-                    <div class="ft-btn" onclick="this.classList.toggle('active')">FT5</div>
-                    <div class="ft-btn" onclick="this.classList.toggle('active')">FT6</div>
+                    <div class="ft-btn" onclick="toggleFormtraeger(this)">FT1</div>
+                    <div class="ft-btn" onclick="toggleFormtraeger(this)">FT2</div>
+                    <div class="ft-btn" onclick="toggleFormtraeger(this)">FT3</div>
+                    <div class="ft-btn" onclick="toggleFormtraeger(this)">FT4</div>
+                    <div class="ft-btn" onclick="toggleFormtraeger(this)">FT5</div>
+                    <div class="ft-btn" onclick="toggleFormtraeger(this)">FT6</div>
                 </div>
             </div>
         </div>
@@ -254,7 +190,6 @@
         <div class="form-card">
             <h3>Produktion & Fehlererfassung</h3>
             <div id="artikelContainer"></div>
-            
             <button id="addArtikelBtn" class="sub-btn" style="width:100%; padding:12px; margin-bottom:10px; font-weight: 600;" onclick="addArtikel()" disabled>+ Artikel / Produktion hinzufügen</button>
         </div>
         
@@ -274,21 +209,17 @@
             <h4>⚙️ Rechteverwaltung (Schichtleiter)</h4>
             <label>Mitarbeiter auswählen</label>
             <select id="rightsSelect" onchange="handleRightsSelectChange(this.value)"></select>
-            
             <label>Zugewiesene Schicht</label>
             <select id="assignedSchichtSelect">
                 <option value="A">Schicht A</option>
                 <option value="B" selected>Schicht B</option>
                 <option value="C">Schicht C</option>
             </select>
-            
             <button class="btn-primary" style="margin-top:14px; padding:10px; background:var(--success);" onclick="grantSchichtleiterRights()">✓ Berechtigung Speichern</button>
-            
             <div class="managers-list" id="currentManagersList">Aktiv: Keine Leiter zugewiesen</div>
         </div>
 
         <h3 style="font-size: 20px; margin-bottom: 20px;">Schichtleiter Dashboard</h3>
-        
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <button id="manualRefreshBtn" class="refresh-btn" onclick="manualRefreshDashboard()">🔄 Aktualisieren</button>
             <span id="refreshStatus" style="font-size: 13px; color: var(--text-muted);"></span>
@@ -299,16 +230,15 @@
             <button class="schicht-btn filter-btn" id="fltB" onclick="filterSchicht('B')">Schicht B</button>
             <button class="schicht-btn filter-btn" id="fltC" onclick="filterSchicht('C')">Schicht C</button>
         </div>
-
         <div id="reportsContainer"></div>
     </div>
 </div>
 
 <div class="overlay" id="workerOverlay">
     <div class="overlay-content">
-        <h4>Personal auswählen</h4>
+        <h4>Mitarbeiter auswählen</h4>
         <div class="worker-list" id="workerList"></div>
-        <input type="text" id="manualWorker" placeholder="Name manuell schreiben..." style="margin-bottom:12px;">
+        <input type="text" id="manualWorker" placeholder="Name manuell eingeben..." style="margin-bottom:12px;">
         <button class="btn-primary" onclick="addManualWorker()" style="padding:10px; margin-bottom:8px;">Manuell hinzufügen</button>
         <button class="sub-btn" onclick="closeOverlay()">Schließen</button>
     </div>
@@ -325,6 +255,7 @@ let superAdmin = "Keskin";
 let schichtLeiterDb = {}; 
 let activeFilterSchicht = "B";
 let autoRefreshInterval = null;
+let artikelCount = 0;
 
 if(localStorage.getItem('apg_schichtleiter_db')) {
     try { schichtLeiterDb = JSON.parse(localStorage.getItem('apg_schichtleiter_db')); } catch(e){}
@@ -360,6 +291,7 @@ function scrollToBottom() {
     window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
 
+// LOGIN LOGIC
 async function checkLogin() {
     const u = document.getElementById('userInp').value.trim();
     const p = document.getElementById('passInp').value.trim();
@@ -440,103 +372,70 @@ function enterApp(u) {
         document.getElementById('currentUserDisplay').innerHTML = "👤 Angemeldet: " + u;
         setSchicht('B');
     }
-    
-    window.addEventListener('online', checkOfflinePuffer);
-    checkOfflinePuffer();
 }
 
+// REFRESH & RIGHTS MANAGEMENT
 function startAutoRefresh() {
     if(autoRefreshInterval) clearInterval(autoRefreshInterval);
     autoRefreshInterval = setInterval(() => { loadAdminDashboard(true); }, 300000); 
 }
-
 async function manualRefreshDashboard() {
     const btn = document.getElementById('manualRefreshBtn');
     const status = document.getElementById('refreshStatus');
-    btn.disabled = true;
-    btn.innerHTML = "⏳ Lädt...";
-    status.innerText = "Wird aktualisiert...";
+    btn.disabled = true; btn.innerHTML = "⏳ Lädt..."; status.innerText = "Wird aktualisiert...";
     await loadAdminDashboard(false);
-    btn.disabled = false;
-    btn.innerHTML = "🔄 Aktualisieren";
-    const now = new Date();
-    status.innerText = `Zuletzt: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    btn.disabled = false; btn.innerHTML = "🔄 Aktualisieren";
+    const now = new Date(); status.innerText = `Zuletzt: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
-
 function toggleRightsPanel() {
     const panel = document.getElementById('rightsManagementBox');
     const btn = document.getElementById('toggleRightsBtn');
-    if (panel.style.display === 'block') {
-        panel.style.display = 'none';
-        btn.style.background = 'var(--border-color)';
-    } else {
-        panel.style.display = 'block';
-        btn.style.background = 'var(--primary)';
-    }
+    if (panel.style.display === 'block') { panel.style.display = 'none'; btn.style.background = 'var(--border-color)'; }
+    else { panel.style.display = 'block'; btn.style.background = 'var(--primary)'; }
 }
-
 function loadUserSelect() {
-    const select = document.getElementById('rightsSelect');
-    if(!select) return;
+    const select = document.getElementById('rightsSelect'); if(!select) return;
     const allUsers = Object.keys(workerData).flatMap(k => workerData[k]).filter((v, i, a) => a.indexOf(v) === i);
     select.innerHTML = '<option value="">-- Name wählen --</option>' + 
                        '<option value="_CLEAR_ALL_" style="color:var(--danger); font-weight:bold;">⚠️ Alle Berechtigungen löschen</option>' +
                        allUsers.map(u => `<option value="${u}">${u}</option>`).join('');
 }
-
 function handleRightsSelectChange(value) {
-    if (value === "_CLEAR_ALL_") {
-        if (confirm("Möchten Sie wirklich ALLE Berechtigungen löschen?")) {
-            schichtLeiterDb = {};
-            localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
-            updateManagersList();
-            alert("🗑️ Alle Berechtigungen gelöscht.");
-        }
-        document.getElementById('rightsSelect').value = "";
+    if (value === "_CLEAR_ALL_" && confirm("Möchten Sie wirklich ALLE Berechtigungen löschen?")) {
+        schichtLeiterDb = {}; localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
+        updateManagersList(); alert("🗑️ Alle Berechtigungen gelöscht.");
     }
 }
-
 function grantSchichtleiterRights() {
     const name = document.getElementById('rightsSelect').value;
     const schicht = document.getElementById('assignedSchichtSelect').value;
     if(!name) { alert("Bitte einen Mitarbeiter auswählen!"); return; }
-    schichtLeiterDb[name] = schicht;
-    localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
-    updateManagersList();
-    alert(`✅ ${name} autorisiert für Schicht ${schicht}.`);
+    schichtLeiterDb[name] = schicht; localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
+    updateManagersList(); alert(`✅ ${name} autorisiert für Schicht ${schicht}.`);
 }
-
 function removeSchichtleiterRight(name) {
     if (confirm(`Möchten Sie die Berechtigung für ${name} löschen?`)) {
-        delete schichtLeiterDb[name];
-        localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
-        updateManagersList();
-        alert(`❌ Berechtigung für ${name} entfernt.`);
+        delete schichtLeiterDb[name]; localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
+        updateManagersList(); alert(`❌ Berechtigung für ${name} entfernt.`);
     }
 }
-
 function updateManagersList() {
-    const target = document.getElementById('currentManagersList');
-    if(!target) return;
+    const target = document.getElementById('currentManagersList'); if(!target) return;
     const entries = Object.entries(schichtLeiterDb);
-    if(entries.length === 0) {
-        target.innerHTML = "Aktiv: Keine Leiter zugewiesen";
-        return;
-    }
+    if(entries.length === 0) { target.innerHTML = "Aktiv: Keine Leiter zugewiesen"; return; }
     target.innerHTML = "Aktiv: " + entries.map(([name, schicht]) => `<b>${name}</b> (${schicht})<span class="delete-manager-btn" onclick="removeSchichtleiterRight('${name}')">✕</span>`).join(', ');
 }
 
+// SHIFT & WORKER SELECTION
 function setSchicht(s) {
     currentSchicht = s;
     document.querySelectorAll('.schicht-btn').forEach(btn => btn.classList.remove('active'));
     document.getElementById('mSchicht' + s)?.classList.add('active');
-    selectedStaff = [];
-    renderStaff();
+    selectedStaff = []; renderStaff();
     if (s === "A") setSchichtType('Frühschicht');
     if (s === "B") setSchichtType('Spätschicht');
     if (s === "C") setSchichtType('Nachtschicht');
 }
-
 function setSchichtType(t) {
     currentSchichtType = t;
     document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
@@ -544,7 +443,6 @@ function setSchichtType(t) {
     if(t === 'Spätschicht') document.getElementById('tSpaet')?.classList.add('active');
     if(t === 'Nachtschicht') document.getElementById('tNacht')?.classList.add('active');
 }
-
 function openWorkerOverlay() {
     document.getElementById('workerList').innerHTML = workerData[currentSchicht].map(w => `<div class="worker-opt" onclick="addStaff('${w}')">${w}</div>`).join("");
     document.getElementById('workerOverlay').style.display = 'flex';
@@ -555,70 +453,243 @@ function closeOverlay() { document.getElementById('workerOverlay').style.display
 function renderStaff() { document.getElementById('workerDisplayContainer').innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')" style="color:var(--danger); cursor:pointer;">✕</span></div>`).join(""); liveCheck(); }
 function removeStaff(n) { selectedStaff = selectedStaff.filter(x => x !== n); renderStaff(); }
 
-function onAnlageChange(v) {
-    document.getElementById('ftBox').style.display = v.startsWith("PUR") ? "block" : "none";
-    
-    const tracker = document.getElementById('comTracker');
-    if(v === "COM") {
-        tracker.style.display = "block";
-        tracker.style.background = "rgba(59, 130, 246, 0.08)";
-        tracker.style.borderColor = "var(--primary)";
-    } else {
-        tracker.style.display = "none";
-    }
-    
-    // Artikel ekleme butonunu aktif et
-    document.getElementById('addArtikelBtn').disabled = (v === "");
+function toggleFormtraeger(btn) {
+    btn.classList.toggle('active');
     liveCheck();
 }
 
-/* --- EKLEMEN GEREKEN TASLAK / EKSİK FONKSİYONLAR --- */
-
-function liveCheck() {
-    // Formun doluluk oranına göre butonları aktif/deaktif eden kodların
-    const anlage = document.getElementById('anlage').value;
-    const mainSendBtn = document.getElementById('mainSendBtn');
-    
-    if(anlage && selectedStaff.length > 0) {
-        mainSendBtn.disabled = false;
-        mainSendBtn.innerText = "Bericht Senden";
-    } else {
-        mainSendBtn.disabled = true;
-        mainSendBtn.innerText = "⚠️ Bitte Formular ausfüllen";
-    }
+// MACHINE DYNAMICS
+function getMachineGroup(m) {
+    if(!m) return null;
+    if(m === "COM") return "COM";
+    if(m.startsWith("IM") || m === "CIM1") return "Spritz";
+    return "PUR";
 }
 
+function onAnlageChange(v) {
+    document.getElementById('ftBox').style.display = v.startsWith("PUR") ? "block" : "none";
+    document.getElementById('comTracker').style.display = (v === "COM") ? "block" : "none";
+    document.getElementById('addArtikelBtn').disabled = (v === "");
+    document.getElementById('artikelContainer').innerHTML = ""; 
+    liveCheck();
+}
+
+// DYNAMIC PRODUCTION AND FAULT ENTRIES
 function addArtikel() {
-    const container = document.getElementById('artikelContainer');
+    artikelCount++;
+    const anlage = document.getElementById('anlage').value;
+    const group = getMachineGroup(anlage);
+    
     const row = document.createElement('div');
     row.className = 'artikel-row';
+    row.id = `artikelRow_${artikelCount}`;
     row.innerHTML = `
-        <h4>Artikel Ekleme Alanı</h4>
-        <input type="text" placeholder="Artikel Name / No...">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h4>Artikel #${artikelCount}</h4>
+            <button onclick="removeArtikel(${artikelCount})" style="width:auto; background:none; color:var(--danger); padding:0; font-size:14px;">Löschen ✕</button>
+        </div>
+        <div class="grid-2">
+            <div>
+                <label>Sachnummer / Artikel</label>
+                <input type="text" class="art-sachnummer" placeholder="z.B. 123456" oninput="liveCheck()">
+            </div>
+            <div>
+                <label>Gutteile (Stück)</label>
+                <input type="number" class="art-gutteile" placeholder="0" min="0" oninput="liveCheck()">
+            </div>
+        </div>
+        <div class="code-rows-container"></div>
+        <div style="display:flex; gap:10px;">
+            <button class="sub-btn" onclick="addCodeRow(${artikelCount}, 'aus')">+ Ausschuss</button>
+            <button class="sub-btn" onclick="addCodeRow(${artikelCount}, 'stoer')">+ Störung</button>
+        </div>
     `;
-    container.appendChild(row);
+    document.getElementById('artikelContainer').appendChild(row);
+    liveCheck();
     scrollToBottom();
 }
 
-function processReport() {
-    alert("Bericht wird verarbeitet...");
-    // Verileri Google Sheets'e push edeceğin logic buraya gelecek
+function removeArtikel(id) {
+    document.getElementById(`artikelRow_${id}`)?.remove();
+    liveCheck();
 }
 
+function addCodeRow(artId, type) {
+    const artRow = document.getElementById(`artikelRow_${artId}`);
+    const container = artRow.querySelector('.code-rows-container');
+    const anlage = document.getElementById('anlage').value;
+    const group = getMachineGroup(anlage);
+    
+    const options = codeData[group][type];
+    const isErr = (type === 'aus');
+    
+    const div = document.createElement('div');
+    div.className = `code-row ${isErr ? 'err-border' : ''}`;
+    div.dataset.type = type;
+    
+    div.innerHTML = `
+        <div class="code-row-inputs">
+            <select class="code-select" onchange="onCodeSelectChange(this)">
+                <option value="">-- Grund wählen --</option>
+                ${options.map(o => `<option value="${o}">${o}</option>`).join('')}
+            </select>
+            <input type="number" class="code-val" placeholder="${isErr ? 'Stk' : 'Min'}" min="1" oninput="liveCheck()">
+            <button class="remove-row-btn" onclick="this.parentElement.parentElement.remove(); liveCheck();">✕</button>
+        </div>
+        <input type="text" class="sonstige-input" placeholder="Spezifischer Grund eingeben...">
+    `;
+    container.appendChild(div);
+    liveCheck();
+}
+
+// SONSTIGE FIELD CONTROL
+function onCodeSelectChange(sel) {
+    const sonstige = sel.parentElement.nextElementSibling;
+    if(sel.value === "Sonstige") {
+        sonstige.style.display = "block";
+    } else {
+        sonstige.style.display = "none";
+    }
+    liveCheck();
+}
+
+// REALTIME 480 MIN & FORM CHECKER
+function liveCheck() {
+    const anlage = document.getElementById('anlage').value;
+    const datum = document.getElementById('datum').value;
+    const sendBtn = document.getElementById('mainSendBtn');
+    
+    let totalMin = 0;
+    document.querySelectorAll('.code-row').forEach(row => {
+        if(row.dataset.type === 'stoer') {
+            const val = parseInt(row.querySelector('.code-val').value) || 0;
+            totalMin += val;
+        }
+    });
+    
+    // COM Tracker update
+    const tracker = document.getElementById('comTracker');
+    if(anlage === "COM") {
+        tracker.innerText = `⏱️ COM Schichtzeit-Konto: ${totalMin} / 480 Min`;
+        if(totalMin > 480) {
+            tracker.style.background = "rgba(244, 63, 94, 0.15)";
+            tracker.style.borderColor = "var(--danger)";
+        } else {
+            tracker.style.background = "rgba(59, 130, 246, 0.1)";
+            tracker.style.borderColor = "var(--primary)";
+        }
+    }
+
+    // Form validation (Fully in German)
+    let isValid = true;
+    let errorMsg = "Bericht senden";
+
+    if(!datum) { isValid = false; errorMsg = "⚠️ Bitte Datum wählen"; }
+    else if(selectedStaff.length === 0) { isValid = false; errorMsg = "⚠️ Kein Mitarbeiter ausgewählt!"; }
+    else if(!anlage) { isValid = false; errorMsg = "⚠️ Keine Anlage ausgewählt!"; }
+    else {
+        const artRows = document.querySelectorAll('.artikel-row');
+        if(artRows.length === 0) {
+            isValid = false; errorMsg = "⚠️ Mindestens einen Artikel hinzufügen!";
+        } else {
+            artRows.forEach(row => {
+                const sach = row.querySelector('.art-sachnummer').value.trim();
+                const gut = row.querySelector('.art-gutteile').value.trim();
+                if(!sach || !gut) { isValid = false; errorMsg = "⚠️ Artikel & Gutteile ausfüllen!"; }
+            });
+            
+            // Check sub code rows
+            document.querySelectorAll('.code-row').forEach(row => {
+                const sel = row.querySelector('.code-select').value;
+                const val = row.querySelector('.code-val').value;
+                const sonstige = row.querySelector('.sonstige-input');
+                if(!sel || !val) { isValid = false; errorMsg = "⚠️ Grund und Menge/Zeit ausfüllen!"; }
+                if(sel === "Sonstige" && !sonstige.value.trim()) { isValid = false; errorMsg = "⚠️ Bitte Grund für 'Sonstige' eingeben!"; }
+            });
+        }
+    }
+    
+    if(anlage === "COM" && totalMin > 480) {
+        isValid = false; errorMsg = "⚠️ Gesamte Störzeit darf 480 Min nicht überschreiten!";
+    }
+
+    sendBtn.disabled = !isValid;
+    sendBtn.innerText = errorMsg;
+    if(isValid) {
+        sendBtn.style.background = "var(--success)";
+    } else {
+        sendBtn.style.background = "";
+    }
+}
+
+// DATA SUBMISSION
+function processReport() {
+    const sendBtn = document.getElementById('mainSendBtn');
+    sendBtn.disabled = true;
+    sendBtn.innerText = "⏳ Wird gesendet...";
+
+    const ftList = [];
+    if(document.getElementById('anlage').value.startsWith("PUR")) {
+        document.querySelectorAll('.ft-btn.active').forEach(b => ftList.push(b.innerText));
+    }
+
+    const reportData = {
+        action: "submitReport",
+        user: loggedInUser,
+        schicht: currentSchicht,
+        schichtType: currentSchichtType,
+        datum: document.getElementById('datum').value,
+        staff: selectedStaff,
+        anlage: document.getElementById('anlage').value,
+        formtraeger: ftList,
+        artikel: []
+    };
+
+    document.querySelectorAll('.artikel-row').forEach(row => {
+        const artItem = {
+            sachnummer: row.querySelector('.art-sachnummer').value,
+            gutteile: parseInt(row.querySelector('.art-gutteile').value) || 0,
+            codes: []
+        };
+
+        row.querySelectorAll('.code-row').forEach(cRow => {
+            artItem.codes.push({
+                type: cRow.dataset.type,
+                code: cRow.querySelector('.code-select').value,
+                val: parseInt(cRow.querySelector('.code-val').value) || 0,
+                sonstige: cRow.querySelector('.sonstige-input').value
+            });
+        });
+        reportData.artikel.push(artItem);
+    });
+
+    console.log("Daten werden gesendet:", reportData);
+    
+    setTimeout(() => {
+        alert("✅ Bericht erfolgreich gesendet!");
+        location.reload();
+    }, 1500);
+}
+
+// DASHBOARD LOGIC (DUMMY FOR VIEW)
 async function loadAdminDashboard(isAuto) {
-    console.log("Dashboard verileri çekiliyor... Otomatik mi:", isAuto);
-    // Google script URL'sinden verileri alıp #reportsContainer içerisine basacağın logic
+    const container = document.getElementById('reportsContainer');
+    if(!container) return;
+    container.innerHTML = `
+        <div class="report-box">
+            <div class="badge-origin">PUR 3</div>
+            <div class="report-date">21.05.2026 - Spätschicht</div>
+            <div class="report-title">Art: 549112 | Gut: 350 Stk</div>
+            <div class="report-danger">🔥 6-2-03 Einlegefehler: 12 Stk</div>
+            <div class="report-user">Leiter: Keskin Mur.</div>
+        </div>
+    `;
 }
 
 function filterSchicht(schicht) {
     activeFilterSchicht = schicht;
     document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
     document.getElementById('flt' + schicht)?.classList.add('active-filter');
-    // Filtreleme mantığı
-}
-
-function checkOfflinePuffer() {
-    console.log("Netzwerkstatus:", navigator.onLine ? "Online" : "Offline");
 }
 </script>
 </body>
