@@ -882,44 +882,60 @@ function clearForm() {
 /* ---------------------------------------------------- */
 /* 👑 EN GÜNCELİ EN ÜSTE ALAN VE 3'LÜ GRİD YAPAN YENİ METOT */
 /* ---------------------------------------------------- */
-async function loadAdminDashboard(isBackground = false) {
-    if(!navigator.onLine) return;
+// HTML dosyanızın içindeki bu fonksiyonu bulun ve bu şekilde güncelleyin:
+async function loadAdminDashboard(isAuto) {
     const container = document.getElementById('reportsContainer');
     if(!container) return;
     
+    if(!isAuto) container.innerHTML = "<div style='text-align:center; padding:20px;'>⏳ Veriler yükleniyor...</div>";
+    
     try {
+        // Aktif filtrelenen vardiyaya göre backend'den verileri çeker
         const response = await fetch(`${scriptURL}?action=getReports&schicht=${activeFilterSchicht}&_cb=${Date.now()}`);
-        let reports = await response.json();
+        const data = await response.json();
         
-        if(!reports || reports.length === 0) {
-            container.innerHTML = "<div style='color:var(--text-muted); text-align:center; padding:20px; grid-column: span 3;'>Keine Berichte für heute vorhanden.</div>";
+        if(!data || data.length === 0) {
+            container.innerHTML = "<div style='text-align:center; padding:20px; color:var(--text-muted);'>Bugün için bu vardiyada henüz kayıt yok.</div>";
             return;
         }
+        
+        let finalHTML = "";
+        
+        // Gelen her bir rapor satırı için bir kart (report-box) oluşturuyoruz
+        data.forEach(rapor => {
+            // Backend'den gelen "yyyy-MM-dd HH:mm:ss" formatındaki tarihten sadece Saat:Dakika kısmını çekelim
+            let saatKismi = "00:00";
+            if(rapor.datum && rapor.datum.includes(" ")) {
+                let fullTime = rapor.datum.split(" ")[1]; // HH:mm:ss kısmını alır
+                saatKismi = fullTime.substring(0, 5);     // Sadece HH:mm kısmını alır (Örn: 15:30)
+            } else {
+                saatKismi = String(rapor.datum);
+            }
 
-        // Listeyi ters çevirerek EN GÜNCEL raporu EN BAŞA/ÜSTE getiriyoruz.
-        reports.reverse();
-
-        container.innerHTML = reports.map(rep => {
-            const unit = rep.anlage === 'COM' ? 'Kg' : 'Stk';
-            return `
+            // 👑 YENİ EKLENEN KISIM BAŞLANGICI
+            finalHTML += `
                 <div class="report-box">
-                    <div class="badge-origin">${rep.anlage}</div>
-                    <div class="report-date">📅 ${rep.datum}</div>
-                    <div class="report-title">📦 Art-Nr: ${rep.artikelNummer}<br>👉 ${rep.stueckzahl} ${unit}</div>
-                    <div class="report-danger">❌ Ausschuss: ${rep.ausschuss} ${unit}<br>⚠️ (${rep.grund})</div>
-                    <div class="report-warning">⏱️ Störung: ${rep.stoerung} (${rep.min} min)</div>
-                    <div class="report-user">👤 Erfasst von: ${rep.sender}</div>
+                    <span class="badge-origin">${rapor.anlage} ${rapor.formTraeger ? '(' + rapor.formTraeger + ')' : ''}</span>
+                    
+                    <div class="report-date">⏱️ Saat: ${saatKismi}</div> 
+                    
+                    <div class="report-title">Art-Nr: ${rapor.artikelNummer}</div>
+                    <div class="report-warning" style="color: var(--success);">O.K. Parça: ${rapor.stueckzahl || 0} Adet</div>
+                    <div class="report-danger">Ausschuss: ${rapor.ausschuss || 0} Adet</div>
+                    
+                    ${rapor.grund && rapor.grund !== "Sonstige" ? `<div style="font-size:12px; color:var(--text-muted); margin-bottom:4px;">❌ Nedeni: ${rapor.grund}</div>` : ''}
+                    
+                    <div class="report-user">👤 Personel: ${rapor.mitarbeiter || 'Girilmedi'}</div>
                 </div>
             `;
-        }).join('');
+            // 👑 YENİ EKLENEN KISIM BİTİŞİ
+        });
         
-        if(isBackground) {
-            const now = new Date();
-            const status = document.getElementById('refreshStatus');
-            if(status) status.innerText = `Auto: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-        }
-    } catch(e){
-        console.error("Dashboard hatası:", e);
+        container.innerHTML = finalHTML;
+        
+    } catch(e) {
+        console.error("Dashboard yüklenirken hata oluştu:", e);
+        container.innerHTML = "<div style='text-align:center; padding:20px; color:var(--danger);'>⚠️ Veriler çekilemedi!</div>";
     }
 }
 
