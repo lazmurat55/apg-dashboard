@@ -6,19 +6,17 @@
     <title>APG Bochum - Betriebsdatenerfassung</title>
     <style>
         :root {
-            --bg-main: #0f172a;        /* Gözü yormayan modern koyu arka plan */
-            --bg-card: #1e293b;        /* Kartlar için hafif açık, net ayrışan ton */
-            --bg-input: #0f172a;       /* Giriş alanları arka planı */
-            --border-color: #334155;   /* Yumuşak sınır çizgileri */
-            --primary: #3b82f6;        /* Standart mavi */
-            --primary-hover: #1d4ed8;  /* Koyu mavi hover */
-            --success: #10b981;        /* Başarılı / Gutteile yeşili */
-            --danger: #f43f5e;         /* Hata / Genel kırmızı */
-            --orange-bright: #f59e0b;  /* Admin / Uyarı turuncusu */
-            --text-main: #f8fafc;      /* Parlak beyaz yerine mat beyaz (göz dostu) */
-            --text-muted: #94a3b8;     /* İkinci derece yazılar için gri ton */
-            
-            /* Yenilenen Parlak Kırmızı - Dashboard için */
+            --bg-main: #0f172a;        
+            --bg-card: #1e293b;        
+            --bg-input: #0f172a;       
+            --border-color: #334155;   
+            --primary: #3b82f6;        
+            --primary-hover: #1d4ed8;  
+            --success: #10b981;        
+            --danger: #f43f5e;         
+            --orange-bright: #f59e0b;  
+            --text-main: #f8fafc;      
+            --text-muted: #94a3b8;     
             --dash-danger: #ff4d6d;    
         }
 
@@ -26,11 +24,9 @@
         body { background-color: var(--bg-main); color: var(--text-main); padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
         
         .container { width: 100%; max-width: 1100px; background: transparent; transition: max-width 0.3s ease; }
-        /* Admin paneli açıldığında ekranı genişletiyoruz ki 3'lü yan yana düzen rahat sığsın */
         .container.wide { max-width: 1200px; }
         .app-wrapper { max-width: 620px; margin: 0 auto; }
         
-        /* Kart Yapısı */
         .form-card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2), 0 2px 4px -2px rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
         
         h2 { text-align: center; margin-bottom: 24px; color: #fff; font-weight: 700; letter-spacing: 0.5px; }
@@ -44,31 +40,25 @@
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; }
         
-        /* Buton Stilleri */
         button { font-weight: 600; cursor: pointer; border: none; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 4px rgba(59,130,246,0.2); }
         .btn-primary:hover { background: var(--primary-hover); }
         .btn-primary:disabled { background: #334155; color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
         
-        /* Seçim Grupları */
         .schicht-group, .type-group { display: flex; gap: 8px; margin-bottom: 12px; }
         .schicht-btn, .type-btn { flex: 1; background: var(--bg-input); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; color: var(--text-muted); font-size: 14px; }
         .schicht-btn.active, .type-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .active-filter { background: var(--orange-bright) !important; color: white !important; border-color: var(--orange-bright) !important; }
         
-        /* Personel Etiketleri */
         .worker-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; min-height: 44px; border: 1px dashed var(--border-color); padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.1); }
         .selected-worker { background: rgba(59,130,246,0.15); border: 1px solid var(--primary); color: #fff; padding: 6px 12px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 8px; font-weight: 500; }
         
-        /* Formträger Seçimi */
         .ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
         .ft-btn { background: var(--bg-input); border: 1px solid var(--border-color); padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-muted); }
         .ft-btn.active { background: var(--success); color: white; border-color: var(--success); }
         
-        /* Hesap Takip Kutusu */
         .com-tracker-box { display: none; background: rgba(59, 130, 246, 0.1); border: 1px dashed var(--primary); border-radius: 8px; padding: 14px; margin: 15px 0; font-size: 14px; font-weight: 600; text-align: center; color: #fff; }
         
-        /* Dinamik Kart Alanları */
         .artikel-row { background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); padding: 20px; border-radius: 10px; margin-bottom: 16px; position: relative; }
         .code-row { background: rgba(15, 23, 42, 0.6); padding: 14px; border-radius: 8px; margin-top: 12px; border-left: 4px solid var(--primary); }
         .code-row.err-border { border-left-color: var(--danger) !important; }
@@ -84,14 +74,12 @@
         .sub-btn { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px 16px; font-size: 13px; border-radius: 8px; width: auto; margin-top: 10px; font-weight: 500; }
         .sub-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--text-muted); }
         
-        /* Pop-up Overlay */
         .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.8); display:none; justify-content:center; align-items:center; z-index:100; padding:15px; backdrop-filter: blur(4px); }
         .overlay-content { background:var(--bg-card); width:100%; max-width:420px; padding:24px; border-radius:12px; border:1px solid var(--border-color); max-height:85vh; display:flex; flex-direction:column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
         .worker-list { overflow-y:auto; flex:1; margin:15px 0; display:flex; flex-direction:column; gap:6px; padding-right:4px; }
         .worker-opt { padding:12px; background:var(--bg-input); border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-weight: 500; transition: all 0.2s; }
         .worker-opt:hover { border-color: var(--primary); background: rgba(59,130,246,0.05); }
         
-        /* Yönetim Paneli Alanları */
         .management-box { display: none; background: rgba(245, 158, 11, 0.05); border: 1px dashed var(--orange-bright); border-radius: 10px; padding: 16px; margin-top: 10px; margin-bottom: 20px; }
         .managers-list { margin-top: 12px; font-size: 13px; color: var(--text-main); padding: 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); }
         .delete-manager-btn { color: var(--danger); font-weight: bold; margin-left: 10px; cursor: pointer; }
@@ -102,12 +90,9 @@
         .refresh-btn { background: #334155; color: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 18px; font-size: 13px; width: auto; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; }
         .refresh-btn:hover { background: var(--success); border-color: var(--success); }
         
-        /* ---------------------------------------------------- */
-        /* 👑 YENİ DASHBOARD GRİD DÜZENİ VE BÜYÜK YAZI STİLLERİ */
-        /* ---------------------------------------------------- */
         #reportsContainer { 
             display: grid; 
-            grid-template-columns: repeat(3, 1fr); /* Yan yana 3 kare */
+            grid-template-columns: repeat(3, 1fr); 
             gap: 16px; 
             max-height: 650px; 
             overflow-y: auto; 
@@ -115,12 +100,8 @@
             margin-top: 15px; 
         }
         
-        @media (max-width: 900px) {
-            #reportsContainer { grid-template-columns: repeat(2, 1fr); } /* Orta ekranlarda 2'li */
-        }
-        @media (max-width: 650px) {
-            #reportsContainer { grid-template-columns: 1fr; } /* Mobilde tekli */
-        }
+        @media (max-width: 900px) { #reportsContainer { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 650px) { #reportsContainer { grid-template-columns: 1fr; } }
 
         .report-box { 
             background: var(--bg-input); 
@@ -132,7 +113,7 @@
             flex-direction: column; 
             justify-content: space-between; 
             box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); 
-            min-height: 190px; /* Kare formunu korur */
+            min-height: 190px; 
         }
         
         .badge-origin { 
@@ -149,8 +130,6 @@
         
         .report-box .report-date { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
         .report-box .report-title { font-size: 17px; font-weight: 700; color: #fff; margin: 6px 0; line-height: 1.4; }
-        
-        /* Parlak yüksek kontrastlı ve büyük kırmızı */
         .report-box .report-danger { font-size: 15px; color: var(--dash-danger) !important; font-weight: 700; margin: 4px 0; line-height: 1.4; }
         .report-box .report-warning { font-size: 14px; color: var(--orange-bright); font-weight: 600; margin: 4px 0; }
         
@@ -162,7 +141,6 @@
             border-top: 1px solid var(--border-color); 
             padding-top: 8px; 
         }
-        /* ---------------------------------------------------- */
 
         #loginScreen { display: block; max-width: 400px; margin: 60px auto 0; }
         #mainApp, #adminPanel { display: none; }
@@ -241,12 +219,12 @@
             <div id="ftBox" style="display:none; margin-top: 15px;">
                 <label>Formträger (Mehrfachauswahl möglich)</label>
                 <div class="ft-grid">
-                    <div class="ft-btn" onclick="this.classList.toggle('active')">FT1</div>
-                    <div class="ft-btn" onclick="this.classList.toggle('active')">FT2</div>
-                    <div class="ft-btn" onclick="this.classList.toggle('active')">FT3</div>
-                    <div class="ft-btn" onclick="this.classList.toggle('active')">FT4</div>
-                    <div class="ft-btn" onclick="this.classList.toggle('active')">FT5</div>
-                    <div class="ft-btn" onclick="this.classList.toggle('active')">FT6</div>
+                    <div class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT1</div>
+                    <div class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT2</div>
+                    <div class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT3</div>
+                    <div class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT4</div>
+                    <div class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT5</div>
+                    <div class="ft-btn" onclick="this.classList.toggle('active'); liveCheck();">FT6</div>
                 </div>
             </div>
         </div>
@@ -408,7 +386,7 @@ function enterApp(u) {
     setInitialTodayDate();
     
     if (u === superAdmin) {
-        document.getElementById('mainContainer').classList.add('wide'); 
+        document.getElementById('mainContainer').classList.add('wide');
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerHTML = "👑 Admin: " + u;
         document.getElementById('toggleRightsBtn').style.display = 'inline-block';
@@ -419,7 +397,7 @@ function enterApp(u) {
     } 
     else if (schichtLeiterDb[u]) {
         const assignedSchicht = schichtLeiterDb[u];
-        document.getElementById('mainContainer').classList.add('wide'); 
+        document.getElementById('mainContainer').classList.add('wide');
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerHTML = `🏃 Leiter: ${u} (Schicht ${assignedSchicht})`;
         document.getElementById('toggleRightsBtn').style.display = 'none'; 
@@ -441,60 +419,26 @@ function enterApp(u) {
         setSchicht('B');
     }
     
-    validateFormState();
+    window.addEventListener('online', checkOfflinePuffer);
+    checkOfflinePuffer();
 }
 
 function startAutoRefresh() {
     if(autoRefreshInterval) clearInterval(autoRefreshInterval);
-    autoRefreshInterval = setInterval(() => { manualRefreshDashboard(); }, 300000); 
+    autoRefreshInterval = setInterval(() => { loadAdminDashboard(true); }, 300000); 
 }
 
 async function manualRefreshDashboard() {
     const btn = document.getElementById('manualRefreshBtn');
     const status = document.getElementById('refreshStatus');
-    if(btn) btn.innerHTML = "⏳ Lädt...";
-    
-    try {
-        const response = await fetch(`${scriptURL}?action=getAdminDashboard&_cb=${Date.now()}`);
-        const result = await response.json();
-        if(result.success && result.reports) {
-            renderDashboard(result.reports);
-        }
-    } catch(e){}
-    
-    if(btn) btn.innerHTML = "🔄 Aktualisieren";
+    btn.disabled = true;
+    btn.innerHTML = "⏳ Lädt...";
+    status.innerText = "Wird aktualisiert...";
+    await loadAdminDashboard(false);
+    btn.disabled = false;
+    btn.innerHTML = "🔄 Aktualisieren";
     const now = new Date();
-    if(status) status.innerText = `Zuletzt: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-}
-
-function renderDashboard(reports) {
-    const container = document.getElementById('reportsContainer');
-    if(!container) return;
-    
-    const filtered = reports.filter(r => r.schicht === activeFilterSchicht);
-    if(filtered.length === 0) {
-        container.innerHTML = "<div style='grid-column:1/-1; text-align:center; color:var(--text-muted);'>Keine Berichte für diese Schicht vorhanden.</div>";
-        return;
-    }
-    
-    container.innerHTML = filtered.map(rep => `
-        <div class="report-box">
-            <span class="badge-origin">${rep.anlage}</span>
-            <div class="report-date">${rep.datum} - ${rep.schicht} (${rep.schichtType || ''})</div>
-            <div class="report-title">${rep.artikel}</div>
-            <div style="color:var(--success); font-weight:bold;">Gut: ${rep.gutteile} Pcs</div>
-            <div class="report-danger">Ausschuss: ${rep.ausschuss} Pcs</div>
-            <div style="color:var(--orange-bright)">Störung: ${rep.stoerung} Min</div>
-            <div class="report-user">Mitarbeiter: ${rep.mitarbeiter}</div>
-        </div>
-    `).join('');
-}
-
-function filterSchicht(s) {
-    activeFilterSchicht = s;
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
-    document.getElementById('flt' + s)?.classList.add('active-filter');
-    manualRefreshDashboard();
+    status.innerText = `Zuletzt: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
 
 function toggleRightsPanel() {
@@ -586,21 +530,23 @@ function openWorkerOverlay() {
 function addStaff(n) { if(!selectedStaff.includes(n)) selectedStaff.push(n); closeOverlay(); renderStaff(); }
 function addManualWorker() { const v = document.getElementById('manualWorker').value.trim(); if(v) { selectedStaff.push(v); document.getElementById('manualWorker').value=""; closeOverlay(); renderStaff(); } }
 function closeOverlay() { document.getElementById('workerOverlay').style.display = 'none'; }
-function removeStaff(n) { selectedStaff = selectedStaff.filter(s => s !== n); renderStaff(); }
+function renderStaff() { document.getElementById('workerDisplayContainer').innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')" style="color:var(--danger); cursor:pointer;">✕</span></div>`).join(""); liveCheck(); }
+function removeStaff(n) { selectedStaff = selectedStaff.filter(x => x !== n); renderStaff(); }
 
-function renderStaff() { 
-    document.getElementById('workerDisplayContainer').innerHTML = selectedStaff.map(s => 
-        `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')" style="color:var(--danger); cursor:pointer;">✕</span></div>`
-    ).join("");
-    validateFormState();
-}
-
-function onAnlageChange(val) {
-    document.getElementById('comTracker').style.display = (val === "COM") ? 'block' : 'none';
-    document.getElementById('ftBox').style.display = (val.startsWith("PUR")) ? 'block' : 'none';
+function onAnlageChange(v) {
+    document.getElementById('ftBox').style.display = v.startsWith("PUR") ? "block" : "none";
+    
+    const tracker = document.getElementById('comTracker');
+    if(v === "COM") {
+        tracker.style.display = "block";
+    } else {
+        tracker.style.display = "none";
+    }
+    
+    document.querySelectorAll('.ft-btn').forEach(b => b.classList.remove('active'));
     
     const btn = document.getElementById('addArtikelBtn');
-    if(val) {
+    if(v) {
         btn.removeAttribute('disabled');
         document.getElementById('artikelContainer').innerHTML = "";
         addArtikel();
@@ -608,173 +554,420 @@ function onAnlageChange(val) {
         btn.setAttribute('disabled', 'true');
         document.getElementById('artikelContainer').innerHTML = "";
     }
-    validateFormState();
+    liveCheck();
 }
 
-function getActiveMachineGroup() {
-    const a = document.getElementById('anlage').value;
-    if(!a) return null;
-    if(a.startsWith("PUR")) return "PUR";
-    if(a.startsWith("IM") || a.startsWith("CIM")) return "Spritz";
-    if(a === "COM") return "COM";
-    return null;
-}
-
+// -------------------------------------------------------------------------
+// 🔥 İŞTE ARIYOR OLDUĞUN TAM DONANIMLI VE DETAYLI EKLEME/HESAPLAMA SİSTEMİ 🔥
+// -------------------------------------------------------------------------
 function addArtikel() {
     const container = document.getElementById('artikelContainer');
+    const index = container.children.length;
+    const anlage = document.getElementById('anlage').value;
     
     const div = document.createElement('div');
     div.className = 'artikel-row';
-    div.innerHTML = `
-        <label>Artikel / Bauteil Name</label>
-        <input type="text" class="art-name" placeholder="z.B. BMW G60 Lippe" oninput="validateFormState()">
-        
-        <label>Gut-Teile (Menge)</label>
-        <input type="number" class="art-gut" value="0" min="0" oninput="validateFormState()">
-        
-        <div class="grid-2" style="margin-top:15px;">
-            <div>
-                <label style="color:var(--danger)">Ausschuss (Pcs)</label>
-                <input type="number" class="art-aus-total" value="0" readonly style="background:rgba(0,0,0,0.2); font-weight:700;">
+    div.id = `artikelRow_${index}`;
+    
+    let specificFields = "";
+    if (anlage === "COM") {
+        specificFields = `
+            <div class="grid-2">
+                <div>
+                    <label>Verbrauch (KG)</label>
+                    <input type="number" class="art-verbrauch" placeholder="0" oninput="trackComTime(); liveCheck();">
+                </div>
+                <div>
+                    <label>Ausschuss (KG)</label>
+                    <input type="number" class="art-ausschuss-kg" placeholder="0" oninput="liveCheck();">
+                </div>
             </div>
-            <div>
-                <label style="color:var(--orange-bright)">Störzeit (Min)</label>
-                <input type="number" class="art-stoer-total" value="0" readonly style="background:rgba(0,0,0,0.2); font-weight:700;">
-            </div>
-        </div>
-        
-        <div style="margin-top:12px;">
-            <span style="font-size:13px; font-weight:600; color:var(--text-muted);">FEHLER- & STÖRDATEN</span>
-            <div class="code-container"></div>
-            <button class="sub-btn" onclick="addCodeRow(this)">+ Fehler / Störung Code hinzufügen</button>
-        </div>
-    `;
-    container.appendChild(div);
-    validateFormState();
-}
-
-function addCodeRow(btn) {
-    const mGroup = getActiveMachineGroup();
-    if(!mGroup) return;
-    
-    const codeContainer = btn.previousElementSibling;
-    const row = document.createElement('div');
-    row.className = 'code-row';
-    
-    let optionsHtml = '<option value="">-- Code wählen --</option>';
-    optionsHtml += '<optgroup label="⚠️ AUSSCHUSS (HATA CODELARI)">';
-    codeData[mGroup].aus.forEach(c => optionsHtml += `<option value="aus|${c}">${c}</option>`);
-    optionsHtml += '</optgroup><optgroup label="⏱️ STÖRUNGEN (DURUŞ CODELARI)">';
-    codeData[mGroup].stoer.forEach(c => optionsHtml += `<option value="stoer|${c}">${c}</option>`);
-    optionsHtml += '</optgroup>';
-    
-    row.innerHTML = `
-        <div class="code-row-inputs">
-            <select onchange="onCodeSelectChange(this)">${optionsHtml}</select>
-            <input type="number" value="0" min="1" oninput="recalcRowTotals(this)">
-            <button class="remove-row-btn" onclick="this.closest('.code-row').remove(); recalcRowTotals(this);">✕</button>
-        </div>
-        <input type="text" class="sonstige-input" placeholder="Bitte Grund angeben...">
-    `;
-    codeContainer.appendChild(row);
-    validateFormState();
-}
-
-function onCodeSelectChange(sel) {
-    const row = sel.closest('.code-row');
-    const sonstige = row.querySelector('.sonstige-input');
-    if(sel.value.includes("Sonstige")) {
-        sonstige.style.display = "block";
+            <input type="hidden" class="art-gutteile" value="0">
+            <input type="hidden" class="art-ausschuss" value="0">
+        `;
     } else {
-        sonstige.style.display = "none";
+        specificFields = `
+            <div class="grid-2">
+                <div>
+                    <label>Gutteile (STK)</label>
+                    <input type="number" class="art-gutteile" placeholder="0" oninput="liveCheck();">
+                </div>
+                <div>
+                    <label>Ausschuss (STK)</label>
+                    <input type="number" class="art-ausschuss" placeholder="0" oninput="liveCheck();">
+                </div>
+            </div>
+            <input type="hidden" class="art-verbrauch" value="0">
+            <input type="hidden" class="art-ausschuss-kg" value="0">
+        `;
     }
-    recalcRowTotals(sel);
+
+    div.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+            <span style="font-weight:700; color:var(--primary); font-size:14px;">#${index + 1} Artikel-Spezifikation</span>
+            ${index > 0 ? `<span onclick="removeArtikel(${index})" style="color:var(--danger); cursor:pointer; font-size:13px; font-weight:600;">Löschen ✕</span>` : ''}
+        </div>
+        
+        <label>Artikelbezeichnung</label>
+        <input type="text" class="art-name" placeholder="z.B. BMW G60 Lippe" oninput="liveCheck();">
+        
+        ${specificFields}
+        
+        <div class="grid-2" style="margin-top:10px;">
+            <div>
+                <label>Gesamt (Ist)</label>
+                <input type="number" class="art-gesamt-ist" style="background:rgba(255,255,255,0.05);" readonly placeholder="0">
+            </div>
+            <div>
+                <label>Gesamt (Soll)</label>
+                <input type="number" class="art-gesamt-soll" placeholder="0" oninput="liveCheck();">
+            </div>
+        </div>
+
+        <div id="codeWrapper_${index}"></div>
+        <button class="sub-btn" onclick="addCodeRow(${index})">+ Fehler- / Störcode</button>
+    `;
+    
+    container.appendChild(div);
+    liveCheck();
+    scrollToBottom();
 }
 
-function recalcRowTotals(element) {
-    const artRow = element.closest('.artikel-row');
-    if(!artRow) return;
-    
-    let ausSum = 0;
-    let stoerSum = 0;
-    
-    artRow.querySelectorAll('.code-row').forEach(row => {
-        const sel = row.querySelector('select').value;
-        const val = parseInt(row.querySelector('input[type="number"]').value) || 0;
-        if(sel.startsWith("aus|")) ausSum += val;
-        if(sel.startsWith("stoer|")) stoerSum += val;
+function removeArtikel(idx) {
+    const row = document.getElementById(`artikelRow_${idx}`);
+    if(row) {
+        row.remove();
+        reindexArtikelRows();
+        trackComTime();
+        liveCheck();
+    }
+}
+
+function reindexArtikelRows() {
+    const container = document.getElementById('artikelContainer');
+    Array.from(container.children).forEach((div, newIdx) => {
+        div.id = `artikelRow_${newIdx}`;
+        const titleSpan = div.querySelector('span[style*="var(--primary)"]');
+        if(titleSpan) titleSpan.innerText = `#${newIdx + 1} Artikel-Spezifikation`;
+        
+        const deleteSpan = div.querySelector('span[onclick*="removeArtikel"]');
+        if(deleteSpan) deleteSpan.setAttribute('onclick', `removeArtikel(${newIdx})`);
+        
+        const codeWrapper = div.querySelector('[id^="codeWrapper_"]');
+        if(codeWrapper) codeWrapper.id = `codeWrapper_${newIdx}`;
+        
+        const codeBtn = div.querySelector('button[onclick*="addCodeRow"]');
+        if(codeBtn) codeBtn.setAttribute('onclick', `addCodeRow(${newIdx})`);
     });
-    
-    artRow.querySelector('.art-aus-total').value = ausSum;
-    artRow.querySelector('.art-stoer-total').value = stoerSum;
-    validateFormState();
 }
 
-function validateFormState() {
+function addCodeRow(artIdx) {
+    const wrapper = document.getElementById(`codeWrapper_${artIdx}`);
+    const codeIdx = wrapper.children.length;
     const anlage = document.getElementById('anlage').value;
-    const sendBtn = document.getElementById('mainSendBtn');
-    const artRows = document.querySelectorAll('.artikel-row');
     
-    if(!anlage || selectedStaff.length === 0 || artRows.length === 0) {
-        if(sendBtn) { sendBtn.disabled = true; sendBtn.innerText = "⚠️ Bitte Formular ausfüllen"; }
-        return;
+    let typeKey = "PUR";
+    if(anlage.startsWith("IM") || anlage.startsWith("CIM")) typeKey = "Spritz";
+    if(anlage === "COM") typeKey = "COM";
+    
+    const div = document.createElement('div');
+    div.className = 'code-row';
+    div.id = `codeRow_${artIdx}_${codeIdx}`;
+    
+    const optAus = codeData[typeKey].aus.map(x => `<option value="${x}">${x}</option>`).join('');
+    const optStoer = codeData[typeKey].stoer.map(x => `<option value="${x}">${x}</option>`).join('');
+    
+    div.innerHTML = `
+        <div class="code-row-inputs">
+            <select class="code-select" onchange="handleCodeSelectChange(${artIdx}, ${codeIdx}, this.value)">
+                <option value="">-- Code wählen --</option>
+                <optgroup label="Aussschusscodes (Qualität)">${optAus}</optgroup>
+                <optgroup label="Störcodes (Stillstand/Minuten)">${optStoer}</optgroup>
+            </select>
+            <input type="number" class="code-wert" placeholder="Menge/Min" oninput="liveCheck();">
+            <span class="remove-row-btn" onclick="removeCodeRow(${artIdx}, ${codeIdx})">✕</span>
+        </div>
+        <input type="text" class="sonstige-input" placeholder="Grund manuell beschreiben...">
+    `;
+    
+    wrapper.appendChild(div);
+    liveCheck();
+}
+
+function removeCodeRow(artIdx, codeIdx) {
+    const row = document.getElementById(`codeRow_${artIdx}_${codeIdx}`);
+    if(row) {
+        row.remove();
+        liveCheck();
     }
+}
+
+function handleCodeSelectChange(artIdx, codeIdx, val) {
+    const row = document.getElementById(`codeRow_${artIdx}_${codeIdx}`);
+    if(!row) return;
+    const sonstigeInp = row.querySelector('.sonstige-input');
+    if(val === "Sonstige") {
+        sonstigeInp.style.display = "block";
+    } else {
+        sonstigeInp.style.display = "none";
+        sonstigeInp.value = "";
+    }
+    liveCheck();
+}
+
+function trackComTime() {
+    const anlage = document.getElementById('anlage').value;
+    if(anlage !== "COM") return;
     
-    let valid = true;
-    artRows.forEach(row => {
-        const name = row.querySelector('.art-name').value.trim();
-        if(!name) valid = false;
+    let totalVerbrauch = 0;
+    document.querySelectorAll('.art-verbrauch').forEach(inp => {
+        totalVerbrauch += parseFloat(inp.value) || 0;
     });
     
-    if(sendBtn) {
-        sendBtn.disabled = !valid;
-        sendBtn.innerText = valid ? "✓ Daten an Excel Senden" : "⚠️ Bitte Formular ausfüllen";
+    const calculatedMinutes = Math.round(totalVerbrauch * 1.5);
+    const tracker = document.getElementById('comTracker');
+    
+    if(calculatedMinutes > 480) {
+        tracker.style.background = "rgba(244, 63, 94, 0.15)";
+        tracker.style.borderColor = "var(--danger)";
+        tracker.innerHTML = `⚠️ COM Schichtzeit-Konto: ${calculatedMinutes} / 480 Min (Zeit überschritten!)`;
+    } else {
+        tracker.style.background = "rgba(16, 185, 129, 0.15)";
+        tracker.style.borderColor = "var(--success)";
+        tracker.innerHTML = `⏱️ COM Schichtzeit-Konto: ${calculatedMinutes} / 480 Min`;
+    }
+}
+
+// -------------------------------------------------------------------------
+// 🟢 UYUŞMAZLIK, HESAPLAMA VE YEŞİL UYARI VEREN CANLI KONTROL (LIVECHECK) 🟢
+// -------------------------------------------------------------------------
+function liveCheck() {
+    const anlage = document.getElementById('anlage').value;
+    const datum = document.getElementById('datum').value;
+    const mainSendBtn = document.getElementById('mainSendBtn');
+    
+    let formValid = true;
+    let errorMessages = [];
+
+    if(!datum || !anlage || selectedStaff.length === 0) formValid = false;
+
+    const artikelRows = document.querySelectorAll('.artikel-row');
+    if(artikelRows.length === 0) formValid = false;
+
+    artikelRows.forEach((row) => {
+        const name = row.querySelector('.art-name').value.trim();
+        const gutteile = parseFloat(row.querySelector('.art-gutteile').value) || 0;
+        const ausschuss = parseFloat(row.querySelector('.art-ausschuss').value) || 0;
+        const verbrauch = parseFloat(row.querySelector('.art-verbrauch').value) || 0;
+        const ausschussKg = parseFloat(row.querySelector('.art-ausschuss-kg').value) || 0;
+        const gesamtSoll = parseFloat(row.querySelector('.art-gesamt-soll').value) || 0;
+        const gesamtIstInp = row.querySelector('.art-gesamt-ist');
+
+        if(!name) formValid = false;
+
+        // Hesaplamalar
+        let totalIst = 0;
+        if(anlage === "COM") {
+            totalIst = verbrauch + ausschussKg;
+        } else {
+            totalIst = gutteile + ausschuss;
+        }
+        gesamtIstInp.value = totalIst;
+
+        // Uyuşmazlık kontrolü (Soll ve Ist denk mi?)
+        if(gesamtSoll > 0 && totalIst !== gesamtSoll) {
+            formValid = false;
+            row.style.borderColor = "var(--danger)";
+        } else if(gesamtSoll > 0 && totalIst === gesamtSoll) {
+            row.style.borderColor = "var(--success)"; // Tam uyuşursa yeşil olur!
+        } else {
+            row.style.borderColor = "var(--border-color)";
+        }
+
+        // İçerideki hata kodlarının toplam miktarı Ausschuss ile eşleşiyor mu?
+        const codeRows = row.querySelectorAll('.code-row');
+        let totalCodeMenge = 0;
+        let hasEmptyCode = false;
+
+        codeRows.forEach(cRow => {
+            const select = cRow.querySelector('.code-select').value;
+            const wert = parseFloat(cRow.querySelector('.code-wert').value) || 0;
+            const sonstige = cRow.querySelector('.sonstige-input');
+
+            if(!select || wert <= 0) hasEmptyCode = true;
+            if(select === "Sonstige" && !sonstige.value.trim()) hasEmptyCode = true;
+
+            // Sadece Ausschuss (Qualität) olan kodları topla (Störcodes dakika bazlıdır)
+            if(select && !select.startsWith("3-") && !select.startsWith("4-") && !select.startsWith("5-")) {
+                totalCodeMenge += wert;
+            }
+        });
+
+        if(hasEmptyCode) formValid = false;
+
+        const targetAusschuss = (anlage === "COM") ? ausschussKg : ausschuss;
+        if(totalCodeMenge !== targetAusschuss) {
+            formValid = false;
+            codeRows.forEach(cr => cr.classList.add('err-border'));
+        } else {
+            codeRows.forEach(cr => cr.classList.remove('err-border'));
+        }
+    });
+
+    // Ana Gönderim Butonu Durumu
+    if(formValid) {
+        mainSendBtn.removeAttribute('disabled');
+        mainSendBtn.className = "btn-primary";
+        mainSendBtn.style.background = "var(--success)";
+        mainSendBtn.innerHTML = "✓ Daten absenden";
+    } else {
+        mainSendBtn.setAttribute('disabled', 'true');
+        mainSendBtn.className = "btn-primary";
+        mainSendBtn.style.background = "#334155";
+        mainSendBtn.innerHTML = "⚠️ Bitte Formular korrekt ausfüllen (Prüfen Sie Ist/Soll & Fehlercodes)";
     }
 }
 
 async function processReport() {
-    const artRows = document.querySelectorAll('.artikel-row');
-    let artikelList = [];
-    
-    artRows.forEach(row => {
-        artikelList.push({
-            artikelName: row.querySelector('.art-name').value.trim(),
-            gutteile: row.querySelector('.art-gut').value,
-            ausschussTotal: row.querySelector('.art-aus-total').value,
-            stoerungTotal: row.querySelector('.art-stoer-total').value
-        });
-    });
+    const mainSendBtn = document.getElementById('mainSendBtn');
+    mainSendBtn.setAttribute('disabled', 'true');
+    mainSendBtn.innerHTML = "⏳ Wird gesendet...";
 
-    const payload = {
-        datum: document.getElementById('datum').value,
+    const anlage = document.getElementById('anlage').value;
+    const datum = document.getElementById('datum').value;
+    
+    // Seçili formträger'ları topla
+    let fts = [];
+    document.querySelectorAll('.ft-btn.active').forEach(b => fts.push(b.innerText));
+
+    let payload = {
+        action: "submitReport",
         schicht: currentSchicht,
         schichtType: currentSchichtType,
-        anlage: document.getElementById('anlage').value,
+        datum: datum,
+        anlage: anlage,
+        formtraeger: fts.join(', '),
         mitarbeiter: selectedStaff.join(', '),
         user: loggedInUser,
-        artikelList: artikelList
+        eintraege: []
     };
 
-    const sendBtn = document.getElementById('mainSendBtn');
-    sendBtn.disabled = true;
-    sendBtn.innerText = "⏳ Wird gesendet...";
+    document.querySelectorAll('.artikel-row').forEach((row, rIdx) => {
+        let artData = {
+            artikelName: row.querySelector('.art-name').value,
+            gutteile: row.querySelector('.art-gutteile').value,
+            ausschuss: row.querySelector('.art-ausschuss').value,
+            verbrauchKg: row.querySelector('.art-verbrauch').value,
+            ausschussKg: row.querySelector('.art-ausschuss-kg').value,
+            gesamtIst: row.querySelector('.art-gesamt-ist').value,
+            gesamtSoll: row.querySelector('.art-gesamt-soll').value,
+            codes: []
+        };
+
+        row.querySelectorAll('.code-row').forEach(cRow => {
+            artData.codes.push({
+                code: cRow.querySelector('.code-select').value,
+                wert: cRow.querySelector('.code-wert').value,
+                kommentar: cRow.querySelector('.sonstige-input').value
+            });
+        });
+
+        payload.eintraege.push(artData);
+    });
+
+    if(!navigator.onLine) {
+        saveToOfflinePuffer(payload);
+        alert("💾 Offline-Modus: Bericht wurde lokal gespeichert und wird bei Internetverbindung gesendet!");
+        location.reload();
+        return;
+    }
 
     try {
-        const response = await fetch(scriptURL, {
+        const resp = await fetch(scriptURL, {
             method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
-        const res = await response.json();
-        if(res.success) {
-            alert("✓ Daten erfolgreich an Excel übertragen!");
-            location.reload();
-        } else {
-            alert("Fehler: " + res.error);
-            sendBtn.disabled = false;
-        }
+        alert("✅ Veriler başarıyla Google Sheet'e aktarıldı!");
+        location.reload();
     } catch(e) {
-        alert("Fehler bei der Übertragung.");
-        sendBtn.disabled = false;
+        saveToOfflinePuffer(payload);
+        alert("💾 Netzwerkfehler: Bericht lokal gespeichert!");
+        location.reload();
+    }
+}
+
+function saveToOfflinePuffer(data) {
+    let puffer = [];
+    try { puffer = JSON.parse(localStorage.getItem('apg_offline_puffer')) || []; }catch(e){}
+    puffer.push({ id: Date.now(), content: data });
+    localStorage.setItem('apg_offline_puffer', JSON.stringify(puffer));
+}
+
+async function checkOfflinePuffer() {
+    if(!navigator.onLine) return;
+    let puffer = [];
+    try { puffer = JSON.parse(localStorage.getItem('apg_offline_puffer')) || []; }catch(e){}
+    if(puffer.length === 0) return;
+
+    for(let item of puffer) {
+        try {
+            await fetch(scriptURL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(item.content)
+            });
+            puffer = puffer.filter(x => x.id !== item.id);
+        } catch(e) { break; }
+    }
+    localStorage.setItem('apg_offline_puffer', JSON.stringify(puffer));
+}
+
+function filterSchicht(schicht) {
+    activeFilterSchicht = schicht;
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
+    document.getElementById('flt' + schicht)?.classList.add('active-filter');
+    loadAdminDashboard(false);
+}
+
+async function loadAdminDashboard(isSilent) {
+    const container = document.getElementById('reportsContainer');
+    if(!isSilent) container.innerHTML = "<div style='color:var(--text-muted); grid-column: 1/-1; text-align:center;'>Berichte werden geladen...</div>";
+    
+    if(!navigator.onLine) {
+        container.innerHTML = "<div style='color:var(--danger); grid-column: 1/-1; text-align:center;'>Keine Internetverbindung im Dashboard!</div>";
+        return;
+    }
+
+    try {
+        const res = await fetch(`${scriptURL}?action=getDashboardData&schicht=${activeFilterSchicht}&_cb=${Date.now()}`);
+        const list = await res.json();
+        
+        if(!list || list.length === 0) {
+            container.innerHTML = `<div style='color:var(--text-muted); grid-column:1/-1; text-align:center;'>Keine Berichte für Schicht ${activeFilterSchicht} heute gefunden.</div>`;
+            return;
+        }
+        
+        container.innerHTML = list.map(item => {
+            let errorStyleClass = item.hasError ? "report-danger" : "report-warning";
+            let formattedFehlerText = item.fehlerDet ? item.fehlerDet.replace(/\n/g, '<br>') : 'Keine';
+            
+            return `
+                <div class="report-box">
+                    <span class="badge-origin">${item.anlage || 'N/A'}</span>
+                    <div>
+                        <div class="report-date">${item.zeit || ''} - ${item.schichtType || ''}</div>
+                        <div class="report-title">${item.artikelInfo || 'Kein Artikel'}</div>
+                        <div class="${errorStyleClass}">⚠️ Ausschuss/Fehler:<br>${formattedFehlerText}</div>
+                    </div>
+                    <div class="report-user">👤 Erstellt von: ${item.user || 'Unbekannt'}</div>
+                </div>
+            `;
+        }).join('');
+    } catch(e) {
+        if(!isSilent) container.innerHTML = "<div style='color:var(--danger); grid-column:1/-1; text-align:center;'>Fehler beim Laden des Dashboards.</div>";
     }
 }
 </script>
