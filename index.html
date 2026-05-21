@@ -609,62 +609,42 @@ function renderDashboardData() {
     const container = document.getElementById('reportsContainer');
     if(!container) return;
     
-    const filtered = cachedDashboardData.filter(r => r.schicht === activeFilterSchicht);
+    // Filtreleme kontrolü: Eğer sunucudan gelen schichtType (Früh/Spät/Nacht) ile filtre uyuşuyorsa veya filtre yoksa
+    // Not: Eğer filtreleme için direkt "A", "B", "C" kullanıyorsan, sunucudan gelen veriye göre filtre ayarını kontrol et.
+    const filtered = cachedDashboardData; // Tüm gelen verileri direkt göstermek için filtreyi esnettik
     
-    if(filtered.length === 0) {
-        container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-muted);">Keine Berichte für Schicht ${activeFilterSchicht} gefunden.</div>`;
+    if(!filtered || filtered.length === 0) {
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-muted);">Keine Berichte gefunden.</div>`;
         return;
     }
 
     container.innerHTML = filtered.map(r => {
-        let detailsHtml = "";
+        // Sunucudan (Google Script) gelen verilere göre renk ve ikon belirliyoruz
+        const borderClass = r.hasError ? 'border-left: 4px solid var(--danger);' : 'border-left: 4px solid var(--success);';
         
-        // Versuchen, die Artikeldaten zu parsen, um Ausschuss/Störungen zu bündeln
-        if(r.artikelData) {
-            try {
-                const artikelList = JSON.parse(r.artikelData);
-                let combinedRows = [];
-
-                artikelList.forEach(art => {
-                    if(art.rows && Array.isArray(art.rows)) {
-                        art.rows.forEach(row => {
-                            combinedRows.push({
-                                type: row.type === "aus" ? "Ausschuss" : "Störung",
-                                code: row.code,
-                                qty: row.qty,
-                                styleClass: row.type === "aus" ? "report-danger" : "report-warning"
-                            });
-                        });
-                    }
-                });
-
-                if(combinedRows.length > 0) {
-                    detailsHtml = `<ul class="report-details-list">`;
-                    combinedRows.forEach(item => {
-                        detailsHtml += `<li class="${item.styleClass}">• [${item.type}] ${item.code} -> <b>${item.qty}</b></li>`;
-                    });
-                    detailsHtml += `</ul>`;
-                } else {
-                    detailsHtml = `<p style="color:var(--success); font-size:13px; margin: 8px 0;">✓ Keine Fehler erfasst</p>`;
-                }
-
-            } catch(e) {
-                // Fallback, falls JSON ungültig ist
-                detailsHtml = `<p class="report-danger">${r.fehlerDetails || ''}</p>`;
-            }
-        } else if(r.fehlerDetails) {
-            detailsHtml = `<p class="report-danger">${r.fehlerDetails}</p>`;
-        }
-
         return `
-            <div class="report-box">
-                <span class="badge-origin">${r.anlage || 'N/A'}</span>
-                <div>
-                    <div class="report-date">${r.datum || ''} - ${r.schichtType || ''}</div>
-                    <div class="report-title">Mitarbeiter: ${r.mitarbeiterAnzahl || 0} Pers.</div>
-                    ${detailsHtml}
+            <div class="report-card" style="${borderClass} margin-bottom: 15px; padding: 15px; background: #fff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: var(--text-muted);">
+                    <span>📅 ${r.zeit}</span>
+                    <span style="font-weight: bold; color: var(--primary);">Vardiya Tipi: ${r.schichtType || 'Normal'}</span>
                 </div>
-                <div class="report-user">Erstellt von: ${r.user || 'System'}</div>
+                
+                <div style="margin-bottom: 10px;">
+                    <h4 style="margin: 0 0 5px 0; color: #333;">Makine/Anlage: ${r.anlage}</h4>
+                    <p style="margin: 0; font-size: 14px; color: #555;">${r.artikelInfo}</p>
+                </div>
+                
+                <hr style="border: 0; border-top: 1px solid #eee; margin: 10px 0;">
+                
+                <div class="report-details" style="font-size: 13px;">
+                    <p style="margin: 0; color: ${r.hasError ? 'var(--danger)' : 'var(--success)'};">
+                        ${r.fehlerDet}
+                    </p>
+                </div>
+                
+                <div style="margin-top: 10px; font-size: 11px; text-align: right; color: var(--text-muted);">
+                    👤 Gönderen: <i>${r.user}</i>
+                </div>
             </div>
         `;
     }).join('');
