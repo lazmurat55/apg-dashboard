@@ -174,7 +174,6 @@
 </div>
 
 <script>
-// ⚠️ HIER DEINEN DETEKTIRTEN SCRIPT URL GENAU SO LASSEN ODER ERSETZEN
 const scriptURL = "https://script.google.com/macros/s/AKfycbwhzsSsyCFQAzZdwEtVTB6itfSVXEp4lXtpX7kg6RxVmS-6HIZtZwkO2W3xNZcle2BXXQ/exec";
 
 let currentSchicht = "B";
@@ -185,6 +184,7 @@ let autoRefreshInterval = null;
 let superAdmin = "Keskin";
 let schichtLeiterDb = {};
 let activeFilterSchicht = "B"; 
+let globalSifreler = {}; // Şifre listesini dinamik tutmak için global değişken
 
 if(localStorage.getItem('apg_schichtleiter_db')) {
     try { schichtLeiterDb = JSON.parse(localStorage.getItem('apg_schichtleiter_db')); } catch(e){}
@@ -195,43 +195,6 @@ function setInitialTodayDate() {
     document.getElementById('datum').value = ${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')};
 }
 
-// ESKİ initialDB'yi SİL, yerine bunu koy (BOŞ bırak, şifreler Google'dan gelecek)
-let initialDB = {};
-
-// Google Sheets'ten şifreleri çek
-async function loadPasswordsFromSheet() {
-    try {
-        const response = await fetch(${scriptURL}?action=getSifreler&_cb=${Date.now()});
-        const sifreler = await response.json();
-        return sifreler;
-    } catch(e) {
-        console.error("Şifreler alınamadı:", e);
-        return {};
-    }
-}
-
-// YENİ checkLogin fonksiyonu
-async function checkLogin() {
-    const u = document.getElementById('userInp').value.trim();
-    const p = document.getElementById('passInp').value.trim();
-    const errorDiv = document.getElementById('loginError');
-    
-    if(!u || !p) {
-        errorDiv.innerText = "❌ Bitte Name und Passwort eingeben!";
-        errorDiv.style.display = 'block';
-        return;
-    }
-    
-    // Google Sheets'ten şifreleri al
-    const sifreler = await loadPasswordsFromSheet();
-    
-    if(sifreler[u] && sifreler[u] === p) {
-        enterApp(u);
-    } else {
-        errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
-        errorDiv.style.display = 'block';
-    }
-}
 const workerData = {
     "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D.", "Kantaroglu A.", "Krancioch A.", "Held D.", "Berisha I.", "Neji M.", "Mulugeta G.", "Udezue P.", "Jansen M.", "Aksoy O.", "Yildirim S.", "Brand N.", "Louze A.", "Blanquez Romero V.", "Diallo M.D.", "Sener E.", "Klomrit", "Garcia"],
     "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T.", "Besche T.", "Eickhoff P.", "Toth Renata", "Gibba n.", "Helf A.", "Isbir J.", "Jeyakumar S.", "Kalisch T.", "Kowarsch R.", "Nowak M.", "Pähler D.", "Patarcsity V.", "Pulendran K.", "Sahin E.", "Savas S.", "Schiavitelli", "Uluyüz B.", "Uzun S.", "Klomrit", "Garcia"],
@@ -252,6 +215,39 @@ const codeData = {
         stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-3-01 Messer schleifen", "4-3-02 Ungepl. Inst. Masch", "4-3-04 Silowechsel", "5-3-01 Mat-Mangel", "5-3-05 Feueralarm", "Sonstige"]
     }
 };
+
+async function loadPasswordsFromSheet() {
+    try {
+        const response = await fetch(${scriptURL}?action=getSifreler&_cb=${Date.now()});
+        const sifreler = await response.json();
+        globalSifreler = sifreler; // Dinamik listeyi global değişkene kopyala
+        return sifreler;
+    } catch(e) {
+        console.error("Şifreler alınamadı:", e);
+        return {};
+    }
+}
+
+async function checkLogin() {
+    const u = document.getElementById('userInp').value.trim();
+    const p = document.getElementById('passInp').value.trim();
+    const errorDiv = document.getElementById('loginError');
+    
+    if(!u || !p) {
+        errorDiv.innerText = "❌ Bitte Name und Passwort eingeben!";
+        errorDiv.style.display = 'block';
+        return;
+    }
+    
+    const sifreler = await loadPasswordsFromSheet();
+    
+    if(sifreler[u] && sifreler[u] === p) {
+        enterApp(u);
+    } else {
+        errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
+        errorDiv.style.display = 'block';
+    }
+}
 
 function enterApp(u) { 
     loggedInUser = u; 
@@ -318,9 +314,10 @@ function saveNewPassword() { alert("Passwort geändert"); enterApp(loggedInUser)
 
 function loadUserSelect() {
     const select = document.getElementById('rightsSelect');
+    // Artık boş olan initialDB yerine dynamic yüklenen globalSifreler kullanılıyor
     select.innerHTML = '<option value="">Mitarbeiter wählen...</option>' + 
                        '<option value="_CLEAR_ALL_" style="color:var(--danger); font-weight:bold;">⚠️ Alle Berechtigungen löschen</option>' +
-                       Object.keys(initialDB).filter(x => x !== superAdmin).map(u => <option value="${u}">${u}</option>).join('');
+                       Object.keys(globalSifreler).filter(x => x !== superAdmin).map(u => <option value="${u}">${u}</option>).join('');
 }
 
 function handleRightsSelectChange(value) {
@@ -430,11 +427,15 @@ function addRow(artId, type) {
     document.getElementById(rows_${artId}).appendChild(div);
     const select = div.querySelector(.${type}-select);
     const sonstInput = div.querySelector('.sonstige-input');
-    select.onchange = () => { sonstInput.style.display = select.value === 'Sonstige' ? 'block' : 'none'; };
+    
+    // Select değiştiğinde hem alanları kontrol et hem liveCheck çalıştır
+    select.onchange = () => { 
+        sonstInput.style.display = select.value === 'Sonstige' ? 'block' : 'none'; 
+        liveCheck();
+    };
     liveCheck();
 }
 
-// 🔓 STRIKTE RAKAM KONTROLLERİ VE BLOKAJLAR KALDIRILDI!
 function liveCheck() {
     let isValid = true; 
     let cT = 0;
@@ -448,12 +449,10 @@ function liveCheck() {
         row.querySelectorAll('.aus-value').forEach(i => s += parseInt(i.value) || 0);
         const b = document.getElementById('badge_' + id);
         
-        // Sadece alt detay girilmiş ama üst toplam 0 ise otomatik eşitleme uyarısı ver (Engelleme!)
         if (s > 0 && t === 0) {
             b.className="status-badge status-ok"; 
             b.innerText = "✅ Auto-Anpassung: " + s;
         } 
-        // Eğer alt kodların toplamı, girilen üst toplama uymuyorsa uyar ama buton kilidini aç
         else if(t > 0 && t !== s) { 
             b.className="status-badge status-ok"; 
             b.innerText = "ℹ️ Info: " + s + " von " + t + " erfasst"; 
@@ -487,7 +486,6 @@ function liveCheck() {
         sendBtn.innerText = "📦 ARTIKEL HINZUFÜGEN";
         sendBtn.disabled = true;
     } else {
-        // Artık isValid kontrolü butonu asla devre dışı bırakamaz!
         sendBtn.innerText = "🚀 SPEICHERN & SENDEN";
         sendBtn.disabled = false;
     }
@@ -574,7 +572,6 @@ async function processReport() {
         const id = row.id.split('_')[1];
         const artName = row.querySelector('.art-name').value.trim() || "Unbekannt";
         
-        // Boş bırakılan alanları burası otomatik olarak "0" yapar
         const artGut = row.querySelector('.art-gut').value || "0";
         let artAusTotal = parseInt(row.querySelector('.art-aus-total').value) || 0;
         const duration = row.querySelector('.art-duration')?.value || "";
@@ -593,7 +590,6 @@ async function processReport() {
             }
         });
         
-        // Eğer el ile toplam yazılmadıysa alt detayların toplamını otomatik eşitle
         if(artAusTotal === 0 && totalAusFromRows > 0) {
             artAusTotal = totalAusFromRows;
         }
