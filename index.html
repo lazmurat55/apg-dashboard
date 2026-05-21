@@ -6,17 +6,19 @@
     <title>APG Bochum - Betriebsdatenerfassung</title>
     <style>
         :root {
-            --bg-main: #0f172a;        
-            --bg-card: #1e293b;        
-            --bg-input: #0f172a;       
-            --border-color: #334155;   
-            --primary: #3b82f6;        
-            --primary-hover: #1d4ed8;  
-            --success: #10b981;        
-            --danger: #f43f5e;         
-            --orange-bright: #f59e0b;  
-            --text-main: #f8fafc;      
-            --text-muted: #94a3b8;     
+            --bg-main: #0f172a;        /* Gözü yormayan modern koyu arka plan */
+            --bg-card: #1e293b;        /* Kartlar için hafif açık, net ayrışan ton */
+            --bg-input: #0f172a;       /* Giriş alanları arka planı */
+            --border-color: #334155;   /* Yumuşak sınır çizgileri */
+            --primary: #3b82f6;        /* Standart mavi */
+            --primary-hover: #1d4ed8;  /* Koyu mavi hover */
+            --success: #10b981;        /* Başarılı / Gutteile yeşili */
+            --danger: #f43f5e;         /* Hata / Genel kırmızı */
+            --orange-bright: #f59e0b;  /* Admin / Uyarı turuncusu */
+            --text-main: #f8fafc;      /* Parlak beyaz yerine mat beyaz (göz dostu) */
+            --text-muted: #94a3b8;     /* İkinci derece yazılar için gri ton */
+            
+            /* Yenilenen Parlak Kırmızı - Dashboard için */
             --dash-danger: #ff4d6d;    
         }
 
@@ -24,9 +26,11 @@
         body { background-color: var(--bg-main); color: var(--text-main); padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; }
         
         .container { width: 100%; max-width: 1100px; background: transparent; transition: max-width 0.3s ease; }
+        /* Admin paneli açıldığında ekranı genişletiyoruz ki 3'lü yan yana düzen rahat sığsın */
         .container.wide { max-width: 1200px; }
         .app-wrapper { max-width: 620px; margin: 0 auto; }
         
+        /* Kart Yapısı */
         .form-card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2), 0 2px 4px -2px rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
         
         h2 { text-align: center; margin-bottom: 24px; color: #fff; font-weight: 700; letter-spacing: 0.5px; }
@@ -40,26 +44,31 @@
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; }
         
+        /* Buton Stilleri */
         button { font-weight: 600; cursor: pointer; border: none; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 4px rgba(59,130,246,0.2); }
         .btn-primary:hover { background: var(--primary-hover); }
         .btn-primary:disabled { background: #334155; color: var(--text-muted); cursor: not-allowed; box-shadow: none; }
         
+        /* Seçim Grupları */
         .schicht-group, .type-group { display: flex; gap: 8px; margin-bottom: 12px; }
         .schicht-btn, .type-btn { flex: 1; background: var(--bg-input); border: 1px solid var(--border-color); padding: 12px; border-radius: 8px; color: var(--text-muted); font-size: 14px; }
         .schicht-btn.active, .type-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .active-filter { background: var(--orange-bright) !important; color: white !important; border-color: var(--orange-bright) !important; }
         
+        /* Personel Etiketleri */
         .worker-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; min-height: 44px; border: 1px dashed var(--border-color); padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.1); }
         .selected-worker { background: rgba(59,130,246,0.15); border: 1px solid var(--primary); color: #fff; padding: 6px 12px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 8px; font-weight: 500; }
-        .selected-worker span:last-child { cursor: pointer; font-weight: bold; }
-
+        
+        /* Formträger Seçimi */
         .ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
         .ft-btn { background: var(--bg-input); border: 1px solid var(--border-color); padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-muted); }
         .ft-btn.active { background: var(--success); color: white; border-color: var(--success); }
         
+        /* Hesap Takip Kutusu */
         .com-tracker-box { display: none; background: rgba(59, 130, 246, 0.1); border: 1px dashed var(--primary); border-radius: 8px; padding: 14px; margin: 15px 0; font-size: 14px; font-weight: 600; text-align: center; color: #fff; }
         
+        /* Dinamik Kart Alanları */
         .artikel-row { background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); padding: 20px; border-radius: 10px; margin-bottom: 16px; position: relative; }
         .code-row { background: rgba(15, 23, 42, 0.6); padding: 14px; border-radius: 8px; margin-top: 12px; border-left: 4px solid var(--primary); }
         .code-row.err-border { border-left-color: var(--danger) !important; }
@@ -75,12 +84,14 @@
         .sub-btn { background: rgba(255,255,255,0.03); border: 1px solid var(--border-color); color: var(--text-main); padding: 10px 16px; font-size: 13px; border-radius: 8px; width: auto; margin-top: 10px; font-weight: 500; }
         .sub-btn:hover { background: rgba(255,255,255,0.08); border-color: var(--text-muted); }
         
+        /* Pop-up Overlay */
         .overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.8); display:none; justify-content:center; align-items:center; z-index:100; padding:15px; backdrop-filter: blur(4px); }
         .overlay-content { background:var(--bg-card); width:100%; max-width:420px; padding:24px; border-radius:12px; border:1px solid var(--border-color); max-height:85vh; display:flex; flex-direction:column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
         .worker-list { overflow-y:auto; flex:1; margin:15px 0; display:flex; flex-direction:column; gap:6px; padding-right:4px; }
         .worker-opt { padding:12px; background:var(--bg-input); border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-weight: 500; transition: all 0.2s; }
         .worker-opt:hover { border-color: var(--primary); background: rgba(59,130,246,0.05); }
         
+        /* Yönetim Paneli Alanları */
         .management-box { display: none; background: rgba(245, 158, 11, 0.05); border: 1px dashed var(--orange-bright); border-radius: 10px; padding: 16px; margin-top: 10px; margin-bottom: 20px; }
         .managers-list { margin-top: 12px; font-size: 13px; color: var(--text-main); padding: 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); }
         .delete-manager-btn { color: var(--danger); font-weight: bold; margin-left: 10px; cursor: pointer; }
@@ -91,17 +102,67 @@
         .refresh-btn { background: #334155; color: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 18px; font-size: 13px; width: auto; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; }
         .refresh-btn:hover { background: var(--success); border-color: var(--success); }
         
-        #reportsContainer { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-height: 650px; overflow-y: auto; padding-right: 4px; margin-top: 15px; }
-        @media (max-width: 900px) { #reportsContainer { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 650px) { #reportsContainer { grid-template-columns: 1fr; } }
+        /* ---------------------------------------------------- */
+        /* 👑 YENİ DASHBOARD GRİD DÜZENİ VE BÜYÜK YAZI STİLLERİ */
+        /* ---------------------------------------------------- */
+        #reportsContainer { 
+            display: grid; 
+            grid-template-columns: repeat(3, 1fr); /* Yan yana 3 kare */
+            gap: 16px; 
+            max-height: 650px; 
+            overflow-y: auto; 
+            padding-right: 4px; 
+            margin-top: 15px; 
+        }
+        
+        @media (max-width: 900px) {
+            #reportsContainer { grid-template-columns: repeat(2, 1fr); } /* Orta ekranlarda 2'li */
+        }
+        @media (max-width: 650px) {
+            #reportsContainer { grid-template-columns: 1fr; } /* Mobilde tekli */
+        }
 
-        .report-box { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; position: relative; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); min-height: 190px; }
-        .badge-origin { position: absolute; right: 12px; top: 12px; background: var(--primary); padding: 4px 12px; border-radius: 6px; font-size: 14px; font-weight: 700; color: #fff; }
+        .report-box { 
+            background: var(--bg-input); 
+            border: 1px solid var(--border-color); 
+            border-radius: 12px; 
+            padding: 18px; 
+            position: relative; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); 
+            min-height: 190px; /* Kare formunu korur */
+        }
+        
+        .badge-origin { 
+            position: absolute; 
+            right: 12px; 
+            top: 12px; 
+            background: var(--primary); 
+            padding: 4px 12px; 
+            border-radius: 6px; 
+            font-size: 14px; 
+            font-weight: 700; 
+            color: #fff; 
+        }
+        
         .report-box .report-date { font-size: 13px; color: var(--text-muted); margin-bottom: 8px; }
         .report-box .report-title { font-size: 17px; font-weight: 700; color: #fff; margin: 6px 0; line-height: 1.4; }
+        
+        /* Parlak yüksek kontrastlı ve büyük kırmızı */
         .report-box .report-danger { font-size: 15px; color: var(--dash-danger) !important; font-weight: 700; margin: 4px 0; line-height: 1.4; }
         .report-box .report-warning { font-size: 14px; color: var(--orange-bright); font-weight: 600; margin: 4px 0; }
-        .report-box .report-user { font-size: 13px; color: var(--success); margin-top: 8px; font-weight: 600; border-top: 1px solid var(--border-color); padding-top: 8px; }
+        
+        .report-box .report-user { 
+            font-size: 13px; 
+            color: var(--success); 
+            margin-top: 8px; 
+            font-weight: 600; 
+            border-top: 1px solid var(--border-color); 
+            padding-top: 8px; 
+        }
+        /* ---------------------------------------------------- */
 
         #loginScreen { display: block; max-width: 400px; margin: 60px auto 0; }
         #mainApp, #adminPanel { display: none; }
@@ -134,11 +195,13 @@
                 <button class="schicht-btn active" id="mSchichtB" onclick="setSchicht('B')">Schicht B</button>
                 <button class="schicht-btn" id="mSchichtC" onclick="setSchicht('C')">Schicht C</button>
             </div>
+
             <div class="type-group">
                 <button class="type-btn" id="tFrueh" onclick="setSchichtType('Frühschicht')">Frühschicht</button>
                 <button class="type-btn active" id="tSpaet" onclick="setSchichtType('Spätschicht')">Spätschicht</button>
                 <button class="type-btn" id="tNacht" onclick="setSchichtType('Nachtschicht')">Nachtschicht</button>
             </div>
+
             <label>Datum</label>
             <input type="date" id="datum">
         </div>
@@ -155,14 +218,26 @@
             <label>Anlage wählen</label>
             <select id="anlage" onchange="onAnlageChange(this.value)">
                 <option value="">-- Bitte wählen --</option>
-                <option value="PUR1">PUR 1</option><option value="PUR2">PUR 2</option><option value="PUR3">PUR 3</option>
-                <option value="PUR4">PUR 4</option><option value="PUR5">PUR 5</option><option value="PUR6">PUR 6</option>
-                <option value="PUR7">PUR 7</option><option value="PUR8">PUR 8</option><option value="PUR9">PUR 9</option>
-                <option value="CIM1">CIM 1</option><option value="IM1">IM 1</option><option value="IM2">IM 2</option>
-                <option value="IM3">IM 3</option><option value="IM4">IM 4</option><option value="IM5">IM 5</option>
+                <option value="PUR1">PUR 1</option>
+                <option value="PUR2">PUR 2</option>
+                <option value="PUR3">PUR 3</option>
+                <option value="PUR4">PUR 4</option>
+                <option value="PUR5">PUR 5</option>
+                <option value="PUR6">PUR 6</option>
+                <option value="PUR7">PUR 7</option>
+                <option value="PUR8">PUR 8</option>
+                <option value="PUR9">PUR 9</option>
+                <option value="CIM1">CIM 1</option>
+                <option value="IM1">IM 1</option>
+                <option value="IM2">IM 2</option>
+                <option value="IM3">IM 3</option>
+                <option value="IM4">IM 4</option>
+                <option value="IM5">IM 5</option>
                 <option value="COM">COM</option>
             </select>
+
             <div id="comTracker" class="com-tracker-box">⏱️ COM Schichtzeit-Konto: 0 / 480 Min</div>
+
             <div id="ftBox" style="display:none; margin-top: 15px;">
                 <label>Formträger (Mehrfachauswahl möglich)</label>
                 <div class="ft-grid">
@@ -179,6 +254,7 @@
         <div class="form-card">
             <h3>Produktion & Fehlererfassung</h3>
             <div id="artikelContainer"></div>
+            
             <button id="addArtikelBtn" class="sub-btn" style="width:100%; padding:12px; margin-bottom:10px; font-weight: 600;" onclick="addArtikel()" disabled>+ Artikel / Produktion hinzufügen</button>
         </div>
         
@@ -198,26 +274,32 @@
             <h4>⚙️ Rechteverwaltung (Schichtleiter)</h4>
             <label>Mitarbeiter auswählen</label>
             <select id="rightsSelect" onchange="handleRightsSelectChange(this.value)"></select>
+            
             <label>Zugewiesene Schicht</label>
             <select id="assignedSchichtSelect">
                 <option value="A">Schicht A</option>
                 <option value="B" selected>Schicht B</option>
                 <option value="C">Schicht C</option>
             </select>
+            
             <button class="btn-primary" style="margin-top:14px; padding:10px; background:var(--success);" onclick="grantSchichtleiterRights()">✓ Berechtigung Speichern</button>
+            
             <div class="managers-list" id="currentManagersList">Aktiv: Keine Leiter zugewiesen</div>
         </div>
 
         <h3 style="font-size: 20px; margin-bottom: 20px;">Schichtleiter Dashboard</h3>
+        
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
             <button id="manualRefreshBtn" class="refresh-btn" onclick="manualRefreshDashboard()">🔄 Aktualisieren</button>
             <span id="refreshStatus" style="font-size: 13px; color: var(--text-muted);"></span>
         </div>
+        
         <div id="adminFilterGroup" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-bottom:16px;">
             <button class="schicht-btn filter-btn" id="fltA" onclick="filterSchicht('A')">Schicht A</button>
             <button class="schicht-btn filter-btn" id="fltB" onclick="filterSchicht('B')">Schicht B</button>
             <button class="schicht-btn filter-btn" id="fltC" onclick="filterSchicht('C')">Schicht C</button>
         </div>
+
         <div id="reportsContainer"></div>
     </div>
 </div>
@@ -233,7 +315,6 @@
 </div>
 
 <script>
-// BURAYA 1. ADIMDA ALDIĞIN YENİ KODUNU KOYACAKSIN
 const scriptURL = "https://script.google.com/macros/s/AKfycbzwEsu2w49RTOC1scJsvwAEoMqN7bjJT9AwkBeTp_fiWbJO48-2wo8Bh0IJDKgN6EGiHA/exec";
 
 let currentSchicht = "B";
@@ -275,6 +356,10 @@ function setInitialTodayDate() {
     document.getElementById('datum').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 }
 
+function scrollToBottom() {
+    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+}
+
 async function checkLogin() {
     const u = document.getElementById('userInp').value.trim();
     const p = document.getElementById('passInp').value.trim();
@@ -288,19 +373,32 @@ async function checkLogin() {
     
     errorDiv.innerText = "⏳ Prüfe Login...";
     errorDiv.style.display = 'block';
+    errorDiv.style.color = "var(--primary)";
+
+    if (!navigator.onLine) {
+        if (u === superAdmin || schichtLeiterDb[u]) {
+            errorDiv.style.display = 'none';
+            enterApp(u);
+            return;
+        }
+        errorDiv.style.color = "var(--danger)";
+        errorDiv.innerText = "❌ Keine Netzverbindung!";
+        return;
+    }
 
     try {
-        const response = await fetch(`${scriptURL}?action=verifyLogin&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}`);
+        const response = await fetch(`${scriptURL}?action=verifyLogin&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}&_cb=${Date.now()}`);
         const result = await response.json();
         
         if(result.success) {
             errorDiv.style.display = 'none';
             enterApp(u);
         } else {
+            errorDiv.style.color = "var(--danger)";
             errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
         }
     } catch(e) {
-        enterApp(u); 
+        enterApp(u);
     }
 }
 
@@ -310,7 +408,7 @@ function enterApp(u) {
     setInitialTodayDate();
     
     if (u === superAdmin) {
-        document.getElementById('mainContainer').classList.add('wide');
+        document.getElementById('mainContainer').classList.add('wide'); 
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerHTML = "👑 Admin: " + u;
         document.getElementById('toggleRightsBtn').style.display = 'inline-block';
@@ -321,7 +419,7 @@ function enterApp(u) {
     } 
     else if (schichtLeiterDb[u]) {
         const assignedSchicht = schichtLeiterDb[u];
-        document.getElementById('mainContainer').classList.add('wide');
+        document.getElementById('mainContainer').classList.add('wide'); 
         document.getElementById('adminPanel').style.display = 'block';
         document.getElementById('adminUserDisplay').innerHTML = `🏃 Leiter: ${u} (Schicht ${assignedSchicht})`;
         document.getElementById('toggleRightsBtn').style.display = 'none'; 
@@ -342,6 +440,7 @@ function enterApp(u) {
         document.getElementById('currentUserDisplay').innerHTML = "👤 Angemeldet: " + u;
         setSchicht('B');
     }
+    
     validateFormState();
 }
 
@@ -356,7 +455,7 @@ async function manualRefreshDashboard() {
     if(btn) btn.innerHTML = "⏳ Lädt...";
     
     try {
-        const response = await fetch(`${scriptURL}?action=getAdminDashboard`);
+        const response = await fetch(`${scriptURL}?action=getAdminDashboard&_cb=${Date.now()}`);
         const result = await response.json();
         if(result.success && result.reports) {
             renderDashboard(result.reports);
@@ -400,7 +499,14 @@ function filterSchicht(s) {
 
 function toggleRightsPanel() {
     const panel = document.getElementById('rightsManagementBox');
-    if(panel) panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+    const btn = document.getElementById('toggleRightsBtn');
+    if (panel.style.display === 'block') {
+        panel.style.display = 'none';
+        btn.style.background = 'var(--border-color)';
+    } else {
+        panel.style.display = 'block';
+        btn.style.background = 'var(--primary)';
+    }
 }
 
 function loadUserSelect() {
@@ -408,22 +514,39 @@ function loadUserSelect() {
     if(!select) return;
     const allUsers = Object.keys(workerData).flatMap(k => workerData[k]).filter((v, i, a) => a.indexOf(v) === i);
     select.innerHTML = '<option value="">-- Name wählen --</option>' + 
+                       '<option value="_CLEAR_ALL_" style="color:var(--danger); font-weight:bold;">⚠️ Alle Berechtigungen löschen</option>' +
                        allUsers.map(u => `<option value="${u}">${u}</option>`).join('');
+}
+
+function handleRightsSelectChange(value) {
+    if (value === "_CLEAR_ALL_") {
+        if (confirm("Möchten Sie wirklich ALLE Berechtigungen löschen?")) {
+            schichtLeiterDb = {};
+            localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
+            updateManagersList();
+            alert("🗑️ Alle Berechtigungen gelöscht.");
+        }
+        document.getElementById('rightsSelect').value = "";
+    }
 }
 
 function grantSchichtleiterRights() {
     const name = document.getElementById('rightsSelect').value;
     const schicht = document.getElementById('assignedSchichtSelect').value;
-    if(!name) return;
+    if(!name) { alert("Bitte einen Mitarbeiter auswählen!"); return; }
     schichtLeiterDb[name] = schicht;
     localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
     updateManagersList();
+    alert(`✅ ${name} autorisiert für Schicht ${schicht}.`);
 }
 
 function removeSchichtleiterRight(name) {
-    delete schichtLeiterDb[name];
-    localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
-    updateManagersList();
+    if (confirm(`Möchten Sie die Berechtigung für ${name} löschen?`)) {
+        delete schichtLeiterDb[name];
+        localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
+        updateManagersList();
+        alert(`❌ Berechtigung für ${name} entfernt.`);
+    }
 }
 
 function updateManagersList() {
@@ -463,15 +586,11 @@ function openWorkerOverlay() {
 function addStaff(n) { if(!selectedStaff.includes(n)) selectedStaff.push(n); closeOverlay(); renderStaff(); }
 function addManualWorker() { const v = document.getElementById('manualWorker').value.trim(); if(v) { selectedStaff.push(v); document.getElementById('manualWorker').value=""; closeOverlay(); renderStaff(); } }
 function closeOverlay() { document.getElementById('workerOverlay').style.display = 'none'; }
-
-function removeStaff(n) {
-    selectedStaff = selectedStaff.filter(s => s !== n);
-    renderStaff();
-}
+function removeStaff(n) { selectedStaff = selectedStaff.filter(s => s !== n); renderStaff(); }
 
 function renderStaff() { 
     document.getElementById('workerDisplayContainer').innerHTML = selectedStaff.map(s => 
-        `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')">✕</span></div>`
+        `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')" style="color:var(--danger); cursor:pointer;">✕</span></div>`
     ).join("");
     validateFormState();
 }
@@ -503,7 +622,6 @@ function getActiveMachineGroup() {
 
 function addArtikel() {
     const container = document.getElementById('artikelContainer');
-    const index = container.children.length;
     
     const div = document.createElement('div');
     div.className = 'artikel-row';
