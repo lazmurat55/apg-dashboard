@@ -52,6 +52,7 @@
         
         .worker-container { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; min-height: 44px; border: 1px dashed var(--border-color); padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.1); }
         .selected-worker { background: rgba(59,130,246,0.15); border: 1px solid var(--primary); color: #fff; padding: 6px 12px; border-radius: 20px; font-size: 13px; display: flex; align-items: center; gap: 8px; font-weight: 500; }
+        .remove-worker { cursor: pointer; color: var(--danger); font-weight: bold; }
         
         .ft-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 15px; }
         .ft-btn { background: var(--bg-input); border: 1px solid var(--border-color); padding: 10px; text-align: center; border-radius: 8px; cursor: pointer; font-size: 13px; font-weight: 600; color: var(--text-muted); }
@@ -60,6 +61,8 @@
         .com-tracker-box { display: none; background: rgba(59, 130, 246, 0.1); border: 1px dashed var(--primary); border-radius: 8px; padding: 14px; margin: 15px 0; font-size: 14px; font-weight: 600; text-align: center; color: #fff; }
         
         .artikel-row { background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 20px; position: relative; }
+        .remove-artikel-btn { position: absolute; right: 12px; top: 12px; background: none; color: var(--text-muted); border: none; width: auto; padding: 0; cursor: pointer; font-size: 14px; }
+        .remove-artikel-btn:hover { color: var(--danger); }
         
         .code-row-container { background: rgba(15, 23, 42, 0.6); padding: 12px; border-radius: 8px; margin-top: 12px; border: 1px solid var(--border-color); }
         .code-row { display: flex; gap: 10px; align-items: center; margin-bottom: 8px; width: 100%; }
@@ -69,7 +72,7 @@
         .code-row .remove-row-btn { flex: 0.5; background: none; color: var(--text-muted); border: none; font-size: 18px; padding: 0; width: auto; cursor: pointer; display: flex; justify-content: center; }
         .code-row .remove-row-btn:hover { color: var(--danger); }
         
-        .sonstige-input { display: none; margin-top: -4px; margin-bottom: 8px; font-size: 14px; padding: 10px; width: 100%; background: var(--bg-card); }
+        .sonstige-input { display: none; margin-top: 4px; margin-bottom: 8px; font-size: 14px; padding: 10px; width: 100%; background: var(--bg-card); border-radius: 6px; border: 1px solid var(--border-color); color: #fff; }
         
         .status-badge { display: inline-flex; align-items: center; gap: 4px; background: var(--danger); color: white; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 20px; margin-top: 5px; margin-bottom: 8px; }
         .status-badge.ok { background: var(--success); }
@@ -283,6 +286,8 @@ let superAdmin = "Keskin";
 let schichtLeiterDb = {}; 
 let activeFilterSchicht = "B";
 let autoRefreshInterval = null;
+let cachedDashboardData = [];
+let artikelCounter = 0;
 
 if(localStorage.getItem('apg_schichtleiter_db')) {
     try { schichtLeiterDb = JSON.parse(localStorage.getItem('apg_schichtleiter_db')); } catch(e){}
@@ -547,6 +552,7 @@ function closeOverlay() {
     document.getElementById('workerOverlay').style.display = 'none';
 }
 
+// KESİLEN BÖLÜMÜN DEVAMI VE TAMAMLANMASI
 function addStaff(name) {
     if(!selectedStaff.includes(name)) {
         selectedStaff.push(name);
@@ -558,9 +564,11 @@ function addStaff(name) {
 function addManualWorker() {
     const inp = document.getElementById('manualWorker');
     const name = inp.value.trim();
-    if(name && !selectedStaff.includes(name)) {
-        selectedStaff.push(name);
-        renderStaff();
+    if(name) {
+        if(!selectedStaff.includes(name)) {
+            selectedStaff.push(name);
+            renderStaff();
+        }
         inp.value = "";
     }
     closeOverlay();
@@ -573,12 +581,277 @@ function removeStaff(name) {
 
 function renderStaff() {
     const container = document.getElementById('workerDisplayContainer');
+    if(!container) return;
     if(selectedStaff.length === 0) {
         container.innerHTML = `<span style="color:var(--text-muted); font-size:13px;">Keine Mitarbeiter ausgewählt</span>`;
     } else {
-        container.innerHTML = selectedStaff.map(s => `<div class="selected-worker">${s} <span style="cursor:pointer; color:var(--danger);" onclick="removeStaff('${s}')">✕</span></div>`).join('');
+        container.innerHTML = selectedStaff.map(s => `
+            <div class="selected-worker">
+                <span>${s}</span>
+                <span class="remove-worker" onclick="removeStaff('${s}')">✕</span>
+            </div>
+        `).join('');
     }
     liveCheck();
+}
+
+function getAnlageGruppe(anlageVal) {
+    if(!anlageVal) return null;
+    if(anlageVal.startsWith("PUR")) return "PUR";
+    if(anlageVal.startsWith("IM") || anlageVal.startsWith("CIM")) return "Spritz";
+    if(anlageVal === "COM") return "COM";
+    return null;
+}
+
+function onAnlageChange(val) {
+    const ftBox = document.getElementById('ftBox');
+    const comTracker = document.getElementById('comTracker');
+    
+    if(val.startsWith("PUR")) {
+        ftBox.style.display = "block";
+    } else {
+        ftBox.style.display = "none";
+        document.querySelectorAll('.ft-btn').forEach(btn => btn.classList.remove('active'));
+    }
+
+    if(val === "COM") {
+        comTracker.style.display = "block";
+    } else {
+        comTracker.style.display = "none";
+    }
+
+    document.getElementById('artikelContainer').innerHTML = "";
+    document.getElementById('addArtikelBtn').disabled = val === "";
+    
+    if(val !== "") {
+        addArtikel();
+    }
+    liveCheck();
+}
+
+function addArtikel() {
+    artikelCounter++;
+    const id = artikelCounter;
+    const anlageVal = document.getElementById('anlage').value;
+    const gruppe = getAnlageGruppe(anlageVal);
+    
+    if(!gruppe) return;
+
+    const div = document.createElement('div');
+    div.className = 'artikel-row';
+    div.id = `artikelRow_${id}`;
+    
+    div.innerHTML = `
+        <button class="remove-artikel-btn" onclick="removeArtikelRow(${id})">🗑️ Entfernen</button>
+        <div class="grid-2">
+            <div>
+                <label>Artikelnummer</label>
+                <input type="number" class="art-num-input" placeholder="z.B. 2222" oninput="liveCheck()">
+            </div>
+            <div>
+                <label>Gutteile (Stück)</label>
+                <input type="number" class="art-gut-input" placeholder="0" oninput="liveCheck()">
+            </div>
+        </div>
+        
+        <div class="code-action-group">
+            <button class="btn-add-aus" onclick="addCodeRow(${id}, 'aus')">+ Ausschluss-Code</button>
+            <button class="btn-add-stoer" onclick="addCodeRow(${id}, 'stoer')">+ Störungs-Code</button>
+        </div>
+        
+        <div class="code-row-container" id="codeContainer_${id}" style="display:none;"></div>
+    `;
+    
+    document.getElementById('artikelContainer').appendChild(div);
+    liveCheck();
+    scrollToBottom();
+}
+
+function removeArtikelRow(id) {
+    const row = document.getElementById(`artikelRow_${id}`);
+    if(row) row.remove();
+    liveCheck();
+}
+
+function addCodeRow(artikelId, type) {
+    const container = document.getElementById(`codeContainer_${artikelId}`);
+    container.style.display = "block";
+    
+    const anlageVal = document.getElementById('anlage').value;
+    const gruppe = getAnlageGruppe(anlageVal);
+    const options = codeData[gruppe][type];
+    
+    const rowId = Date.now() + Math.random().toString(36).substr(2, 5);
+    
+    const div = document.createElement('div');
+    div.className = 'code-row';
+    div.id = `codeRow_${rowId}`;
+    div.setAttribute('data-type', type);
+    
+    div.innerHTML = `
+        <div style="flex:7; min-width:0;">
+            <select class="code-select" onchange="onCodeSelectChangeValue('${rowId}', this.value)">
+                <option value="">-- Code wählen (${type === 'aus' ? 'Ausschuss' : 'Störung'}) --</option>
+                ${options.map(o => `<option value="${o}">${o}</option>`).join('')}
+            </select>
+            <input type="text" class="sonstige-input" id="sonstige_${rowId}" placeholder="Details beschreiben...">
+        </div>
+        <input type="number" class="code-menge-input" style="flex:2.5;" placeholder="${type==='aus'?'Stk':'Min'}" oninput="liveCheck()">
+        <button class="remove-row-btn" onclick="document.getElementById('codeRow_${rowId}').remove(); liveCheck();">✕</button>
+    `;
+    
+    container.appendChild(div);
+    liveCheck();
+}
+
+function onCodeSelectChangeValue(rowId, val) {
+    const sonstige = document.getElementById(`sonstige_${rowId}`);
+    if(val === "Sonstige") {
+        sonstige.style.display = "block";
+    } else {
+        sonstige.style.display = "none";
+    }
+    liveCheck();
+}
+
+function liveCheck() {
+    const sendBtn = document.getElementById('mainSendBtn');
+    const anlage = document.getElementById('anlage').value;
+    const datum = document.getElementById('datum').value;
+    
+    if(!anlage || !datum || selectedStaff.length === 0) {
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = "⚠️ Bitte Formular ausfüllen (Personal & Anlage)";
+        return;
+    }
+
+    const rows = document.querySelectorAll('.artikel-row');
+    if(rows.length === 0) {
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = "⚠️ Mindestens 1 Artikel hinzufügen";
+        return;
+    }
+
+    let valid = true;
+    rows.forEach(r => {
+        const art = r.querySelector('.art-num-input').value;
+        const gut = r.querySelector('.art-gut-input').value;
+        if(!art || !gut) valid = false;
+        
+        const codeRows = r.querySelectorAll('.code-row');
+        codeRows.forEach(cr => {
+            const sel = cr.querySelector('.code-select').value;
+            const qty = cr.querySelector('.code-menge-input').value;
+            if(!sel || !qty) valid = false;
+        });
+    });
+
+    if(!valid) {
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = "⚠️ Bitte alle Artikel- und Codefelder ausfüllen";
+    } else {
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = "🚀 Daten an Google Sheets senden";
+    }
+}
+
+async function processReport() {
+    const btn = document.getElementById('mainSendBtn');
+    btn.disabled = true;
+    btn.innerHTML = "⏳ Wird übertragen...";
+    
+    const anlage = document.getElementById('anlage').value;
+    const datum = document.getElementById('datum').value;
+    
+    let activeFts = [];
+    document.querySelectorAll('.ft-btn.active').forEach(b => activeFts.push(b.innerText));
+    
+    let payload = {
+        action: "submitData",
+        schicht: currentSchicht,
+        schichtType: currentSchichtType,
+        datum: datum,
+        anlage: anlage,
+        formtraeger: activeFts.join(', '),
+        mitarbeiter: selectedStaff.join(', '),
+        user: loggedInUser,
+        artikels: []
+    };
+
+    document.querySelectorAll('.artikel-row').forEach(r => {
+        let artObj = {
+            artikelNum: r.querySelector('.art-num-input').value,
+            gutteile: r.querySelector('.art-gut-input').value,
+            codes: []
+        };
+        
+        r.querySelectorAll('.code-row').forEach(cr => {
+            const codeVal = cr.querySelector('.code-select').value;
+            const detailVal = cr.querySelector('.sonstige-input').value;
+            artObj.codes.push({
+                type: cr.getAttribute('data-type'),
+                code: codeVal === "Sonstige" ? `Sonstige: ${detailVal}` : codeVal,
+                wert: cr.querySelector('.code-menge-input').value
+            });
+        });
+        payload.artikels.push(artObj);
+    });
+
+    if(!navigator.onLine) {
+        let offlineBuffer = JSON.parse(localStorage.getItem('apg_offline_buffer') || "[]");
+        offlineBuffer.push(payload);
+        localStorage.setItem('apg_offline_buffer', JSON.stringify(offlineBuffer));
+        alert("💾 Keine Netzverbindung! Bericht wurde lokal gespeichert und wird automatisch gesendet, sobald Sie wieder online sind.");
+        resetForm();
+        return;
+    }
+
+    try {
+        const response = await fetch(scriptURL, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        alert("✅ Daten erfolgreich an Google Sheets übertragen!");
+        resetForm();
+    } catch(e) {
+        alert("❌ Fehler beim Senden. Bericht wird lokal gesichert.");
+        let offlineBuffer = JSON.parse(localStorage.getItem('apg_offline_buffer') || "[]");
+        offlineBuffer.push(payload);
+        localStorage.setItem('apg_offline_buffer', JSON.stringify(offlineBuffer));
+        resetForm();
+    }
+}
+
+function resetForm() {
+    document.getElementById('anlage').value = "";
+    document.getElementById('artikelContainer').innerHTML = "";
+    document.querySelectorAll('.ft-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('ftBox').style.display = "none";
+    document.getElementById('comTracker').style.display = "none";
+    selectedStaff = [];
+    renderStaff();
+}
+
+async function checkOfflinePuffer() {
+    if(!navigator.onLine) return;
+    let offlineBuffer = JSON.parse(localStorage.getItem('apg_offline_buffer') || "[]");
+    if(offlineBuffer.length === 0) return;
+    
+    console.log(`Puffer wird gesendet: ${offlineBuffer.length} Einträge`);
+    for(let i=0; i<offlineBuffer.length; i++) {
+        try {
+            await fetch(scriptURL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(offlineBuffer[i])
+            });
+        } catch(e) { break; }
+    }
+    localStorage.removeItem('apg_offline_buffer');
+    console.log("Offline-Puffer vollständig synchronisiert.");
 }
 
 function filterSchicht(s) {
@@ -588,35 +861,33 @@ function filterSchicht(s) {
     renderDashboardData();
 }
 
-let cachedDashboardData = [];
-
-async function loadAdminDashboard(isBackground) {
+async function loadAdminDashboard(isSilent) {
     if(!navigator.onLine) return;
     try {
         const response = await fetch(`${scriptURL}?action=getDashboardData&_cb=${Date.now()}`);
         const data = await response.json();
-        if(Array.isArray(data)) {
+        if(data && Array.isArray(data)) {
             cachedDashboardData = data;
             renderDashboardData();
         }
     } catch(e) {
-        console.error("Dashboard-Ladefehler", e);
+        console.error("Dashboard-Fehler:", e);
     }
 }
 
-/* KONSOLIDIERTE KARTEN-FUNKTION (Fehler gesammelt in einer Box) */
-// SUNUCUDAN GELEN VERİLERİ CANLI PANELDE ALMANCA OLARAK GÖSTEREN KOD
+// ALMANCA METİNLERLE CANLI PANELİ RENDER EDEN GÜNCEL FONKSİYON
 function renderDashboardData() {
     const container = document.getElementById('reportsContainer');
     if(!container) return;
     
-    if(!cachedDashboardData || cachedDashboardData.length === 0) {
+    const filtered = cachedDashboardData.filter(r => r.schicht === activeFilterSchicht);
+    
+    if(filtered.length === 0) {
         container.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:var(--text-muted);">Keine Berichte für Schicht ${activeFilterSchicht} gefunden.</div>`;
         return;
     }
 
-    container.innerHTML = cachedDashboardData.map(r => {
-        // hasError kontrolüne göre kartın sol çizgisi kırmızı (hata var) veya yeşil (tamam) olur
+    container.innerHTML = filtered.map(r => {
         const borderStyle = r.hasError ? 'border-left: 5px solid var(--danger);' : 'border-left: 5px solid var(--success);';
         
         return `
@@ -639,348 +910,6 @@ function renderDashboardData() {
             </div>
         `;
     }).join('');
-}
-
-function onAnlageChange(val) {
-    const ftBox = document.getElementById('ftBox');
-    const comTracker = document.getElementById('comTracker');
-    
-    if(val.startsWith("PUR")) {
-        ftBox.style.display = "block";
-    } else {
-        ftBox.style.display = "none";
-        document.querySelectorAll('.ft-btn').forEach(b => b.classList.remove('active'));
-    }
-
-    if(val === "COM") {
-        comTracker.style.display = "block";
-    } else {
-        comTracker.style.display = "none";
-    }
-    
-    // Bestehende Einträge löschen bei Anlagenwechsel
-    document.getElementById('artikelContainer').innerHTML = "";
-    document.getElementById('addArtikelBtn').disabled = (val === "");
-    
-    liveCheck();
-}
-
-function getActiveAnlageGroup() {
-    const anlage = document.getElementById('anlage').value;
-    if(!anlage) return null;
-    if(anlage.startsWith("PUR")) return "PUR";
-    if(anlage.startsWith("IM") || anlage.startsWith("CIM")) return "Spritz";
-    if(anlage === "COM") return "COM";
-    return null;
-}
-
-let artikelCounter = 0;
-function addArtikel() {
-    artikelCounter++;
-    const container = document.getElementById('artikelContainer');
-    const div = document.createElement('div');
-    div.className = "artikel-row";
-    div.id = `artikelRow_${artikelCounter}`;
-    
-    div.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
-            <span style="font-weight:700; color:#38bdf8; font-size:15px;">Artikel #${artikelCounter}</span>
-            <button onclick="removeArtikel(${artikelCounter})" style="width:auto; padding:4px 10px; background:rgba(244,63,94,0.1); color:var(--danger); font-size:12px; border-radius:6px;">Entfernen</button>
-        </div>
-        
-        <label>Artikelnummer / Artikelbezeichnung</label>
-        <input type="text" placeholder="z.B. 123456 - Heckblende" class="artikel-name-input" oninput="liveCheck()">
-        
-        <div class="grid-2" style="margin-top:10px;">
-            <div>
-                <label>Gutteile (Stück)</label>
-                <input type="number" min="0" value="0" class="gut-input" oninput="liveCheck()">
-            </div>
-            <div>
-                <label>Status</label>
-                <div style="margin-top:6px;"><span class="status-badge ok" id="statusBadge_${artikelCounter}">✓ OK</span></div>
-            </div>
-        </div>
-
-        <div class="code-row-container" id="codeRowContainer_${artikelCounter}"></div>
-
-        <div class="code-action-group">
-            <button class="btn-add-aus" onclick="addCodeRow(${artikelCounter}, 'aus')">+ Ausschuss (A)</button>
-            <button class="btn-add-stoer" onclick="addCodeRow(${artikelCounter}, 'stoer')">+ Störung (S)</button>
-        </div>
-    `;
-    container.appendChild(div);
-    liveCheck();
-    scrollToBottom();
-}
-
-function removeArtikel(id) {
-    document.getElementById(`artikelRow_${id}`)?.remove();
-    liveCheck();
-}
-
-function addCodeRow(artikelId, type) {
-    const container = document.getElementById(`codeRowContainer_${artikelId}`);
-    const group = getActiveAnlageGroup();
-    if(!group) return;
-
-    const options = codeData[group][type];
-    const rowId = Date.now() + Math.random().toString(36).substr(2, 5);
-
-    const rowDiv = document.createElement('div');
-    rowDiv.className = "code-row";
-    rowDiv.id = `row_${rowId}`;
-    rowDiv.setAttribute('data-type', type);
-
-    let selectHtml = `<select onchange="onCodeSelectChange('${rowId}', this.value); liveCheck();">`;
-    options.forEach(opt => {
-        selectHtml += `<option value="${opt}">${opt}</option>`;
-    });
-    selectHtml += `</select>`;
-
-    rowDiv.innerHTML = `
-        <span style="font-weight:bold; font-size:12px; color:${type==='aus'?'var(--danger)':'var(--orange-bright)'}">${type==='aus'?'A':'S'}</span>
-        ${selectHtml}
-        <input type="number" min="1" value="1" oninput="liveCheck();" class="code-qty-input">
-        <button class="remove-row-btn" onclick="document.getElementById('row_${rowId}').remove(); liveCheck();">✕</button>
-    `;
-
-    const sonstigeInp = document.createElement('input');
-    sonstigeInp.type = "text";
-    sonstigeInp.className = "sonstige-input";
-    sonstigeInp.id = `sonstige_${rowId}`;
-    sonstigeInp.placeholder = "Spezifischen Grund angeben...";
-    sonstigeInp.oninput = liveCheck;
-
-    container.appendChild(rowDiv);
-    container.appendChild(sonstigeInp);
-    
-    liveCheck();
-}
-
-function onCodeSelectChange(rowId, val) {
-    const sInp = document.getElementById(`sonstige_${rowId}`);
-    if(sInp) {
-        sInp.style.display = (val === "Sonstige") ? "block" : "none";
-    }
-}
-
-function liveCheck() {
-    const anlage = document.getElementById('anlage').value;
-    const staffCount = selectedStaff.length;
-    const sendBtn = document.getElementById('mainSendBtn');
-    const artikelRows = document.querySelectorAll('.artikel-row');
-    
-    let comTotalMinutes = 0;
-    let formElementValid = true;
-
-    if(!anlage) {
-        sendBtn.disabled = true;
-        sendBtn.innerText = "⚠️ Bitte Anlage wählen";
-        return;
-    }
-
-    if(staffCount === 0) {
-        sendBtn.disabled = true;
-        sendBtn.innerText = "⚠️ Bitte Personal auswählen";
-        return;
-    }
-
-    if(anlage.startsWith("PUR")) {
-        const activeFTs = document.querySelectorAll('.ft-grid .ft-btn.active').length;
-        if(activeFTs === 0) {
-            sendBtn.disabled = true;
-            sendBtn.innerText = "⚠️ Mind. einen Formträger wählen";
-            return;
-        }
-    }
-
-    if(artikelRows.length === 0) {
-        sendBtn.disabled = true;
-        sendBtn.innerText = "⚠️ Mind. einen Artikel hinzufügen";
-        return;
-    }
-
-    artikelRows.forEach(row => {
-        const id = row.id.split('_')[1];
-        const name = row.querySelector('.artikel-name-input').value.trim();
-        const gutQty = parseInt(row.querySelector('.gut-input').value) || 0;
-        const badge = document.getElementById(`statusBadge_${id}`);
-        
-        let rowHasError = false;
-        let totalFehler = 0;
-
-        if(!name) formElementValid = false;
-
-        const codeRows = document.getElementById(`codeRowContainer_${id}`).querySelectorAll('.code-row');
-        codeRows.forEach(cRow => {
-            const rId = cRow.id.split('_')[1];
-            const type = cRow.getAttribute('data-type');
-            const selectVal = cRow.querySelector('select').value;
-            const qty = parseInt(cRow.querySelector('.code-qty-input').value) || 0;
-            
-            if(qty <= 0) formElementValid = false;
-
-            if(selectVal === "Sonstige") {
-                const sInp = document.getElementById(`sonstige_${rId}`);
-                if(!sInp || !sInp.value.trim()) formElementValid = false;
-            }
-
-            if(type === 'aus') {
-                totalFehler += qty;
-            } else if(type === 'stoer' && anlage === "COM") {
-                comTotalMinutes += qty;
-            }
-        });
-
-        if(totalFehler > 0) {
-            badge.className = "status-badge";
-            badge.innerText = `⚠️ Ausschuss: ${totalFehler}`;
-        } else {
-            badge.className = "status-badge ok";
-            badge.innerText = "✓ OK";
-        }
-    });
-
-    if(anlage === "COM") {
-        const tracker = document.getElementById('comTracker');
-        tracker.innerText = `⏱️ COM Schichtzeit-Konto: ${comTotalMinutes} / 480 Min`;
-        if(comTotalMinutes > 480) {
-            tracker.style.borderColor = "var(--danger)";
-            tracker.style.background = "rgba(244,63,94,0.1)";
-            formElementValid = false;
-        } else {
-            tracker.style.borderColor = "var(--primary)";
-            tracker.style.background = "rgba(59,130,246,0.1)";
-        }
-    }
-
-    if(!formElementValid) {
-        sendBtn.disabled = true;
-        sendBtn.innerText = "⚠️ Formulardaten unvollständig/inkorrekt";
-    } else {
-        sendBtn.disabled = false;
-        sendBtn.innerText = "🚀 DATEN SENDEN & SPEICHERN";
-    }
-}
-
-function compileArtikelData() {
-    const rows = document.querySelectorAll('.artikel-row');
-    let data = [];
-    rows.forEach(row => {
-        const id = row.id.split('_')[1];
-        const name = row.querySelector('.artikel-name-input').value.trim();
-        const gutQty = parseInt(row.querySelector('.gut-input').value) || 0;
-        
-        let codeRowsData = [];
-        const codeRows = document.getElementById(`codeRowContainer_${id}`).querySelectorAll('.code-row');
-        codeRows.forEach(cRow => {
-            const rId = cRow.id.split('_')[1];
-            const type = cRow.getAttribute('data-type');
-            let selectVal = cRow.querySelector('select').value;
-            const qty = parseInt(cRow.querySelector('.code-qty-input').value) || 0;
-
-            if(selectVal === "Sonstige") {
-                const sInp = document.getElementById(`sonstige_${rId}`);
-                if(sInp) selectVal = `Sonstige (${sInp.value.trim()})`;
-            }
-
-            codeRowsData.push({ type, code: selectVal, qty });
-        });
-
-        data.push({ artikel: name, gutTeile: gutQty, rows: codeRowsData });
-    });
-    return data;
-}
-
-function saveOfflineReport(payload) {
-    let puffer = [];
-    try { puffer = JSON.parse(localStorage.getItem('apg_offline_puffer')) || []; } catch(e){}
-    puffer.push({ id: Date.now(), payload: payload });
-    localStorage.setItem('apg_offline_puffer', JSON.stringify(puffer));
-}
-
-async function checkOfflinePuffer() {
-    if(!navigator.onLine) return;
-    let puffer = [];
-    try { puffer = JSON.parse(localStorage.getItem('apg_offline_puffer')) || []; } catch(e){}
-    if(puffer.length === 0) return;
-
-    localStorage.removeItem('apg_offline_puffer'); 
-    
-    for(let item of puffer) {
-        try {
-            await fetch(scriptURL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: new URLSearchParams(item.payload)
-            });
-        } catch(e) {
-            saveOfflineReport(item.payload); 
-        }
-    }
-}
-
-async function processReport() {
-    const sendBtn = document.getElementById('mainSendBtn');
-    sendBtn.disabled = true;
-    sendBtn.innerText = "⏳ Wird übertragen...";
-
-    const dateVal = document.getElementById('datum').value;
-    const anlageVal = document.getElementById('anlage').value;
-    
-    let fts = [];
-    if(anlageVal.startsWith("PUR")) {
-        document.querySelectorAll('.ft-grid .ft-btn.active').forEach(b => fts.push(b.innerText));
-    }
-    const finalAnlageString = anlageVal + (fts.length > 0 ? ` (${fts.join(',')})` : '');
-
-    const compiledData = compileArtikelData();
-    
-    let summaryList = [];
-    compiledData.forEach(art => {
-        art.rows.forEach(r => {
-            summaryList.push(`[${art.artikel}] ${r.code} (${r.qty}x)`);
-        });
-    });
-    const fehlerDetailsString = summaryList.join(' | ');
-
-    const payload = {
-        action: "submitReport",
-        user: loggedInUser,
-        schicht: currentSchicht,
-        schichtType: currentSchichtType,
-        datum: dateVal,
-        mitarbeiter: selectedStaff.join(', '),
-        mitarbeiterAnzahl: selectedStaff.length,
-        anlage: finalAnlageString,
-        artikelData: JSON.stringify(compiledData),
-        fehlerDetails: fehlerDetailsString,
-        _cb: Date.now()
-    };
-
-    if(!navigator.onLine) {
-        saveOfflineReport(payload);
-        alert("💾 Lokal gespeichert! Keine Netzverbindung (wird automatisch gesendet, sobald Internet da ist).");
-        location.reload();
-        return;
-    }
-
-    try {
-        await fetch(scriptURL, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/x-www-form-urlencoded" },
-            body: new URLSearchParams(payload)
-        });
-        alert("🎉 Daten erfolgreich an Google Sheets übertragen!");
-        location.reload();
-    } catch(e) {
-        saveOfflineReport(payload);
-        alert("💾 Fehler bei Übertragung. Daten wurden offline gesichert!");
-        location.reload();
-    }
 }
 </script>
 </body>
