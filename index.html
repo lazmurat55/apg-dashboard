@@ -268,610 +268,105 @@
     </div>
 </div>
 
+```html
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbzIw74WID3lJ8t1zGRRvzsOe8JWosS5N8wKt24UIlq8YFMD5pbpmH0pAXZJsm7Zt8ET5Q/exec";
+
+const scriptURL = "https://script.google.com/macros/s/AKfycbywbBiKXE69zJ2uIAEpzOC5s563A5kTPzHt7-xSi8NBEkulLEC0RoXGCR__Zs-LoANr9w/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Spätschicht";
 let selectedStaff = [];
 let loggedInUser = "";
-let superAdmin = "Keskin"; 
-let schichtLeiterDb = {}; 
 let activeFilterSchicht = "B";
-let autoRefreshInterval = null;
-
-if(localStorage.getItem('apg_schichtleiter_db')) {
-    try { schichtLeiterDb = JSON.parse(localStorage.getItem('apg_schichtleiter_db')); } catch(e){}
-}
-
-const workerData = {
-    "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D.", "Kantaroglu A.", "Krancioch A.", "Held D.", "Berisha I.", "Neji M.", "Mulugeta G.", "Udezue P.", "Jansen M.", "Aksoy O.", "Yildirim S.", "Brand N.", "Louze A.", "Blanquez Romero V.", "Diallo M.D.", "Sener E.", "Klomrit", "Garcia"],
-    "B": ["Keskin Mur.", "Aldirmaz P.", "Anderwald R.", "Bayrakli F.", "Kilic D.", "Maafi T.", "Besche T.", "Eickhoff P.", "Toth Renata", "Gibba n.", "Helf A.", "Isbir J.", "Jeyakumar S.", "Kalisch T.", "Kowarsch R.", "Nowak M.", "Pähler D.", "Patarcsity V.", "Pulendran K.", "Sahin E.", "Savas S.", "Schiavitelli", "Uluyüz B.", "Uzun S.", "Klomrit", "Garcia"],
-    "C": ["Beher T.", "Keskin Mustafa", "Kantaroglu Ö.", "Savas R.", "Rafo S.", "Gertz Kevin", "Gertz S.", "Schönborn Ch.", "Fortes Ch.", "Sakaguchi M.", "Mercan M.", "Krämer Ch.", "Juretzka T.", "Kumbara E.", "Skupio D.", "Skrago T.", "Bah A.", "Kaya A.", "Jdea A.", "Toure A.", "Schneider D.", "Tchaleu Bertrand", "Keskinmus", "Klomrit", "Garcia"]
-};
-
-const codeData = {
-    PUR: {
-        aus: ["6-2-01 Temperatur zu niedrig", "6-2-02 Schaum haftet nicht am Bauteil", "6-2-03 Einlegefehler", "6-2-04 Schussabbruch", "6-2-05 CIM nicht voll ausgeschäumt", "6-2-06 Lippe gerissen", "6-2-07 CIM gerissen", "7-2-01 Nacharbeit am Bauteil (Entgraten, Nachkleben etc.)", "Sonstige"],
-        stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-2-01 Ungepl. Inst. WZ", "4-2-02 Ungepl. Inst. Masch", "4-2-03 Poly/Iso Überdruck", "4-2-04 Mischkopf nio", "4-2-05 Fehler Lichtschr.", "4-2-06 Trennmittelpist.", "4-2-07 Formträger Prob.", "4-2-08 Reinigung WZ", "4-2-09 Not Aus", "5-2-01 Logistik Mangel", "5-2-02 Keine Teile IM/CIM", "5-2-04 Wartezeit Einrichter", "5-2-10 Poly/Iso leer", "Sonstige"]
-    },
-    Spritz: {
-        aus: ["6-1-01 Anfahrschrott", "6-1-02 Mat-Umst.", "6-1-03 CIM n.voll", "6-1-04 CIM gerissen", "6-1-06 Einfallstellen", "6-1-07 Brandstellen", "6-1-08 Silberstreifen", "Sonstige"],
-        stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-1-01 Ungepl. Inst. WZ", "4-1-02 Ungepl. Inst. Masch", "4-1-03 Mat-Förderung Prob.", "4-1-04 Probleme Dosier.", "4-1-05 Probleme Schließeinh.", "4-1-06 Teileentnahme Prob.", "4-1-07 Probleme WZ-Heizung", "4-1-08 Probleme Beflamm.", "5-1-01 Mat-Mangel", "5-1-03 Wartezeit Einrichter", "Sonstige"]
-    },
-    COM: {
-        aus: ["6-3-01 Anfahrschrott", "6-3-02 Mat-Fehler", "Sonstige"],
-        stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-3-01 Messer schleifen", "4-3-02 Ungepl. Inst. Masch", "4-3-04 Silowechsel", "5-3-01 Mat-Mangel", "5-3-05 Feueralarm", "Sonstige"]
-    }
-};
-
-function setInitialTodayDate() {
-    const today = new Date();
-    document.getElementById('datum').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-}
-
-function scrollToBottom() {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
-}
 
 async function checkLogin() {
-    const u = document.getElementById('userInp').value.trim();
-    const p = document.getElementById('passInp').value.trim();
-    const errorDiv = document.getElementById('loginError');
-    
-    if(!u || !p) {
-        errorDiv.innerText = "❌ Bitte Name und Passwort eingeben!";
-        errorDiv.style.display = 'block';
-        return;
-    }
-    
-    errorDiv.innerText = "⏳ Prüfe Login...";
-    errorDiv.style.display = 'block';
-    errorDiv.style.color = "var(--primary)";
 
-    if (!navigator.onLine) {
-        if (u === superAdmin || schichtLeiterDb[u]) {
-            errorDiv.style.display = 'none';
-            enterApp(u);
-            return;
-        }
-        errorDiv.style.color = "var(--danger)";
-        errorDiv.innerText = "❌ Keine Netzverbindung!";
+    const u =
+    document.getElementById('userInp').value.trim();
+
+    const p =
+    document.getElementById('passInp').value.trim();
+
+    const errorDiv =
+    document.getElementById('loginError');
+
+    if(!u || !p){
+
+        errorDiv.style.display = "block";
+
+        errorDiv.innerText =
+        "❌ Bitte alles ausfüllen!";
+
         return;
+
     }
 
     try {
 
-    const response = await fetch(
-        `${scriptURL}?action=verifyLogin&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}&_cb=${Date.now()}`
-    );
+        const response = await fetch(
+            `${scriptURL}?action=verifyLogin&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}&_cb=${Date.now()}`
+        );
 
-    const result = await response.json();
+        const result = await response.json();
 
-    if(result.success) {
+        if(result.success){
 
-        errorDiv.style.display = 'none';
+            loggedInUser = u;
 
-        enterApp(u);
+            document.getElementById('loginScreen').style.display = "none";
 
-    } else {
+            document.getElementById('mainApp').style.display = "block";
 
-        errorDiv.style.color = "var(--danger)";
+            document.getElementById('currentUserDisplay').innerHTML =
+            "👤 " + u;
 
-        errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
-    }
-
-} catch(e) {
-
-    console.error(e);
-
-    errorDiv.style.color = "var(--danger)";
-
-    errorDiv.innerText = "❌ Verbindung zum Server fehlgeschlagen!";
-}
-
-function enterApp(u) {
-    loggedInUser = u;
-    document.getElementById('loginScreen').style.display = 'none';
-    setInitialTodayDate();
-    
-    if (u === superAdmin) {
-        document.getElementById('mainContainer').classList.add('wide');
-        document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('adminUserDisplay').innerHTML = "👑 Admin: " + u;
-        document.getElementById('toggleRightsBtn').style.display = 'inline-block';
-        loadUserSelect();
-        updateManagersList();
-        filterSchicht('B');
-        startAutoRefresh();
-    } 
-    else if (schichtLeiterDb[u]) {
-        const assignedSchicht = schichtLeiterDb[u];
-        document.getElementById('mainContainer').classList.add('wide');
-        document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('adminUserDisplay').innerHTML = `🏃 Leiter: ${u} (Schicht ${assignedSchicht})`;
-        document.getElementById('toggleRightsBtn').style.display = 'none'; 
-        document.getElementById('rightsManagementBox').style.display = 'none';
-        
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.style.display = 'none');
-        const targetBtn = document.getElementById('flt' + assignedSchicht);
-        if(targetBtn) {
-            targetBtn.style.display = 'inline-block';
-            targetBtn.classList.add('active-filter');
-        }
-        filterSchicht(assignedSchicht);
-        startAutoRefresh();
-    } 
-    else {
-        document.getElementById('mainContainer').classList.remove('wide');
-        document.getElementById('mainApp').style.display = 'block';
-        document.getElementById('currentUserDisplay').innerHTML = "👤 Angemeldet: " + u;
-        setSchicht('B');
-    }
-    
-    window.addEventListener('online', checkOfflinePuffer);
-    checkOfflinePuffer();
-}
-
-function startAutoRefresh() {
-    if(autoRefreshInterval) clearInterval(autoRefreshInterval);
-    
-    // İlk açılışta hemen bir kontrol yapıp doğru tempoyu ayarlasın
-    checkAndSetDynamicRefresh();
-    
-    // Her 60 saniyede bir saati kontrol edip modu güncelleyen ana motor
-    autoRefreshInterval = setInterval(() => {
-        checkAndSetDynamicRefresh();
-    }, 60000); 
-}
-
-let currentRefreshTempo = null; // Mevcut tempoyu hafızada tutmak için
-let dashboardExecutionInterval = null;
-
-function checkAndSetDynamicRefresh() {
-    const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const currentTimeInMinutes = (hours * 60) + minutes;
-
-    // Hedef Zaman Aralıklarının Dakika Cinsinden Hesabı:
-    // 13:30 - 14:10 aralığı (810 - 850. dakika)
-    // 21:30 - 22:10 aralığı (1290 - 1330. dakika)
-    // 05:30 - 06:10 aralığı (330 - 370. dakika)
-    
-    const isYoğunSaat = 
-        (currentTimeInMinutes >= 810 && currentTimeInMinutes <= 850) || 
-        (currentTimeInMinutes >= 1290 && currentTimeInMinutes <= 1330) || 
-        (currentTimeInMinutes >= 330 && currentTimeInMinutes <= 370);
-
-    let targetTempo = isYoğunSaat ? "hizli" : "sakin";
-
-    // Eğer tempo değiştiyse veya ilk defa kuruluyorsa tetikle
-    if (currentRefreshTempo !== targetTempo) {
-        currentRefreshTempo = targetTempo;
-        if(dashboardExecutionInterval) clearInterval(dashboardExecutionInterval);
-        
-        if (targetTempo === "hizli") {
-            // Rapor yoğunluğu var -> 90 saniyede bir (90000 ms) yenile
-            loadAdminDashboard(true);
-            dashboardExecutionInterval = setInterval(() => { loadAdminDashboard(true); }, 90000);
-            document.getElementById('refreshStatus').innerText = "Modus: Live (90s)";
         } else {
-            // Sakin zaman -> 30 dakikada bir (1800000 ms) yenile
-            loadAdminDashboard(true);
-            dashboardExecutionInterval = setInterval(() => { loadAdminDashboard(true); }, 1800000);
-            document.getElementById('refreshStatus').innerText = "Modus: Eco (30m)";
+
+            errorDiv.style.display = "block";
+
+            errorDiv.innerText =
+            "❌ Falscher Benutzername oder Passwort!";
         }
+
+    } catch(e){
+
+        console.error(e);
+
+        errorDiv.style.display = "block";
+
+        errorDiv.innerText =
+        "❌ Serverfehler!";
     }
+
 }
 
-async function manualRefreshDashboard() {
-    const btn = document.getElementById('manualRefreshBtn');
-    const status = document.getElementById('refreshStatus');
-    btn.disabled = true;
-    btn.innerHTML = "⏳ Lädt...";
-    status.innerText = "Wird aktualisiert...";
-    await loadAdminDashboard(false);
-    btn.disabled = false;
-    btn.innerHTML = "🔄 Aktualisieren";
-    const now = new Date();
-    status.innerText = `Zuletzt: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
-}
+function setSchicht(s){
 
-function toggleRightsPanel() {
-    const panel = document.getElementById('rightsManagementBox');
-    const btn = document.getElementById('toggleRightsBtn');
-    if (panel.style.display === 'block') {
-        panel.style.display = 'none';
-        btn.style.background = 'var(--border-color)';
-    } else {
-        panel.style.display = 'block';
-        btn.style.background = 'var(--primary)';
-    }
-}
-
-function loadUserSelect() {
-    const select = document.getElementById('rightsSelect');
-    if(!select) return;
-    const allUsers = Object.keys(workerData).flatMap(k => workerData[k]).filter((v, i, a) => a.indexOf(v) === i);
-    select.innerHTML = '<option value="">-- Name wählen --</option>' + 
-                       '<option value="_CLEAR_ALL_" style="color:var(--danger); font-weight:bold;">⚠️ Alle Berechtigungen löschen</option>' +
-                       allUsers.map(u => `<option value="${u}">${u}</option>`).join('');
-}
-
-function handleRightsSelectChange(value) {
-    if (value === "_CLEAR_ALL_") {
-        if (confirm("Möchten Sie wirklich ALLE Berechtigungen löschen?")) {
-            schichtLeiterDb = {};
-            localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
-            updateManagersList();
-            alert("🗑️ Alle Berechtigungen gelöscht.");
-        }
-        document.getElementById('rightsSelect').value = "";
-    }
-}
-
-function grantSchichtleiterRights() {
-    const name = document.getElementById('rightsSelect').value;
-    const schicht = document.getElementById('assignedSchichtSelect').value;
-    if(!name) { alert("Bitte einen Mitarbeiter auswählen!"); return; }
-    schichtLeiterDb[name] = schicht;
-    localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
-    updateManagersList();
-    alert(`✅ ${name} autorisiert für Schicht ${schicht}.`);
-}
-
-function removeSchichtleiterRight(name) {
-    if (confirm(`Möchten Sie die Berechtigung für ${name} löschen?`)) {
-        delete schichtLeiterDb[name];
-        localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
-        updateManagersList();
-        alert(`❌ Berechtigung für ${name} entfernt.`);
-    }
-}
-
-function updateManagersList() {
-    const target = document.getElementById('currentManagersList');
-    if(!target) return;
-    const entries = Object.entries(schichtLeiterDb);
-    if(entries.length === 0) {
-        target.innerHTML = "Aktiv: Keine Leiter zugewiesen";
-        return;
-    }
-    target.innerHTML = "Aktiv: " + entries.map(([name, schicht]) => `<b>${name}</b> (${schicht})<span class="delete-manager-btn" onclick="removeSchichtleiterRight('${name}')">✕</span>`).join(', ');
-}
-
-function setSchicht(s) {
     currentSchicht = s;
-    document.querySelectorAll('.schicht-btn').forEach(btn => btn.classList.remove('active'));
-    document.getElementById('mSchicht' + s)?.classList.add('active');
-    selectedStaff = [];
-    renderStaff();
-    if (s === "A") setSchichtType('Frühschicht');
-    if (s === "B") setSchichtType('Spätschicht');
-    if (s === "C") setSchichtType('Nachtschicht');
+
+    document.querySelectorAll('.schicht-btn')
+    .forEach(btn => btn.classList.remove('active'));
+
+    document.getElementById('mSchicht'+s)
+    .classList.add('active');
+
 }
 
-function setSchichtType(t) {
+function setSchichtType(t){
+
     currentSchichtType = t;
-    document.querySelectorAll('.type-btn').forEach(btn => btn.classList.remove('active'));
-    if(t === 'Frühschicht') document.getElementById('tFrueh')?.classList.add('active');
-    if(t === 'Spätschicht') document.getElementById('tSpaet')?.classList.add('active');
-    if(t === 'Nachtschicht') document.getElementById('tNacht')?.classList.add('active');
+
 }
 
-function openWorkerOverlay() {
-    document.getElementById('workerList').innerHTML = workerData[currentSchicht].map(w => `<div class="worker-opt" onclick="addStaff('${w}')">${w}</div>`).join("");
-    document.getElementById('workerOverlay').style.display = 'flex';
-}
-function addStaff(n) { if(!selectedStaff.includes(n)) selectedStaff.push(n); closeOverlay(); renderStaff(); }
-function addManualWorker() { const v = document.getElementById('manualWorker').value.trim(); if(v) { selectedStaff.push(v); document.getElementById('manualWorker').value=""; closeOverlay(); renderStaff(); } }
-function closeOverlay() { document.getElementById('workerOverlay').style.display = 'none'; }
-function renderStaff() { document.getElementById('workerDisplayContainer').innerHTML = selectedStaff.map(s => `<div class="selected-worker"><span>${s}</span><span onclick="removeStaff('${s}')" style="color:var(--danger); cursor:pointer;">✕</span></div>`).join(""); liveCheck(); }
-function removeStaff(n) { selectedStaff = selectedStaff.filter(x => x !== n); renderStaff(); }
+async function processReport(){
 
-function onAnlageChange(v) {
-    document.getElementById('ftBox').style.display = v.startsWith("PUR") ? "block" : "none";
-    const tracker = document.getElementById('comTracker');
-    if(v === "COM") {
-        tracker.style.display = "block";
-    } else {
-        tracker.style.display = "none";
-    }
-    document.querySelectorAll('.ft-btn').forEach(b => b.classList.remove('active'));
-    
-    const btn = document.getElementById('addArtikelBtn');
-    if(v) {
-        btn.removeAttribute('disabled');
-        document.getElementById('artikelContainer').innerHTML = "";
-        addArtikel();
-    } else {
-        btn.setAttribute('disabled', 'true');
-        document.getElementById('artikelContainer').innerHTML = "";
-    }
-    liveCheck();
-}
+    const anlage =
+    document.getElementById('anlage').value;
 
-// -------------------------------------------------------------------------
-// 👑 GÖRSEL-2'DEKİ GİBİ AYRI BUTONLU ARTIKEL TASARIMI
-// -------------------------------------------------------------------------
-function addArtikel() {
-    const container = document.getElementById('artikelContainer');
-    const index = container.children.length;
-    const anlage = document.getElementById('anlage').value;
-    
-    const div = document.createElement('div');
-    div.className = 'artikel-row';
-    div.id = `artikelRow_${index}`;
-    
-    let specificFields = "";
-    if (anlage === "COM") {
-        specificFields = `
-            <div class="grid-2">
-                <div>
-                    <label>VERBRAUCH (KG)</label>
-                    <input type="number" class="art-verbrauch" placeholder="0" oninput="trackComTime(); liveCheck();">
-                </div>
-                <div>
-                    <label>AUS GESAMT (KG)</label>
-                    <input type="number" class="art-ausschuss-kg" placeholder="0" oninput="liveCheck();">
-                </div>
-            </div>
-            <input type="hidden" class="art-gutteile" value="0">
-            <input type="hidden" class="art-ausschuss" value="0">
-        `;
-    } else {
-        specificFields = `
-            <div class="grid-2">
-                <div>
-                    <label>GUT</label>
-                    <input type="number" class="art-gutteile" placeholder="0" oninput="liveCheck();">
-                </div>
-                <div>
-                    <label>AUS GESAMT</label>
-                    <input type="number" class="art-ausschuss" placeholder="0" oninput="liveCheck();">
-                </div>
-            </div>
-            <input type="hidden" class="art-verbrauch" value="0">
-            <input type="hidden" class="art-ausschuss-kg" value="0">
-        `;
-    }
-
-    div.innerHTML = `
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-            <span style="font-weight:700; color:#38bdf8; font-size:14px;">ARTIKEL</span>
-            ${index > 0 ? `<span onclick="removeArtikel(${index})" style="color:var(--danger); cursor:pointer; font-size:13px; font-weight:600;">Löschen ✕</span>` : ''}
-        </div>
-        
-        <input type="text" class="art-name" placeholder="Artikelbezeichnung..." oninput="liveCheck();" style="margin-bottom:10px;">
-        
-        ${specificFields}
-        
-        <div id="badgeArea_${index}"></div>
-
-        <div class="code-row-container" id="codeWrapper_${index}" style="display:none;"></div>
-        
-        <div class="code-action-group">
-            <button class="btn-add-aus" onclick="addSpecificCodeRow(${index}, 'aus')">+ Ausschuss</button>
-            <button class="btn-add-stoer" onclick="addSpecificCodeRow(${index}, 'stoer')">+ Störung</button>
-        </div>
-    `;
-    
-    container.appendChild(div);
-    liveCheck();
-    scrollToBottom();
-}
-
-function removeArtikel(idx) {
-    const row = document.getElementById(`artikelRow_${idx}`);
-    if(row) {
-        row.remove();
-        reindexArtikelRows();
-        trackComTime();
-        liveCheck();
-    }
-}
-
-function reindexArtikelRows() {
-    const container = document.getElementById('artikelContainer');
-    Array.from(container.children).forEach((div, newIdx) => {
-        div.id = `artikelRow_${newIdx}`;
-        
-        const deleteSpan = div.querySelector('span[onclick*="removeArtikel"]');
-        if(deleteSpan) deleteSpan.setAttribute('onclick', `removeArtikel(${newIdx})`);
-        
-        const badgeDiv = div.querySelector('[id^="badgeArea_"]');
-        if(badgeDiv) badgeDiv.id = `badgeArea_${newIdx}`;
-        
-        const codeWrapper = div.querySelector('[id^="codeWrapper_"]');
-        if(codeWrapper) codeWrapper.id = `codeWrapper_${newIdx}`;
-        
-        const actGroup = div.querySelector('.code-action-group');
-        if(actGroup) {
-            actGroup.innerHTML = `
-                <button class="btn-add-aus" onclick="addSpecificCodeRow(${newIdx}, 'aus')">+ Ausschuss</button>
-                <button class="btn-add-stoer" onclick="addSpecificCodeRow(${newIdx}, 'stoer')">+ Störung</button>
-            `;
-        }
-    });
-}
-
-// 👑 Hata ve Duruş butonlarına tıklandığında ilgili listeyi getiren özel mantık
-function addSpecificCodeRow(artIdx, category) {
-    const wrapper = document.getElementById(`codeWrapper_${artIdx}`);
-    wrapper.style.display = "block"; // İlk eleman eklendiğinde kapsayıcıyı görünür yap
-    
-    const codeIdx = wrapper.children.length;
-    const anlage = document.getElementById('anlage').value;
-    
-    let typeKey = "PUR";
-    if(anlage.startsWith("IM") || anlage.startsWith("CIM")) typeKey = "Spritz";
-    if(anlage === "COM") typeKey = "COM";
-    
-    const div = document.createElement('div');
-    div.className = `code-row ${category === 'aus' ? 'aus-type' : 'stoer-type'}`;
-    div.id = `codeRow_${artIdx}_${codeIdx}`;
-    
-    let optionsHtml = "";
-    if(category === 'aus') {
-        optionsHtml = codeData[typeKey].aus.map(x => `<option value="${x}">${x}</option>`).join('');
-    } else {
-        optionsHtml = codeData[typeKey].stoer.map(x => `<option value="${x}">${x}</option>`).join('');
-    }
-    
-    div.innerHTML = `
-        <select class="code-select" onchange="handleCodeSelectChange(${artIdx}, ${codeIdx}, this.value)">
-            <option value="">-- Code wählen --</option>
-            ${optionsHtml}
-        </select>
-        <input type="number" class="code-wert" placeholder="${category === 'aus' ? 'Menge' : 'Min'}" oninput="liveCheck();">
-        <span class="remove-row-btn" onclick="removeCodeRow(${artIdx}, ${codeIdx})">❌</span>
-    `;
-    
-    // Altına gizli elle yazma alanı entegre et
-    const sonstigeInp = document.createElement('input');
-    sonstigeInp.type = "text";
-    sonstigeInp.className = "sonstige-input";
-    sonstigeInp.id = `sonstige_${artIdx}_${codeIdx}`;
-    sonstigeInp.placeholder = "Grund manuell beschreiben...";
-
-    wrapper.appendChild(div);
-    wrapper.appendChild(sonstigeInp);
-    liveCheck();
-}
-
-function removeCodeRow(artIdx, codeIdx) {
-    const row = document.getElementById(`codeRow_${artIdx}_${codeIdx}`);
-    const sonstige = document.getElementById(`sonstige_${artIdx}_${codeIdx}`);
-    if(row) row.remove();
-    if(sonstige) sonstige.remove();
-    liveCheck();
-}
-
-function handleCodeSelectChange(artIdx, codeIdx, val) {
-    const sonstigeInp = document.getElementById(`sonstige_${artIdx}_${codeIdx}`);
-    if(!sonstigeInp) return;
-    if(val === "Sonstige") {
-        sonstigeInp.style.display = "block";
-    } else {
-        sonstigeInp.style.display = "none";
-        sonstigeInp.value = "";
-    }
-    liveCheck();
-}
-
-function trackComTime() {
-    const anlage = document.getElementById('anlage').value;
-    if(anlage !== "COM") return;
-    
-    let totalVerbrauch = 0;
-    document.querySelectorAll('.art-verbrauch').forEach(inp => {
-        totalVerbrauch += parseFloat(inp.value) || 0;
-    });
-    
-    const calculatedMinutes = Math.round(totalVerbrauch * 1.5);
-    const tracker = document.getElementById('comTracker');
-    
-    if(calculatedMinutes > 480) {
-        tracker.style.background = "rgba(244, 63, 94, 0.15)";
-        tracker.style.borderColor = "var(--danger)";
-        tracker.innerHTML = `⚠️ COM Schichtzeit-Konto: ${calculatedMinutes} / 480 Min (Zeit überschritten!)`;
-    } else {
-        tracker.style.background = "rgba(16, 185, 129, 0.15)";
-        tracker.style.borderColor = "var(--success)";
-        tracker.innerHTML = `⏱️ COM Schichtzeit-Konto: ${calculatedMinutes} / 480 Min`;
-    }
-}
-
-// -------------------------------------------------------------------------
-// 🟢 GERÇEK ZAMANLI VERİ KONTROLÜ VE TARAYICI ONAY ROZETİ (GÖRSEL-2)
-// -------------------------------------------------------------------------
-function liveCheck() {
-    const anlage = document.getElementById('anlage').value;
-    const datum = document.getElementById('datum').value;
-    const mainSendBtn = document.getElementById('mainSendBtn');
-    
-    let formValid = true;
-    if(!datum || !anlage || selectedStaff.length === 0) formValid = false;
-
-    const artikelRows = document.querySelectorAll('.artikel-row');
-    if(artikelRows.length === 0) formValid = false;
-
-    artikelRows.forEach((row, rIdx) => {
-        const name = row.querySelector('.art-name').value.trim();
-        const gutteile = parseFloat(row.querySelector('.art-gutteile').value) || 0;
-        const ausschuss = parseFloat(row.querySelector('.art-ausschuss').value) || 0;
-        const verbrauch = parseFloat(row.querySelector('.art-verbrauch').value) || 0;
-        const ausschussKg = parseFloat(row.querySelector('.art-ausschuss-kg').value) || 0;
-        const badgeArea = document.getElementById(`badgeArea_${rIdx}`);
-
-        if(!name) formValid = false;
-
-        const targetAusschuss = (anlage === "COM") ? ausschussKg : ausschuss;
-
-        // Kodları say ve topla
-        const codeRows = row.querySelectorAll('.code-row.aus-type');
-        let totalCodeMenge = 0;
-        let hasEmptyCode = false;
-
-        row.querySelectorAll('.code-row').forEach(cRow => {
-            const select = cRow.querySelector('.code-select').value;
-            const wert = parseFloat(cRow.querySelector('.code-wert').value) || 0;
-            if(!select || wert <= 0) hasEmptyCode = true;
-        });
-
-        codeRows.forEach(cRow => {
-            const wert = parseFloat(cRow.querySelector('.code-wert').value) || 0;
-            totalCodeMenge += wert;
-        });
-
-        if(hasEmptyCode) formValid = false;
-
-        // Görsel 2'deki o meşhur yeşil ve kırmızı durum rozet sistemi
-        if(targetAusschuss > 0) {
-            badgeArea.style.display = "block";
-            if(totalCodeMenge === targetAusschuss) {
-                badgeArea.innerHTML = `<div class="status-badge ok">✅ OK: ${totalCodeMenge}/${targetAusschuss}</div>`;
-            } else {
-                formValid = false;
-                badgeArea.innerHTML = `<div class="status-badge">⚠️ Fehler: ${totalCodeMenge}/${targetAusschuss} (Codes abgleichen)</div>`;
-            }
-        } else {
-            badgeArea.innerHTML = "";
-            badgeArea.style.display = "none";
-        }
-    });
-
-    if(formValid) {
-        mainSendBtn.removeAttribute('disabled');
-        mainSendBtn.style.background = "var(--success)";
-        mainSendBtn.innerHTML = "✓ Daten absenden";
-    } else {
-        mainSendBtn.setAttribute('disabled', 'true');
-        mainSendBtn.style.background = "#334155";
-        mainSendBtn.innerHTML = "⚠️ Bitte Formular korrekt ausfüllen";
-    }
-}
-
-async function processReport() {
-
-    const mainSendBtn = document.getElementById('mainSendBtn');
-
-    mainSendBtn.setAttribute('disabled', 'true');
-    mainSendBtn.innerHTML = "⏳ Wird gesendet...";
-
-    const anlage = document.getElementById('anlage').value;
-    const datum = document.getElementById('datum').value;
-
-    let fts = [];
-
-    document.querySelectorAll('.ft-btn.active').forEach(b => {
-        fts.push(b.innerText);
-    });
+    const datum =
+    document.getElementById('datum').value;
 
     let payload = {
-
-        action: "submitReport",
 
         schicht: currentSchicht,
 
@@ -881,9 +376,10 @@ async function processReport() {
 
         anlage: anlage,
 
-        formtraeger: fts.join(', '),
+        formtraeger: "",
 
-        mitarbeiter: selectedStaff.join(', '),
+        mitarbeiter:
+        selectedStaff.join(", "),
 
         user: loggedInUser,
 
@@ -891,195 +387,168 @@ async function processReport() {
 
     };
 
-    document.querySelectorAll('.artikel-row').forEach((row, rIdx) => {
-
-        let artData = {
-
-            artikelName: row.querySelector('.art-name').value,
-
-            gutteile: row.querySelector('.art-gutteile').value,
-
-            ausschuss: row.querySelector('.art-ausschuss').value,
-
-            verbrauchKg: row.querySelector('.art-verbrauch').value,
-
-            ausschussKg: row.querySelector('.art-ausschuss-kg').value,
-
-            gesamtIst:
-                (anlage === "COM")
-                ? (parseFloat(row.querySelector('.art-verbrauch').value) || 0)
-                : (
-                    (parseFloat(row.querySelector('.art-gutteile').value) || 0)
-                    +
-                    (parseFloat(row.querySelector('.art-ausschuss').value) || 0)
-                ),
-
-            gesamtSoll: "0"
-
-        };
+    document.querySelectorAll('.artikel-row')
+    .forEach(row => {
 
         let ausschussListe = [];
+
         let stoerungListe = [];
 
-        row.querySelectorAll('.code-row').forEach((cRow, cIdx) => {
+        row.querySelectorAll('.aus-type')
+        .forEach(r => {
 
             const code =
-                cRow.querySelector('.code-select').value;
+            r.querySelector('.code-select').value;
 
             const wert =
-                cRow.querySelector('.code-wert').value;
+            r.querySelector('.code-wert').value;
 
-            const sonstigeInp =
-                row.querySelector(`#sonstige_${rIdx}_${cIdx}`);
+            if(code && wert){
 
-            const kommentar =
-                sonstigeInp ? sonstigeInp.value : "";
-
-            let text = "";
-
-            if (kommentar && code === "Sonstige") {
-
-                text = `${kommentar} (${wert})`;
-
-            } else {
-
-                text = `${code} (${wert})`;
-
-            }
-
-            if (cRow.classList.contains('aus-type')) {
-
-                ausschussListe.push(text);
-
-            }
-
-            if (cRow.classList.contains('stoer-type')) {
-
-                stoerungListe.push(text);
+                ausschussListe.push(
+                    `${code} (${wert})`
+                );
 
             }
 
         });
 
-        artData.ausschussText =
-            ausschussListe.join(" | ");
+        row.querySelectorAll('.stoer-type')
+        .forEach(r => {
 
-        artData.stoerungText =
-            stoerungListe.join(" | ");
+            const code =
+            r.querySelector('.code-select').value;
 
-        payload.eintraege.push(artData);
+            const wert =
+            r.querySelector('.code-wert').value;
+
+            if(code && wert){
+
+                stoerungListe.push(
+                    `${code} (${wert})`
+                );
+
+            }
+
+        });
+
+        payload.eintraege.push({
+
+            artikelName:
+            row.querySelector('.art-name').value,
+
+            gutteile:
+            row.querySelector('.art-gutteile').value,
+
+            ausschuss:
+            row.querySelector('.art-ausschuss').value,
+
+            ausschussKg:
+            row.querySelector('.art-ausschuss-kg').value,
+
+            ausschussText:
+            ausschussListe.join(" | "),
+
+            stoerungText:
+            stoerungListe.join(" | ")
+
+        });
 
     });
 
-    if (!navigator.onLine) {
+    try {
 
-        saveToOfflinePuffer(payload);
+        const response = await fetch(scriptURL, {
 
-        alert("💾 Offline gespeichert!");
+            method: "POST",
+
+            headers: {
+                "Content-Type":
+                "application/json"
+            },
+
+            body:
+            JSON.stringify(payload)
+
+        });
+
+        const result =
+        await response.text();
+
+        console.log(result);
+
+        alert(
+        "✅ Bericht erfolgreich gesendet!"
+        );
 
         location.reload();
 
-        return;
+    } catch(e){
+
+        console.error(e);
+
+        alert(
+        "❌ Fehler beim Senden!"
+        );
     }
 
- try {
-
-    const response = await fetch(scriptURL, {
-
-        method: "POST",
-
-        headers: {
-            "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify(payload)
-
-    });
-
-    const result = await response.text();
-
-    console.log(result);
-
-    alert("✅ Bericht erfolgreich gesendet!");
-
-    location.reload();
-
-}
-async function checkOfflinePuffer() {
-    if(!navigator.onLine) return;
-    let puffer = [];
-    try { puffer = JSON.parse(localStorage.getItem('apg_offline_puffer')) || []; }catch(e){}
-    if(puffer.length === 0) return;
-
-    for(let item of puffer) {
-        try {
-            await fetch(scriptURL, {
-                method: "POST",
-                mode: "no-cors",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(item.content)
-            });
-            puffer = puffer.filter(x => x.id !== item.id);
-        } catch(e) { break; }
-    }
-    localStorage.setItem('apg_offline_puffer', JSON.stringify(puffer));
 }
 
-function filterSchicht(schicht) {
-    activeFilterSchicht = schicht;
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
-    document.getElementById('flt' + schicht)?.classList.add('active-filter');
-    loadAdminDashboard(false);
-}
+async function loadAdminDashboard(){
 
-async function loadAdminDashboard(isSilent) {
-    const container = document.getElementById('reportsContainer');
-    if(!isSilent) container.innerHTML = "<div style='color:var(--text-muted); grid-column: 1/-1; text-align:center;'>Berichte werden geladen...</div>";
-    
-    if(!navigator.onLine) {
-        container.innerHTML = "<div style='color:var(--danger); grid-column: 1/-1; text-align:center;'>Keine Internetverbindung!</div>";
-        return;
-    }
+    const container =
+    document.getElementById(
+        'reportsContainer'
+    );
 
     try {
-        const res = await fetch(scriptURL, {
 
-    method: "POST",
+        const res = await fetch(
+            `${scriptURL}?action=getDashboardData&schicht=${activeFilterSchicht}&_cb=${Date.now()}`
+        );
 
-    headers: {
-        "Content-Type": "application/json"
-    },
-
-    body: JSON.stringify(item.content)
-
-});
         const list = await res.json();
-        
-        if(!list || list.length === 0) {
-            container.innerHTML = `<div style='color:var(--text-muted); grid-column:1/-1; text-align:center;'>Keine Berichte für Schicht ${activeFilterSchicht} heute gefunden.</div>`;
-            return;
-        }
-        
-        container.innerHTML = list.map(item => {
-            let errorStyleClass = item.hasError ? "report-danger" : "report-warning";
-            let formattedFehlerText = item.fehlerDet ? item.fehlerDet.replace(/\n/g, '<br>') : 'Keine';
-            
-            return `
-                <div class="report-box">
-                    <span class="badge-origin">${item.anlage || 'N/A'}</span>
-                    <div>
-                        <div class="report-date">${item.zeit || ''} - ${item.schichtType || ''}</div>
-                        <div class="report-title">${item.artikelInfo || 'Kein Artikel'}</div>
-                        <div class="${errorStyleClass}">⚠️ Ausschuss/Fehler:<br>${formattedFehlerText}</div>
+
+        container.innerHTML =
+        list.map(item => `
+
+            <div class="report-box">
+
+                <span class="badge-origin">
+                    ${item.anlage}
+                </span>
+
+                <div>
+
+                    <div class="report-date">
+                        ${item.zeit}
                     </div>
-                    <div class="report-user">👤 Erstellt von: ${item.user || 'Unbekannt'}</div>
+
+                    <div class="report-title">
+                        ${item.artikelInfo}
+                    </div>
+
+                    <div class="report-danger">
+                        ${item.fehlerDet}
+                    </div>
+
                 </div>
-            `;
-        }).join('');
-    } catch(e) {
-        if(!isSilent) container.innerHTML = "<div style='color:var(--danger); grid-column:1/-1; text-align:center;'>Fehler beim Laden des Dashboards.</div>";
+
+                <div class="report-user">
+                    👤 ${item.user}
+                </div>
+
+            </div>
+
+        `).join('');
+
+    } catch(e){
+
+        console.error(e);
+
     }
+
 }
+
 </script>
-</body>
-</html>
+```
