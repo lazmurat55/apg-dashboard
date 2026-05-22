@@ -341,19 +341,33 @@ async function checkLogin() {
     }
 
     try {
-        const response = await fetch(`${scriptURL}?action=verifyLogin&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}&_cb=${Date.now()}`);
-        const result = await response.json();
-        
-        if(result.success) {
-            errorDiv.style.display = 'none';
-            enterApp(u);
-        } else {
-            errorDiv.style.color = "var(--danger)";
-            errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
-        }
-    } catch(e) {
+
+    const response = await fetch(
+        `${scriptURL}?action=verifyLogin&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}&_cb=${Date.now()}`
+    );
+
+    const result = await response.json();
+
+    if(result.success) {
+
+        errorDiv.style.display = 'none';
+
         enterApp(u);
+
+    } else {
+
+        errorDiv.style.color = "var(--danger)";
+
+        errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
     }
+
+} catch(e) {
+
+    console.error(e);
+
+    errorDiv.style.color = "var(--danger)";
+
+    errorDiv.innerText = "❌ Verbindung zum Server fehlgeschlagen!";
 }
 
 function enterApp(u) {
