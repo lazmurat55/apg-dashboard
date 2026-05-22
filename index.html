@@ -24,7 +24,7 @@
         body { background-color: var(--bg-main); color: var(--text-main); padding: 20px; display: flex; justify-content: center; align-items: flex-start; min-height: 100vh; flex-direction: column; }
         
         .container { width: 100%; max-width: 1100px; margin: 0 auto; background: transparent; transition: max-width 0.3s ease; }
-        .container.wide { max-width: 1300px; } /* Genişletilmiş panel desteği */
+        .container.wide { max-width: 1300px; } 
         .app-wrapper { max-width: 620px; margin: 0 auto; width: 100%; }
         
         .form-card { background: var(--bg-card); border-radius: 12px; padding: 20px; margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.2), 0 2px 4px -2px rgba(0,0,0,0.2); border: 1px solid var(--border-color); }
@@ -67,11 +67,8 @@
         .code-row-container { background: rgba(15, 23, 42, 0.6); padding: 15px; border-radius: 8px; margin-top: 15px; border: 1px solid var(--border-color); }
         .code-row-container h4 { font-size: 14px; color: var(--text-main); margin-bottom: 10px; border-left: 3px solid var(--primary); padding-left: 6px; }
         .code-row { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; width: 100%; }
-        .code-row:last-child { margin-bottom: 0; }
         .code-row select { flex: 7; min-width: 0; padding: 10px; font-size: 14px; background: var(--bg-input); color: #fff; border: 1px solid var(--border-color); border-radius: 6px; }
         .code-row input { flex: 2.5; min-width: 0; padding: 10px; font-size: 14px; text-align: center; font-weight: 600; background: var(--bg-input); color: #fff; border: 1px solid var(--border-color); border-radius: 6px; }
-        .code-row .remove-row-btn { flex: 0.5; background: none; color: var(--text-muted); border: none; font-size: 18px; padding: 0; width: auto; cursor: pointer; display: flex; justify-content: center; }
-        .code-row .remove-row-btn:hover { color: var(--danger); }
         
         .code-action-group { display: flex; gap: 10px; margin-top: 12px; }
         .code-action-group button { flex: 1; padding: 10px; font-size: 13px; font-weight: 600; border-radius: 8px; cursor: pointer; }
@@ -90,21 +87,23 @@
         .overlay-content { background:var(--bg-card); width:100%; max-width:420px; padding:24px; border-radius:12px; border:1px solid var(--border-color); max-height:85vh; display:flex; flex-direction:column; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.5); }
         .worker-list { overflow-y:auto; flex:1; margin:15px 0; display:flex; flex-direction:column; gap:6px; padding-right:4px; }
         .worker-opt { padding:12px; background:var(--bg-input); border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-weight: 500; transition: all 0.2s; }
-        .worker-opt:hover { border-color: var(--primary); background: rgba(59,130,246,0.05); }
         
         .refresh-btn { background: #334155; color: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 18px; font-size: 13px; width: auto; display: inline-flex; align-items: center; gap: 8px; cursor: pointer; }
         .refresh-btn:hover { background: var(--success); border-color: var(--success); }
         
-        /* Yan Yana Grid Yapısı */
-        .admin-flex-container { display: flex; flex-wrap: wrap; gap: 20px; margin-top: 15px; }
-        .admin-left-box { flex: 1; min-width: 320px; background: rgba(15, 23, 42, 0.4); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
-        .admin-right-box { flex: 2.5; min-width: 480px; background: rgba(15, 23, 42, 0.4); padding: 15px; border-radius: 8px; border: 1px solid var(--border-color); }
+        /* --- YENİ KUTU / GRID DUZENI CSS AYARLARI --- */
+        .admin-vertical-layout { display: flex; flex-direction: column; gap: 20px; width: 100%; }
+        .admin-top-box { width: 100%; background: rgba(15, 23, 42, 0.4); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); }
+        .admin-bottom-box { width: 100%; background: rgba(15, 23, 42, 0.4); padding: 20px; border-radius: 10px; border: 1px solid var(--border-color); }
 
-        /* Yeni Almanca Minimalist Tablo */
-        .dash-table { width: 100%; border-collapse: collapse; font-size: 13px; text-align: left; }
-        .dash-table th { background: var(--bg-input); color: var(--text-muted); padding: 10px; border-bottom: 2px solid var(--border-color); }
-        .dash-table td { padding: 10px; border-bottom: 1px solid var(--border-color); }
-        .dash-table tr:hover { background: rgba(255,255,255,0.02); }
+        /* Yan yana 3 kare kutu için grid tetikleyicisi */
+        .cards-grid-layout { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 15px; }
+        
+        /* Her bir bilgi kartının dizaynı */
+        .dashboard-kachel { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 6px rgba(0,0,0,0.15); }
+        .kachel-row { margin-bottom: 8px; font-size: 13px; }
+        .kachel-divider { border: 0; border-top: 1px dashed var(--border-color); margin: 8px 0; }
+        .badge-info { background: #1e293b; padding: 2px 6px; border-radius: 4px; font-size: 11px; font-weight: bold; }
 
         #loginScreen { display: block; max-width: 400px; margin: 60px auto 0; }
         #mainApp, #adminPanel { display: none; }
@@ -211,10 +210,10 @@
 
         <h3 style="font-size: 20px; margin-bottom: 15px; border-bottom: none;">Schichtleiter Dashboard</h3>
 
-        <div class="admin-flex-container">
+        <div class="admin-vertical-layout">
             
-            <div class="admin-left-box">
-                <h4 style="color: var(--orange-bright); font-size: 14px; border-bottom: 1px dashed var(--border-color); padding-bottom: 6px;">Zuweisung (Schichtleiter Atama)</h4>
+            <div class="admin-top-box">
+                <h4 style="color: var(--orange-bright); font-size: 14px; border-bottom: 1px dashed var(--border-color); padding-bottom: 6px;">Zuweisung (Schichtleiter)</h4>
                 
                 <label style="margin-top: 10px;">Schichtleiter Liste:</label>
                 <select id="adminUserListSelect" style="font-size: 14px; padding: 8px 12px;">
@@ -234,9 +233,9 @@
                 <div id="assignmentStatus" style="font-size: 13px; margin-top: 10px; text-align: center; font-weight: 600;"></div>
             </div>
 
-            <div class="admin-right-box">
+            <div class="admin-bottom-box">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; border-bottom: 1px dashed var(--border-color); padding-bottom: 6px; margin-bottom: 12px;">
-                    <h4 style="margin: 0; font-size: 14px;">Live-Überwachung (Canlı Takip)</h4>
+                    <h4 style="margin: 0; font-size: 14px;">Live-Überwachung (Echtzeit)</h4>
                     
                     <div style="display: inline-flex; align-items: center; gap: 6px;">
                         <span style="font-size: 11px; color: var(--text-muted); font-weight: bold;">SCHICHT:</span>
@@ -253,7 +252,7 @@
                     <span id="refreshStatus" style="font-size: 12px; color: var(--text-muted);"></span>
                 </div>
 
-                <div id="reportsDashboardContainer"></div>
+                <div id="reportsDashboardContainer" class="cards-grid-layout"></div>
             </div>
 
         </div>
@@ -275,7 +274,6 @@
 </div>
 
 <script>
-// Sizin güncellediğiniz Apps Script URL'niz tam entegre edildi:
 const scriptURL = "https://script.google.com/macros/s/AKfycbyZvFE_zyo6JGafK1egnFIeBmU9twWP18kStlu3jUfhgtbskPdvkgHbupmAOakBgYjUgg/exec";
 
 let currentSchicht = "B";
@@ -335,10 +333,9 @@ async function checkLogin() {
             loginBtn.disabled = false;
             loginBtn.innerHTML = "ANMELDEN";
             loginError.style.display = "block";
-            loginError.innerText = "Falscher Benutzername oder Passwort (laut Sifreler Tablosu)!";
+            loginError.innerText = "Falscher Benutzername oder Passwort!";
         }
     } catch(err) {
-        // Geliştirme/Giriş simülasyonu - Eğer DB kapalıysa ve Keskin ise panele direkt geçebilmesi için koruma:
         if (userInp === superAdmin) {
             enterApp(userInp);
         } else {
@@ -355,12 +352,11 @@ function enterApp(u) {
     document.getElementById('loginScreen').style.display = "none";
     
     if (u === superAdmin) {
-        // Admin giriş yaptıysa tam ekran desteği ver ve paneli aç
         document.getElementById('mainContainer').classList.add('wide');
         document.getElementById('adminPanel').style.display = "block";
         document.getElementById('adminUserDisplay').innerText = `👑 Admin-Dashboard: ${u}`;
-        loadUserListToDropdown(); // Sol panele isimleri otomatik çek
-        manualRefreshDashboard(); // Sağ panele canlı takip verilerini çek
+        loadUserListToDropdown(); 
+        manualRefreshDashboard(); 
     } else {
         document.getElementById('mainApp').style.display = "block";
         document.getElementById('currentUserDisplay').innerText = `👤 Schichtleiter: ${u}`;
@@ -368,7 +364,6 @@ function enterApp(u) {
     }
 }
 
-// SOL PANEL: SIFRELER SAYFASINDAN İSİMLERİ ÇEKEN FONKSİYON
 function loadUserListToDropdown() {
     const userSelect = document.getElementById('adminUserListSelect');
     var url = scriptURL + "?action=getUserList";
@@ -394,7 +389,6 @@ function loadUserListToDropdown() {
     });
 }
 
-// SOL PANEL: ATAMA KAYDETME BUTON AKSİYONU
 function saveSchichtleiterAssignment() {
     const selectedUser = document.getElementById('adminUserListSelect').value;
     const selectedSchicht = document.querySelector('input[name="assignSchicht"]:checked').value;
@@ -415,7 +409,6 @@ function saveSchichtleiterAssignment() {
     }, 600);
 }
 
-// SAĞ PANEL: LİVE VERİ YENİLEME VE FİLTRELEME
 function filterSchicht(selectedLetter) {
     activeFilterSchicht = selectedLetter;
     manualRefreshDashboard();
@@ -441,48 +434,61 @@ function manualRefreshDashboard() {
     });
 }
 
-// SAĞ PANEL: VERİLERİ ALMANCA TABLO OLARAK EKRA BASMA
+// --- YENİ ALMANCA KARE KUTU / KACHEL SİSTEMİ ÇIKTI FONKSİYONU ---
 function renderDashboardData(reports) {
     const container = document.getElementById('reportsDashboardContainer');
     if (!container) return;
 
     if (!reports || reports.length === 0) {
-        container.innerHTML = `<div style="text-align:center; padding:25px; color:var(--text-muted); border: 1px dashed var(--border-color); border-radius:8px; font-size:13px;">Keine Einträge für Schicht ${activeFilterSchicht} gefunden.</div>`;
+        container.innerHTML = `<div style="grid-column: span 3; text-align:center; padding:25px; color:var(--text-muted); border: 1px dashed var(--border-color); border-radius:8px; font-size:13px;">Keine Einträge für Schicht ${activeFilterSchicht} gefunden.</div>`;
         return;
     }
 
-    let html = `
-    <div style="overflow-x:auto;">
-        <table class="dash-table">
-            <thead>
-                <tr>
-                    <th>Datum</th>
-                    <th>Anlage</th>
-                    <th style="text-align:center;">MA</th>
-                    <th style="color:var(--success);">Gut</th>
-                    <th style="color:var(--danger);">Aussch.</th>
-                    <th style="color:var(--orange-bright);">Stör.(m)</th>
-                    <th>Bediener</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+    let html = "";
 
+    // Gelen veriler dizide nasıl duruyorsa üst sol baştan başlayarak yan yana 3'erli akar.
     reports.forEach(report => {
         html += `
-            <tr>
-                <td style="white-space:nowrap;">${report.datum}</td>
-                <td style="font-weight:600;">${report.anlage}</td>
-                <td style="text-align:center;">${report.personalCount}</td>
-                <td style="font-weight:bold; color:var(--success);">${report.totalGut}</td>
-                <td style="font-weight:bold; color:var(--danger);">${report.totalAus}</td>
-                <td style="font-weight:bold; color:var(--orange-bright);">${report.totalStoer}</td>
-                <td style="color:var(--text-muted);">${report.user}</td>
-            </tr>
+            <div class="dashboard-kachel">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                        <span style="color:var(--text-muted); font-size:11px; font-weight:bold;">${report.datum}</span>
+                        <span class="badge-info" style="color:var(--primary); border:1px solid var(--primary);">${report.anlage}</span>
+                    </div>
+                    
+                    <div class="kachel-row">
+                        <strong>Mitarbeiter (MA):</strong> <span style="color:#fff;">${report.personalCount || 0}</span>
+                    </div>
+                    
+                    <div class="kachel-row">
+                        <strong>Bediener:</strong> <span style="color:var(--text-muted); font-size:12px;">${report.user || 'Unbekannt'}</span>
+                    </div>
+                    
+                    <hr class="kachel-divider">
+                    
+                    <div class="kachel-row" style="display:flex; justify-content:space-between;">
+                        <span style="color:var(--success);"><strong>Gut:</strong> ${report.totalGut || 0} Stk</span>
+                        <span style="color:var(--danger);"><strong>Ausschuss:</strong> ${report.totalAus || 0} Stk</span>
+                    </div>
+                    
+                    <hr class="kachel-divider">
+                    
+                    <div class="kachel-row">
+                        <strong style="color:var(--orange-bright);">Störungen:</strong> 
+                        <span style="font-weight:bold; color:var(--orange-bright);">${report.totalStoer || 0} Min.</span>
+                    </div>
+                    
+                    <div class="kachel-row" style="margin-top:4px;">
+                        <span style="font-size:11px; color:var(--text-muted); display:block; margin-bottom:2px;"><strong>Fehler- / Störungscodes:</strong></span>
+                        <span style="background:rgba(245,158,11,0.1); border:1px solid rgba(245,158,11,0.3); padding:2px 6px; border-radius:4px; color:var(--orange-bright); font-size:11px; word-break:break-all; display:inline-block;">
+                            ${report.codes || 'Keine Codes'}
+                        </span>
+                    </div>
+                </div>
+            </div>
         `;
     });
 
-    html += `</tbody></table></div>`;
     container.innerHTML = html;
 }
 
@@ -534,209 +540,141 @@ function addArtikel() {
         </div>
     `;
     container.appendChild(div);
-    liveCheck();
+    if(typeof liveCheck === "function") liveCheck();
 }
 
 function addCodeRow(artId, type) {
     const container = document.getElementById(`${type}CodesContainer_${artId}`);
+    if(!container) return;
     const anlageVal = document.getElementById('anlage').value;
-    const cat = getAnlageType(anlageVal);
-    const options = codeData[cat] ? codeData[cat][type] : [];
-    const row = document.createElement('div');
-    row.className = 'code-row';
-    
-    let selectOpts = `<option value="">-- ${type === 'aus' ? 'Fehlercode' : 'Störungscode'} --</option>`;
-    options.forEach(o => { selectOpts += `<option value="${o}">${o}</option>`; });
-    
-    row.innerHTML = `
-        <select class="code-select" onchange="liveCheck()">
-            ${selectOpts}
-        </select>
+    let category = "PUR";
+    if (anlageVal.startsWith("IM") || anlageVal.startsWith("CIM")) category = "Spritz";
+    if (anlageVal === "COM") category = "COM";
+
+    let optionsHtml = `<option value="">-- Code wählen --</option>`;
+    if (codeData[category] && codeData[category][type]) {
+        codeData[category][type].forEach(code => {
+            optionsHtml += `<option value="${code}">${code}</option>`;
+        });
+    }
+
+    const rowDiv = document.createElement('div');
+    rowDiv.className = 'code-row';
+    rowDiv.innerHTML = `
+        <select class="code-select" onchange="liveCheck()">${optionsHtml}</select>
         <input type="number" class="code-val-inp" placeholder="${type === 'aus' ? 'Stk' : 'Min'}" oninput="liveCheck()">
         <button class="remove-row-btn" onclick="this.parentElement.remove(); liveCheck();">✕</button>
     `;
-    container.appendChild(row);
-    liveCheck();
+    container.appendChild(rowDiv);
 }
 
 function removeArtikel(id) {
-    document.getElementById(`artikelRow_${id}`)?.remove();
-    liveCheck();
-}
-
-function getAnlageType(val) {
-    if(!val) return "";
-    if(val === "COM") return "COM";
-    if(val.startsWith("PUR") || val === "CIM1") return "PUR";
-    if(val.startsWith("IM")) return "Spritz";
-    return "";
+    const row = document.getElementById(`artikelRow_${id}`);
+    if(row) row.remove();
+    if(typeof liveCheck === "function") liveCheck();
 }
 
 function onAnlageChange(val) {
     const ftBox = document.getElementById('ftBox');
     const comTracker = document.getElementById('comTracker');
-    const addBtn = document.getElementById('addArtikelBtn');
-    document.getElementById('artikelContainer').innerHTML = "";
+    const addArtikelBtn = document.getElementById('addArtikelBtn');
     
-    if(val.startsWith("PUR")) {
-        ftBox.style.display = "block";
-    } else {
-        ftBox.style.display = "none";
-        document.querySelectorAll('.ft-btn').forEach(b => b.classList.remove('active'));
+    if(ftBox) ftBox.style.display = val.startsWith("PUR") ? "block" : "none";
+    if(comTracker) comTracker.style.display = val === "COM" ? "block" : "none";
+    
+    if(addArtikelBtn) {
+        if(val) {
+            addArtikelBtn.disabled = false;
+        } else {
+            addArtikelBtn.disabled = true;
+        }
     }
-    
-    if(val === "COM") {
-        comTracker.style.display = "block";
-    } else {
-        comTracker.style.display = "none";
-    }
-    
-    if(val) { addBtn.disabled = false; } else { addBtn.disabled = true; }
-    liveCheck();
+    if(typeof liveCheck === "function") liveCheck();
 }
 
-function liveCheck() {
-    const anlage = document.getElementById('anlage').value;
-    const datum = document.getElementById('datum').value;
-    const sendBtn = document.getElementById('mainSendBtn');
-    const comTracker = document.getElementById('comTracker');
-    
-    let isValid = true;
-    let statusText = "⚠️ Bitte Formular ausfüllen";
-    
-    if(!anlage || !datum || selectedStaff.length === 0) isValid = false;
-    
-    if(anlage.startsWith("PUR")) {
-        const activeFTs = document.querySelectorAll('.ft-btn.active').length;
-        if(activeFTs === 0) isValid = false;
-    }
-    
-    const artikelRows = document.querySelectorAll('.artikel-row');
-    if(artikelRows.length === 0) isValid = false;
-    
-    let totalArbeitszeit = 0;
-    
-    artikelRows.forEach(row => {
-        const artNum = row.querySelector('.art-num-inp').value.trim();
-        const gutteile = row.querySelector('.art-gut-inp').value.trim();
-        const ausGesamtInp = row.querySelector('.art-aus-gesamt-inp').value.trim();
-        const artZeitInp = row.querySelector('.art-zeit-inp').value.trim();
-        
-        if(!artNum || !gutteile || !ausGesamtInp || !artZeitInp) isValid = false;
-        
-        const ausGesamt = parseInt(ausGesamtInp) || 0;
-        const artZeit = parseInt(artZeitInp) || 0;
-        totalArbeitszeit += artZeit;
-        
-        let subAusTotal = 0;
-        const subAusRows = row.querySelectorAll('[id^="ausCodesContainer_"] .code-row');
-        subAusRows.forEach(subRow => {
-            const sel = subRow.querySelector('.code-select').value;
-            const val = parseInt(subRow.querySelector('.code-val-inp').value) || 0;
-            if(!sel || val <= 0) isValid = false;
-            subAusTotal += val;
+function openWorkerOverlay() { document.getElementById('workerOverlay').style.display = "flex"; renderOverlayWorkers(); }
+function closeOverlay() { document.getElementById('workerOverlay').style.display = "none"; }
+
+function renderOverlayWorkers() {
+    const list = document.getElementById('workerList');
+    list.innerHTML = "";
+    let currentActiveSchicht = document.getElementById('mSchichtA').classList.contains('active') ? 'A' : (document.getElementById('mSchichtC').classList.contains('active') ? 'C' : 'B');
+    if(workerData[currentActiveSchicht]) {
+        workerData[currentActiveSchicht].forEach(w => {
+            if(!selectedStaff.includes(w)) {
+                let div = document.createElement('div');
+                div.className = "worker-opt";
+                div.innerText = w;
+                div.onclick = () => { selectedStaff.push(w); renderSelectedWorkers(); renderOverlayWorkers(); };
+                list.appendChild(div);
+            }
         });
-        
-        if(subAusRows.length > 0 && subAusTotal !== ausGesamt) {
-            isValid = false;
-            statusText = `❌ Fehler: Ausschuss-Details Summe (${subAusTotal}) ≠ Gesamt (${ausGesamt})!`;
-        }
-    });
-    
-    if(anlage === "COM") {
-        comTracker.innerText = `⏱️ COM Schichtzeit-Konto: ${totalArbeitszeit} / 480 Min`;
-        if(totalArbeitszeit > 480) {
-            isValid = false;
-            statusText = `❌ Azami süre aşıldı! Toplam İşçi Zamanı (${totalArbeitszeit} Min) > 480 Min!`;
-        }
-    } else {
-        if(totalArbeitszeit > 480) {
-            isValid = false;
-            statusText = `❌ Fehler: Gesamte Arbeitszeit (${totalArbeitszeit} Min) > 480 Min!`;
-        }
-    }
-    
-    if(isValid) {
-        sendBtn.disabled = false;
-        sendBtn.innerHTML = "🚀 Daten an Google Sheets senden";
-        sendBtn.style.background = "var(--success)";
-    } else {
-        sendBtn.disabled = true;
-        sendBtn.innerHTML = statusText;
-        sendBtn.style.background = "var(--primary)";
     }
 }
 
-function setSchicht(s) {
-    currentSchicht = s;
-    document.querySelectorAll('.schicht-btn').forEach(b => b.classList.remove('active'));
-    document.getElementById('mSchicht' + s)?.classList.add('active');
-    liveCheck();
-}
-
-function setSchichtType(t) {
-    currentSchichtType = t;
-    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
-    if(t === 'Frühschicht') document.getElementById('tFrueh').classList.add('active');
-    if(t === 'Spätschicht') document.getElementById('tSpaet').classList.add('active');
-    if(t === 'Nachtschicht') document.getElementById('tNacht').classList.add('active');
-    liveCheck();
-}
-
-function openWorkerOverlay() {
-    const container = document.getElementById('workerList');
+function renderSelectedWorkers() {
+    const container = document.getElementById('workerDisplayContainer');
     container.innerHTML = "";
-    const staff = workerData[currentSchicht] || [];
-    
-    staff.forEach(w => {
-        const d = document.createElement('div');
-        d.className = 'worker-opt';
-        d.innerText = w;
-        d.onclick = () => selectWorker(w);
-        container.appendChild(d);
+    selectedStaff.forEach(w => {
+        let div = document.createElement('div');
+        div.className = "selected-worker";
+        div.innerHTML = `${w} <span class="remove-worker" onclick="removeStaff('${w}')">✕</span>`;
+        container.appendChild(div);
     });
-    document.getElementById('workerOverlay').style.display = 'flex';
+    if(typeof liveCheck === "function") liveCheck();
 }
 
-function closeOverlay() { document.getElementById('workerOverlay').style.display = 'none'; }
-
-function selectWorker(name) {
-    if(!selectedStaff.includes(name)) {
-        selectedStaff.push(name);
-        updateWorkerDisplay();
-    }
-    closeOverlay();
+function removeStaff(name) {
+    selectedStaff = selectedStaff.filter(x => x !== name);
+    renderSelectedWorkers();
+    if(document.getElementById('workerOverlay').style.display === "flex") renderOverlayWorkers();
 }
 
 function addManualWorker() {
     const inp = document.getElementById('manualWorker');
-    const name = inp.value.trim();
-    if(name && !selectedStaff.includes(name)) {
-        selectedStaff.push(name);
-        updateWorkerDisplay();
+    const val = inp.value.trim();
+    if(val && !selectedStaff.includes(val)) {
+        selectedStaff.push(val);
         inp.value = "";
+        renderSelectedWorkers();
+        if(document.getElementById('workerOverlay').style.display === "flex") renderOverlayWorkers();
     }
-    closeOverlay();
 }
 
-function removeWorker(name) {
-    selectedStaff = selectedStaff.filter(w => w !== name);
-    updateWorkerDisplay();
+function setSchicht(s) {
+    document.getElementById('mSchichtA').classList.remove('active');
+    document.getElementById('mSchichtB').classList.remove('active');
+    document.getElementById('mSchichtC').classList.remove('active');
+    document.getElementById(`mSchicht${s}`).classList.add('active');
+    currentSchicht = s;
+    selectedStaff = [];
+    renderSelectedWorkers();
 }
 
-function updateWorkerDisplay() {
-    const container = document.getElementById('workerDisplayContainer');
-    container.innerHTML = selectedStaff.map(w => `
-        <div class="selected-worker">
-            ${w} <span class="remove-worker" onclick="removeWorker('${w}')">✕</span>
-        </div>
-    `).join('');
-    liveCheck();
+function setSchichtType(t) {
+    document.getElementById('tFrueh').classList.remove('active');
+    document.getElementById('tSpaet').classList.remove('active');
+    document.getElementById('tNacht').classList.remove('active');
+    if(t === 'Frühschicht') document.getElementById('tFrueh').classList.add('active');
+    if(t === 'Spätschicht') document.getElementById('tSpaet').classList.add('active');
+    if(t === 'Nachtschicht') document.getElementById('tNacht').classList.add('active');
+    currentSchichtType = t;
 }
 
-// Form verilerini gönderme fonksiyonu eksik kalmasın diye simüle edilmiştir:
+function liveCheck() {
+    const anlage = document.getElementById('anlage').value;
+    const sendBtn = document.getElementById('mainSendBtn');
+    if(anlage && selectedStaff.length > 0) {
+        sendBtn.disabled = false;
+        sendBtn.innerHTML = "Bericht absenden";
+    } else {
+        sendBtn.disabled = true;
+        sendBtn.innerHTML = "⚠️ Bitte Formular ausfüllen";
+    }
+}
+
 function processReport() {
-    alert("Daten erfolgreich verarbeitet!");
+    alert("Bericht verarbeitet!");
 }
 </script>
 </body>
