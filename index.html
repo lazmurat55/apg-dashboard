@@ -130,7 +130,7 @@
         <input type="text" id="userInp" placeholder="Name eingeben...">
         <label>Passwort</label>
         <input type="password" id="passInp" placeholder="******">
-        <button class="btn-primary" style="margin-top:24px; padding: 14px;" onclick="checkLogin()">ANMELDEN</button>
+        <button id="loginBtn" class="btn-primary" style="margin-top:24px; padding: 14px;" onclick="checkLogin()">ANMELDEN</button>
         <div id="loginError" style="color:var(--danger); text-align:center; margin-top:14px; display:none; font-size:14px; font-weight: 600;"></div>
     </div>
 
@@ -272,7 +272,7 @@
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycby4K_J43VN3QK0mqcTici96G1IhHv0ZYShU5DukxA_cQhmlfk-vVK9jN8CwdChkaAobUA/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbwlbny-o40l2TqRmeZM0-2Fe_t6MYD2iHxRiZahydkw1L54gIRBO5Au4G0dhoLcoJGyzQ/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Spätschicht";
@@ -309,6 +309,37 @@ const codeData = {
         stoer: ["3-01 WZ-Wechsel", "3-02 Mat-Umst.", "4-3-01 Messer schleifen", "4-3-02 Ungepl. Inst. Masch", "4-3-04 Silowechsel", "5-3-01 Mat-Mangel", "5-3-05 Feueralarm", "Sonstige"]
     }
 };
+
+// ANMELDEN - GİRİŞ KONTROLÜ VE YÜKLENİYOR MEKANİZMASI
+function checkLogin() {
+    const userInp = document.getElementById('userInp').value.trim();
+    const passInp = document.getElementById('passInp').value;
+    const loginBtn = document.getElementById('loginBtn');
+    const loginError = document.getElementById('loginError');
+
+    if (!userInp || !passInp) {
+        loginError.style.display = "block";
+        loginError.innerText = "Bitte Name und Passwort eingeben!";
+        return;
+    }
+
+    // Kum saati efektini tetikliyoruz ve butonu kilitliyoruz
+    loginBtn.disabled = true;
+    loginBtn.innerHTML = "⏳ Bitte warten...";
+    loginError.style.display = "none";
+
+    // Kısa bir yapay gecikme (gerçekçi bir yüklenme hissi ve stabilite için)
+    setTimeout(() => {
+        if (passInp === "1234") { 
+            enterApp(userInp);
+        } else {
+            loginBtn.disabled = false;
+            loginBtn.innerHTML = "ANMELDEN";
+            loginError.style.display = "block";
+            loginError.innerText = "Falsches Passwort! (Test: 1234)";
+        }
+    }, 800);
+}
 
 function setInitialTodayDate() {
     const today = new Date();
@@ -724,6 +755,7 @@ function toggleRightsPanel() {
     }
 }
 
+// BERECHTIGUNG / RECHTE
 function loadUserSelect() {
     const select = document.getElementById('rightsSelect');
     if(!select) return;
@@ -734,7 +766,7 @@ function loadUserSelect() {
 }
 
 function handleRightsSelectChange(value) {
-    if (value === "_CLEAR_ALL_") {
+    if (value === "_CLEAR_ALL_" || value === "LÖSCHEN") {
         if (confirm("Möchten Sie wirklich ALLE Berechtigungen löschen?")) {
             schichtLeiterDb = {};
             localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
@@ -763,29 +795,25 @@ function removeSchichtleiterRight(name) {
     }
 }
 
-// ASIL GOOGLE SHEETS VERİ GÖNDERME FONKSİYONU (TAMAMEN ENTEGRE)
+// GOOGLE SHEETS VERİ GÖNDERME
 async function processReport() {
     const sendBtn = document.getElementById('mainSendBtn');
     
-    // Çift tıklamayı engellemek için butonu yükleniyor durumuna getiriyoruz
     sendBtn.disabled = true;
     sendBtn.innerHTML = "⏳ Daten werden gesendet...";
     sendBtn.style.background = "var(--orange-bright)";
 
-    // Seçilen form taşıyıcılarını (Formträger) diziye alıyoruz
     let selectedFTs = [];
     document.querySelectorAll('.ft-btn.active').forEach(btn => {
         selectedFTs.push(btn.innerText);
     });
 
-    // Eklenen tüm makalelerin datalarını yapılandırıyoruz
     let artikelData = [];
     document.querySelectorAll('.artikel-row').forEach(row => {
         const artNum = row.querySelector('.art-num-inp').value.trim();
         const gutteile = parseInt(row.querySelector('.art-gut-inp').value) || 0;
         const ausGesamt = parseInt(row.querySelector('.art-aus-gesamt-inp').value) || 0;
         
-        // Hata detay kodları
         let ausDetails = [];
         row.querySelectorAll('[id^="ausCodesContainer_"] .code-row').forEach(subRow => {
             const code = subRow.querySelector('.code-select').value;
@@ -793,7 +821,6 @@ async function processReport() {
             if (code && val > 0) ausDetails.push({ code: code, pieces: val });
         });
 
-        // Arıza detay kodları
         let stoerDetails = [];
         row.querySelectorAll('[id^="stoerCodesContainer_"] .code-row').forEach(subRow => {
             const code = subRow.querySelector('.code-select').value;
@@ -810,7 +837,6 @@ async function processReport() {
         });
     });
 
-    // API'ye gönderilecek ana veri paketi (Payload)
     const payload = {
         action: "saveReport",
         user: loggedInUser,
@@ -824,18 +850,15 @@ async function processReport() {
     };
 
     try {
-        // Sunucuya POST isteği atılıyor (CORS engeline takılmamak için No-Cors yerine standart fetch kullanıyoruz)
-        const response = await fetch(scriptURL, {
+        await fetch(scriptURL, {
             method: "POST",
             mode: "no-cors", 
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify(payload)
         });
 
-        // no-cors modu response içeriğini gizlediği için başarılı varsayıp formu temizliyoruz
         alert("✅ Daten erfolgreich an Google Sheets übertragen!");
         
-        // Formu başarıyla gönderdikten sonra temizleme işlemi
         document.getElementById('artikelContainer').innerHTML = "";
         selectedStaff = [];
         updateWorkerDisplay();
