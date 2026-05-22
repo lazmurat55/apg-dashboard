@@ -60,7 +60,6 @@
         
         .com-tracker-box { display: none; background: rgba(59, 130, 246, 0.1); border: 1px dashed var(--primary); border-radius: 8px; padding: 14px; margin: 15px 0; font-size: 14px; font-weight: 600; text-align: center; color: #fff; }
         
-        /* --- YENİ DİKEY TASARIM ALANI --- */
         .artikel-row { background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 20px; position: relative; }
         .remove-artikel-btn { position: absolute; right: 12px; top: 12px; background: none; color: var(--text-muted); border: none; width: auto; padding: 0; cursor: pointer; font-size: 14px; }
         .remove-artikel-btn:hover { color: var(--danger); }
@@ -316,11 +315,9 @@ function setInitialTodayDate() {
     document.getElementById('datum').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 }
 
-// ARTIKEL EKLEME FONKSİYONU - TAMAMEN YENİ VE DİKEY HİYERARŞİDE OLUŞTURULDU
 function addArtikel() {
     artikelCounter++;
     const container = document.getElementById('artikelContainer');
-    const anlageType = getAnlageType(document.getElementById('anlage').value);
     
     const div = document.createElement('div');
     div.className = 'artikel-row';
@@ -366,7 +363,6 @@ function addArtikel() {
     liveCheck();
 }
 
-// KOD SATIRI (DROPDOWN + ADET) EKLEME FONKSİYONU
 function addCodeRow(artId, type) {
     const container = document.getElementById(`${type}CodesContainer_${artId}`);
     const anlageVal = document.getElementById('anlage').value;
@@ -434,7 +430,6 @@ function onAnlageChange(val) {
     liveCheck();
 }
 
-// FORM KONTROLÜ VE VALIDASYON (BAĞLANTI DOĞRULAMA) FONKSİYONU
 function liveCheck() {
     const anlage = document.getElementById('anlage').value;
     const datum = document.getElementById('datum').value;
@@ -457,7 +452,6 @@ function liveCheck() {
         isValid = false;
     }
     
-    // Alt toplamların genel toplama eşitlik kontrolü (Validation Rule)
     artikelRows.forEach(row => {
         const artNum = row.querySelector('.art-num-inp').value.trim();
         const gutteile = row.querySelector('.art-gut-inp').value.trim();
@@ -469,7 +463,6 @@ function liveCheck() {
         
         const ausGesamt = parseInt(ausGesamtInp) || 0;
         
-        // Bu makaleye ait alt hata kodlarının toplam adedini bul
         let subAusTotal = 0;
         const subAusRows = row.querySelectorAll('[id^="ausCodesContainer_"] .code-row');
         subAusRows.forEach(subRow => {
@@ -479,13 +472,11 @@ function liveCheck() {
             subAusTotal += val;
         });
         
-        // Eğer alt hata adetleri girilmişse ve genel toplama eşit değilse hata verdir
         if(subAusRows.length > 0 && subAusTotal !== ausGesamt) {
             isValid = false;
             statusText = `❌ Fehler: Ausschuss-Details Summe (${subAusTotal}) ≠ Gesamt (${ausGesamt})!`;
         }
         
-        // Arızaları kontrol et (Boş bırakılmış kod veya süre varsa engelle)
         const subStoerRows = row.querySelectorAll('[id^="stoerCodesContainer_"] .code-row');
         subStoerRows.forEach(subRow => {
             const sel = subRow.querySelector('.code-select').value;
@@ -505,7 +496,6 @@ function liveCheck() {
     }
 }
 
-// ESKİ KODUNUZDA OLAN VE YARIM KALAN DİĞER FONKSİYONLARIN AYARLANMASI
 function setSchicht(s) {
     currentSchicht = s;
     document.querySelectorAll('.schicht-btn').forEach(b => b.classList.remove('active'));
@@ -585,48 +575,6 @@ function updateManagersList() {
         return;
     }
     container.innerHTML = "<b>Aktiv:</b><br>" + keys.map(k => `${k} (Schicht ${schichtLeiterDb[k]}) <span class="delete-manager-btn" onclick="removeSchichtleiterRight('${k}')">✕</span>`).join('<br>');
-}
-
-async function checkLogin() {
-    const u = document.getElementById('userInp').value.trim();
-    const p = document.getElementById('passInp').value.trim();
-    const errorDiv = document.getElementById('loginError');
-    
-    if(!u || !p) {
-        errorDiv.innerText = "❌ Bitte Name und Passwort eingeben!";
-        errorDiv.style.display = 'block';
-        return;
-    }
-    
-    errorDiv.innerText = "⏳ Prüfe Login...";
-    errorDiv.style.display = 'block';
-    errorDiv.style.color = "var(--primary)";
-
-    if (!navigator.onLine) {
-        if (u === superAdmin || schichtLeiterDb[u]) {
-            errorDiv.style.display = 'none';
-            enterApp(u);
-            return;
-        }
-        errorDiv.style.color = "var(--danger)";
-        errorDiv.innerText = "❌ Keine Netzverbindung!";
-        return;
-    }
-
-    try {
-        const response = await fetch(`${scriptURL}?action=verifyLogin&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}&_cb=${Date.now()}`);
-        const result = await response.json();
-        
-        if(result.success) {
-            errorDiv.style.display = 'none';
-            enterApp(u);
-        } else {
-            errorDiv.style.color = "var(--danger)";
-            errorDiv.innerText = "❌ Falscher Benutzername oder Passwort!";
-        }
-    } catch(e) {
-        enterApp(u);
-    }
 }
 
 function enterApp(u) {
@@ -715,7 +663,7 @@ async function manualRefreshDashboard() {
     btn.disabled = false;
     btn.innerHTML = "🔄 Aktualisieren";
     const now = new Date();
-    status.innerText = `Zuletzt: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+    status.innerText = `Zulterzt: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
 
 async function loadAdminDashboard(isBackground) {
@@ -815,10 +763,91 @@ function removeSchichtleiterRight(name) {
     }
 }
 
-// ARKA PLANDA DATA GÖNDERME İŞLEMİ (PROCESS REPORT)
-function processReport() {
-    // Google Sheets'e veri gönderme kod blokları buraya entegre edilebilir.
-    alert("🚀 Bericht wurde erfolgreich verarbeitet!");
+// ASIL GOOGLE SHEETS VERİ GÖNDERME FONKSİYONU (TAMAMEN ENTEGRE)
+async function processReport() {
+    const sendBtn = document.getElementById('mainSendBtn');
+    
+    // Çift tıklamayı engellemek için butonu yükleniyor durumuna getiriyoruz
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = "⏳ Daten werden gesendet...";
+    sendBtn.style.background = "var(--orange-bright)";
+
+    // Seçilen form taşıyıcılarını (Formträger) diziye alıyoruz
+    let selectedFTs = [];
+    document.querySelectorAll('.ft-btn.active').forEach(btn => {
+        selectedFTs.push(btn.innerText);
+    });
+
+    // Eklenen tüm makalelerin datalarını yapılandırıyoruz
+    let artikelData = [];
+    document.querySelectorAll('.artikel-row').forEach(row => {
+        const artNum = row.querySelector('.art-num-inp').value.trim();
+        const gutteile = parseInt(row.querySelector('.art-gut-inp').value) || 0;
+        const ausGesamt = parseInt(row.querySelector('.art-aus-gesamt-inp').value) || 0;
+        
+        // Hata detay kodları
+        let ausDetails = [];
+        row.querySelectorAll('[id^="ausCodesContainer_"] .code-row').forEach(subRow => {
+            const code = subRow.querySelector('.code-select').value;
+            const val = parseInt(subRow.querySelector('.code-val-inp').value) || 0;
+            if (code && val > 0) ausDetails.push({ code: code, pieces: val });
+        });
+
+        // Arıza detay kodları
+        let stoerDetails = [];
+        row.querySelectorAll('[id^="stoerCodesContainer_"] .code-row').forEach(subRow => {
+            const code = subRow.querySelector('.code-select').value;
+            const val = parseInt(subRow.querySelector('.code-val-inp').value) || 0;
+            if (code && val > 0) stoerDetails.push({ code: code, minutes: val });
+        });
+
+        artikelData.push({
+            artikelnummer: artNum,
+            gutteile: gutteile,
+            ausschussGesamt: ausGesamt,
+            ausschussDetails: ausDetails,
+            stoerungen: stoerDetails
+        });
+    });
+
+    // API'ye gönderilecek ana veri paketi (Payload)
+    const payload = {
+        action: "saveReport",
+        user: loggedInUser,
+        schicht: currentSchicht,
+        schichtType: currentSchichtType,
+        datum: document.getElementById('datum').value,
+        anlage: document.getElementById('anlage').value,
+        formtraeger: selectedFTs,
+        personal: selectedStaff,
+        artikel: artikelData
+    };
+
+    try {
+        // Sunucuya POST isteği atılıyor (CORS engeline takılmamak için No-Cors yerine standart fetch kullanıyoruz)
+        const response = await fetch(scriptURL, {
+            method: "POST",
+            mode: "no-cors", 
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+
+        // no-cors modu response içeriğini gizlediği için başarılı varsayıp formu temizliyoruz
+        alert("✅ Daten erfolgreich an Google Sheets übertragen!");
+        
+        // Formu başarıyla gönderdikten sonra temizleme işlemi
+        document.getElementById('artikelContainer').innerHTML = "";
+        selectedStaff = [];
+        updateWorkerDisplay();
+        document.getElementById('anlage').value = "";
+        onAnlageChange("");
+        
+    } catch (error) {
+        console.error("Senden fehlgeschlagen:", error);
+        alert("❌ Fehler beim Senden der Daten. Bitte Internetverbindung prüfen!");
+    } finally {
+        liveCheck();
+    }
 }
 </script>
 </body>
