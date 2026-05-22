@@ -982,22 +982,27 @@ async function processReport() {
         return;
     }
 
- try { const response = await fetch(scriptURL, { method: "POST", headers: {
-        "Content-Type": "application/json"
-    },
-    body: JSON.stringify(item.content)
-}); const result = await response.text(); console.log(result); alert("✅ Bericht erfolgreich gesendet!"); location.reload();
-} catch (e) {
+ try {
 
-    console.error(e);
+    const response = await fetch(scriptURL, {
 
-    saveToOfflinePuffer(payload);
+        method: "POST",
 
-    alert("💾 Bericht lokal gespeichert!");
+        headers: {
+            "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify(payload)
+
+    });
+
+    const result = await response.text();
+
+    console.log(result);
+
+    alert("✅ Bericht erfolgreich gesendet!");
 
     location.reload();
-
-}
 
 }
 async function checkOfflinePuffer() {
