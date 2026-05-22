@@ -650,8 +650,11 @@ function renderDashboard() {
 
 function filterSchicht(s) {
     activeFilterSchicht = s;
-    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
-    document.getElementById('flt' + s)?.classList.add('active-filter');
+    // Dropdown değerini güncelle (Eğer dışarıdan tetiklenirse)
+    const selectMenu = document.getElementById('schichtleiterSelect');
+    if(selectMenu) {
+        selectMenu.value = s;
+    }
     renderDashboard();
 }
 
