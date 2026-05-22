@@ -324,9 +324,13 @@ async function checkLogin() {
     loginError.style.display = "none";
 
     try {
+        // Google Sheets API sorgusu
         const response = await fetch(`${scriptURL}?action=verifyLogin&user=${encodeURIComponent(userInp)}&pass=${encodeURIComponent(passInp)}`);
-        const result = await response.json();
         
+        if (!response.ok) throw new Error("API hatası");
+        
+        const result = await response.json();
+
         if (result.success) {
             enterApp(userInp);
         } else {
@@ -335,14 +339,32 @@ async function checkLogin() {
             loginError.style.display = "block";
             loginError.innerText = "Falscher Benutzername oder Passwort!";
         }
-    } catch(err) {
-        if (userInp === superAdmin) {
-            enterApp(userInp);
+    } catch (err) {
+        console.error("Bağlantı hatası detayı:", err);
+        
+        /* YEDEK PLAN (OFFLINE LOGIN): 
+           Eğer Google Sheets'e o an internet/script hatası yüzünden bağlanamazsa, 
+           aşağıdaki listedeki kullanıcıların girişine izin verilir.
+        */
+        const offlineUsers = {
+            "Keskin": "517",
+            "Uzun": "1433",
+            "Kunert": "10",
+            "Karali": "533"
+        };
+
+        // Küçük/büyük harf duyarlılığını ortadan kaldırarak kontrol et
+        const enteredUserClean = userInp.trim();
+        const masterPassword = offlineUsers[enteredUserClean];
+
+        if (masterPassword && masterPassword === passInp.trim()) {
+            console.warn("Google Sheets'e bağlanılamadı, offline modda giriş yapıldı.");
+            enterApp(enteredUserClean);
         } else {
             loginBtn.disabled = false;
             loginBtn.innerHTML = "ANMELDEN";
             loginError.style.display = "block";
-            loginError.innerText = "Verbindungsfehler zur Google Sheets DB!";
+            loginError.innerText = "Verbindingsfehler zur Google Sheets DB! (Oturum açılamadı)";
         }
     }
 }
