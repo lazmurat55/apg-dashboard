@@ -60,7 +60,6 @@
         
         .com-tracker-box { display: none; background: rgba(59, 130, 246, 0.1); border: 1px dashed var(--primary); border-radius: 8px; padding: 14px; margin: 15px 0; font-size: 14px; font-weight: 600; text-align: center; color: #fff; }
         
-        /* Yenilenen Üretim ve Hata Giriş Satırı Tasarımı */
         .artikel-row { background: rgba(15, 23, 42, 0.4); border: 1px solid var(--border-color); padding: 20px; border-radius: 12px; margin-bottom: 20px; position: relative; }
         .remove-artikel-btn { position: absolute; right: 12px; top: 12px; background: none; color: var(--text-muted); border: none; width: auto; padding: 0; cursor: pointer; font-size: 14px; }
         .remove-artikel-btn:hover { color: var(--danger); }
@@ -102,7 +101,6 @@
         .refresh-btn { background: #334155; color: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 18px; font-size: 13px; width: auto; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; cursor: pointer; }
         .refresh-btn:hover { background: var(--success); border-color: var(--success); }
         
-        /* Live Dashboard Kachel */
         #reportsContainer { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-height: 650px; overflow-y: auto; padding-right: 4px; margin-top: 15px; }
         @media (max-width: 900px) { #reportsContainer { grid-template-columns: repeat(2, 1fr); } }
         @media (max-width: 650px) { #reportsContainer { grid-template-columns: 1fr; } }
@@ -254,7 +252,7 @@
             <button class="schicht-btn filter-btn" id="fltC" onclick="filterSchicht('C')">Schicht C</button>
         </div>
 
-        <div id="reportsContainer"></div>
+        <div id="reportsDashboardContainer"></div>
     </div>
 </div>
 
@@ -314,10 +312,6 @@ const codeData = {
 function setInitialTodayDate() {
     const today = new Date();
     document.getElementById('datum').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-}
-
-function scrollToBottom() {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
 }
 
 async function checkLogin() {
@@ -400,17 +394,12 @@ function enterApp(u) {
         document.getElementById('currentUserDisplay').innerHTML = "👤 Angemeldet: " + u;
         setSchicht('B');
     }
-    
-    window.addEventListener('online', checkOfflinePuffer);
-    checkOfflinePuffer();
 }
 
 function startAutoRefresh() {
     if(autoRefreshInterval) clearInterval(autoRefreshInterval);
     checkAndSetDynamicRefresh();
-    autoRefreshInterval = setInterval(() => {
-        checkAndSetDynamicRefresh();
-    }, 60000); 
+    autoRefreshInterval = setInterval(checkAndSetDynamicRefresh, 60000); 
 }
 
 let currentRefreshTempo = null; 
@@ -418,16 +407,14 @@ let dashboardExecutionInterval = null;
 
 function checkAndSetDynamicRefresh() {
     const now = new Date();
-    const hours = now.getHours();
-    const minutes = now.getMinutes();
-    const currentTimeInMinutes = (hours * 60) + minutes;
+    const currentTimeInMinutes = (now.getHours() * 60) + now.getMinutes();
     
-    const isYoğunSaat = 
+    const isYogunSaat = 
         (currentTimeInMinutes >= 810 && currentTimeInMinutes <= 850) || 
         (currentTimeInMinutes >= 1290 && currentTimeInMinutes <= 1330) || 
         (currentTimeInMinutes >= 330 && currentTimeInMinutes <= 370);
 
-    let targetTempo = isYoğunSaat ? "hizli" : "sakin";
+    let targetTempo = isYogunSaat ? "hizli" : "sakin";
 
     if (currentRefreshTempo !== targetTempo) {
         currentRefreshTempo = targetTempo;
@@ -456,6 +443,52 @@ async function manualRefreshDashboard() {
     btn.innerHTML = "🔄 Aktualisieren";
     const now = new Date();
     status.innerText = `Zuletzt: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
+}
+
+async function loadAdminDashboard(isBackground) {
+    if(!isBackground) {
+        document.getElementById('reportsDashboardContainer').innerHTML = "<div style='text-align:center; padding:20px;'>Daten werden geladen...</div>";
+    }
+    try {
+        const response = await fetch(`${scriptURL}?action=getDashboardData&_cb=${Date.now()}`);
+        const data = await response.json();
+        cachedDashboardData = data.reports || [];
+        renderDashboard();
+    } catch(e) {
+        console.error("Dashboard-Fehler", e);
+    }
+}
+
+function renderDashboard() {
+    const container = document.getElementById('reportsDashboardContainer');
+    if(!container) return;
+    
+    const filtered = cachedDashboardData.filter(r => r.schicht === activeFilterSchicht);
+    if(filtered.length === 0) {
+        container.innerHTML = `<div style='text-align:center; color:var(--text-muted); padding:20px;'>Keine Berichte für Schicht ${activeFilterSchicht} vorhanden.</div>`;
+        return;
+    }
+
+    container.innerHTML = filtered.map(r => `
+        <div class="report-box">
+            <span class="badge-origin">${r.anlage || 'Anlage'}</span>
+            <div class="report-date">${r.datum || ''} - ${r.schichtType || ''}</div>
+            <div class="report-title">Mitarbeiter: ${r.personalCount || 0}</div>
+            <ul class="report-details-list">
+                <li>Gutteile gesamt: <b>${r.totalGut || 0}</b></li>
+                <li class="report-danger">Ausschuss: <b>${r.totalAus || 0}</b></li>
+                <li class="report-warning">Störungen: <b>${r.totalStoer || 0} Min</b></li>
+            </ul>
+            <div class="report-user">Erstellt von: ${r.user || 'Unbekannt'}</div>
+        </div>
+    `).join('');
+}
+
+function filterSchicht(s) {
+    activeFilterSchicht = s;
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active-filter'));
+    document.getElementById('flt' + s)?.classList.add('active-filter');
+    renderDashboard();
 }
 
 function toggleRightsPanel() {
@@ -545,11 +578,10 @@ function openWorkerOverlay() {
     const listDiv = document.getElementById('workerList');
     if(!listDiv) return;
     
-    // Aktif şıkka göre personeli listele
-    listDiv.innerHTML = (workerData[currentSchicht] || []).map(w => {
-        const isSelected = selectedStaff.includes(w);
-        if(isSelected) return ''; // Zaten seçilmişse listede gösterme
-        return `<div class="worker-opt" onclick="addStaff('${w.replace(/'/g, "\\'")}')">${w}</div>`;
+    const staffPool = workerData[currentSchicht] || [];
+    listDiv.innerHTML = staffPool.map(w => {
+        const isChecked = selectedStaff.includes(w);
+        return `<div class="worker-opt" style="${isChecked ? 'border-color:var(--success); background:rgba(16,185,129,0.1);' : ''}" onclick="toggleWorkerSelection('${w}')">${w} ${isChecked ? '✓' : ''}</div>`;
     }).join('');
     
     document.getElementById('workerOverlay').style.display = 'flex';
@@ -557,308 +589,273 @@ function openWorkerOverlay() {
 
 function closeOverlay() {
     document.getElementById('workerOverlay').style.display = 'none';
-    document.getElementById('manualWorker').value = '';
 }
 
-function addStaff(workerName) {
-    if (workerName && !selectedStaff.includes(workerName)) {
-        selectedStaff.push(workerName);
-        renderStaff();
-        openWorkerOverlay(); // Listeyi güncelle
+function toggleWorkerSelection(w) {
+    const index = selectedStaff.indexOf(w);
+    if(index > -1) {
+        selectedStaff.splice(index, 1);
+    } else {
+        selectedStaff.push(w);
     }
+    renderStaff();
+    openWorkerOverlay(); 
+    liveCheck();
 }
 
 function addManualWorker() {
     const inp = document.getElementById('manualWorker');
     const val = inp.value.trim();
     if(val) {
-        addStaff(val);
-        inp.value = '';
+        if(!selectedStaff.includes(val)) {
+            selectedStaff.push(val);
+            renderStaff();
+            liveCheck();
+        }
+        inp.value = "";
+        closeOverlay();
     }
 }
 
-function removeStaff(workerName) {
-    selectedStaff = selectedStaff.filter(w => w !== workerName);
+function removeWorker(w) {
+    selectedStaff = selectedStaff.filter(item => item !== w);
     renderStaff();
+    liveCheck();
 }
 
 function renderStaff() {
     const container = document.getElementById('workerDisplayContainer');
     if(!container) return;
-    
     if(selectedStaff.length === 0) {
-        container.innerHTML = '<span style="color:var(--text-muted); font-size:13px;">Keine Mitarbeiter ausgewählt</span>';
-    } else {
-        container.innerHTML = selectedStaff.map(w => `
-            <div class="selected-worker">
-                <span>${w}</span>
-                <span class="remove-worker" onclick="removeStaff('${w.replace(/'/g, "\\\\'")}')">✕</span>
-            </div>
-        `).join('');
-    }
-    liveCheck();
-}
-
-function onAnlageChange(value) {
-    const ftBox = document.getElementById('ftBox');
-    const comTracker = document.getElementById('comTracker');
-    const artikelContainer = document.getElementById('artikelContainer');
-    
-    // Sıfırlama işlemleri
-    artikelContainer.innerHTML = '';
-    artikelCounter = 0;
-    
-    if(!value) {
-        ftBox.style.display = 'none';
-        comTracker.style.display = 'none';
-        document.getElementById('addArtikelBtn').disabled = true;
-        liveCheck();
+        container.innerHTML = "<span style='color:var(--text-muted); font-size:13px;'>Keine Mitarbeiter ausgewählt</span>";
         return;
     }
-    
-    document.getElementById('addArtikelBtn').disabled = false;
+    container.innerHTML = selectedStaff.map(w => `
+        <div class="selected-worker">
+            ${w} <span class="remove-worker" onclick="removeWorker('${w}')">✕</span>
+        </div>
+    `).join('');
+}
 
-    // PUR makineleri için Formträger (FT) panelini aç
-    if(value.startsWith('PUR')) {
-        ftBox.style.display = 'block';
-        comTracker.style.display = 'none';
-        // Tüm FT butonlarının aktifliğini temizle
-        document.querySelectorAll('.ft-btn').forEach(btn => btn.classList.remove('active'));
-    } 
-    // COM makinesi için özel takipçiyi aç
-    else if(value === 'COM') {
-        ftBox.style.display = 'none';
-        comTracker.style.display = 'block';
-        updateComTracker();
-    } 
-    // IM ve CIM makineleri için
-    else {
-        ftBox.style.display = 'none';
-        comTracker.style.display = 'none';
+function onAnlageChange(val) {
+    const ftBox = document.getElementById('ftBox');
+    const comTracker = document.getElementById('comTracker');
+    
+    if(val.startsWith("PUR")) {
+        ftBox.style.display = "block";
+    } else {
+        ftBox.style.display = "none";
+        document.querySelectorAll('.ft-btn').forEach(b => b.classList.remove('active'));
     }
     
-    // Otomatik olarak ilk makale giriş satırını ekle
-    addArtikel();
+    if(val === "COM") {
+        comTracker.style.display = "block";
+    } else {
+        comTracker.style.display = "none";
+    }
+    
+    const addBtn = document.getElementById('addArtikelBtn');
+    if(val) {
+        addBtn.disabled = false;
+        if(document.getElementById('artikelContainer').children.length === 0) {
+            addArtikel();
+        }
+    } else {
+        addBtn.disabled = true;
+        document.getElementById('artikelContainer').innerHTML = "";
+    }
     liveCheck();
 }
 
-function getActiveGroup() {
+function getActiveAnlageType() {
     const anlage = document.getElementById('anlage').value;
     if(!anlage) return null;
-    if(anlage.startsWith('PUR')) return 'PUR';
-    if(anlage === 'COM') return 'COM';
-    return 'Spritz'; // IM1-5 ve CIM1 için Spritz kod grubunu kullanıyoruz
+    if(anlage.startsWith("PUR")) return "PUR";
+    if(anlage === "COM") return "COM";
+    return "Spritz"; 
 }
 
 function addArtikel() {
     const container = document.getElementById('artikelContainer');
-    const group = getActiveGroup();
-    if(!group) return;
+    const type = getActiveAnlageType();
+    if(!type) return;
     
     artikelCounter++;
-    const rowId = `artikelRow_${artikelCounter}`;
+    const id = artikelCounter;
     
     const div = document.createElement('div');
     div.className = 'artikel-row';
-    div.id = rowId;
-    
+    div.id = `artikelRow_${id}`;
     div.innerHTML = `
-        <button class="remove-artikel-btn" onclick="removeArtikel('${rowId}')">✕ Entfernen</button>
+        <button class="remove-artikel-btn" onclick="removeArtikel(${id})">✕ Entfernen</button>
         <div class="grid-2">
             <div>
-                <label>Artikel / Bauteil</label>
-                <input type="text" class="inp-artikel-name" placeholder="örn. Kuga K68 Lippe" oninput="liveCheck()">
+                <label>Artikelbezeichnung</label>
+                <input type="text" class="inp-art-name" placeholder="z.B. BMW G60 Lippe" oninput="liveCheck()">
             </div>
             <div>
-                <label>Gutteile (Üretilen Toplam Adet)</label>
-                <input type="number" class="inp-artikel-gut" placeholder="0" min="0" oninput="liveCheck(); calculateComTime();">
+                <label>Gutteile (Stück)</label>
+                <input type="number" class="inp-art-gut" min="0" placeholder="0" oninput="liveCheck(); calculateComTime();">
             </div>
         </div>
-        
-        <div class="code-row-container">
-            <span style="font-size:12px; font-weight:700; color:var(--text-muted); display:block; margin-bottom:8px; text-transform:uppercase;">Fehlteile & Störungen</span>
-            <div class="code-rows-wrapper" id="rowsWrapper_${rowId}"></div>
-            
-            <div class="code-action-group">
-                <button type="button" class="btn-add-aus" onclick="addCodeRow('${rowId}', 'aus')">+ Hata Kodu (Ausschuss)</button>
-                <button type="button" class="btn-add-stoer" onclick="addCodeRow('${rowId}', 'stoer')">+ Duruş Kodu (Störung)</button>
-            </div>
+        <div class="code-row-container" id="codeContainer_${id}"></div>
+        <div class="code-action-group">
+            <button class="btn-add-aus" onclick="addCodeRow(${id}, 'aus')">+ Ausschuss-Code</button>
+            <button class="btn-add-stoer" onclick="addCodeRow(${id}, 'stoer')">+ Störung (Min)</button>
         </div>
     `;
-    
     container.appendChild(div);
     liveCheck();
-    scrollToBottom();
 }
 
-function removeArtikel(rowId) {
-    const row = document.getElementById(rowId);
-    if(row) {
-        row.remove();
-        calculateComTime();
-        liveCheck();
-    }
+function removeArtikel(id) {
+    document.getElementById(`artikelRow_${id}`)?.remove();
+    liveCheck();
+    calculateComTime();
 }
 
-function addCodeRow(artikelRowId, type) {
-    const wrapper = document.getElementById(`rowsWrapper_${artikelRowId}`);
-    const group = getActiveGroup();
-    if(!wrapper || !group) return;
+function addCodeRow(artikelId, category) {
+    const container = document.getElementById(`codeContainer_${artikelId}`);
+    if(!container) return;
     
-    const options = codeData[group][type] || [];
-    const selectOptions = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+    const type = getActiveAnlageType();
+    const options = codeData[type]?.[category] || [];
     
-    const row = document.createElement('div');
-    row.className = 'code-row';
-    row.setAttribute('data-type', type);
+    const div = document.createElement('div');
+    div.className = 'code-row';
+    div.dataset.category = category;
     
-    row.innerHTML = `
-        <select class="sel-code-val" onchange="liveCheck()">
-            <option value="">-- Kod Seç --</option>
-            ${selectOptions}
+    div.innerHTML = `
+        <select class="inp-code-select" onchange="liveCheck()">
+            <option value="">-- Fehler/Grund wählen --</option>
+            ${options.map(o => `<option value="${o}">${o}</option>`).join('')}
         </select>
-        <input type="number" class="inp-code-min" placeholder="${type === 'aus' ? 'Stk' : 'Min'}" min="1" oninput="liveCheck(); calculateComTime();">
-        <button type="button" class="remove-row-btn" onclick="this.parentElement.remove(); liveCheck(); calculateComTime();">✕</button>
+        <input type="number" class="inp-code-val" min="1" placeholder="${category === 'aus' ? 'Stk' : 'Min'}" oninput="liveCheck(); calculateComTime();">
+        <button class="remove-row-btn" onclick="this.parentElement.remove(); liveCheck(); calculateComTime();">✕</button>
     `;
-    
-    wrapper.appendChild(row);
+    container.appendChild(div);
     liveCheck();
 }
 
 function calculateComTime() {
-    const anlage = document.getElementById('anlage').value;
-    if(anlage !== 'COM') return;
+    if(document.getElementById('anlage').value !== "COM") return;
+    let totalMin = 0;
     
-    let totalMinutes = 0;
-    const rows = document.querySelectorAll('.artikel-row');
-    
-    rows.forEach(row => {
-        const gut = parseInt(row.querySelector('.inp-artikel-gut').value) || 0;
-        // COM kuralı: Üretilen her sağlam parça için 2 dakika ekle
-        totalMinutes += (gut * 2);
+    document.querySelectorAll('.artikel-row').forEach(row => {
+        const gut = parseInt(row.querySelector('.inp-art-gut')?.value) || 0;
+        totalMin += (gut * 1.5); 
         
-        // Störung (Duruş) sürelerini ekle
-        const codeRows = row.querySelectorAll('.code-row[data-type="stoer"]');
-        codeRows.forEach(cRow => {
-            const val = parseInt(cRow.querySelector('.inp-code-min').value) || 0;
-            totalMinutes += val;
+        row.querySelectorAll('.code-row').forEach(cRow => {
+            if(cRow.dataset.category === 'stoer') {
+                totalMin += (parseInt(cRow.querySelector('.inp-code-val')?.value) || 0);
+            }
         });
     });
     
-    updateComTracker(totalMinutes);
-}
-
-function updateComTracker(currentMinutes = 0) {
-    const tracker = document.getElementById('comTracker');
-    if(tracker) {
-        tracker.innerText = `⏱️ COM Schichtzeit-Konto: ${currentMinutes} / 480 Min`;
-        if(currentMinutes > 480) {
-            tracker.style.background = "rgba(244, 63, 94, 0.15)";
-            tracker.style.borderColor = "var(--danger)";
-        } else {
-            tracker.style.background = "rgba(59, 130, 246, 0.1)";
-            tracker.style.borderColor = "var(--primary)";
-        }
-    }
+    document.getElementById('comTracker').innerText = `⏱️ COM Schichtzeit-Konto: ${Math.round(totalMin)} / 480 Min`;
 }
 
 function liveCheck() {
     const sendBtn = document.getElementById('mainSendBtn');
-    if(!sendBtn) return false;
-    
-    const datum = document.getElementById('datum').value;
     const anlage = document.getElementById('anlage').value;
+    const dateVal = document.getElementById('datum').value;
     
-    if(!datum || !anlage || selectedStaff.length === 0) {
+    if(!anlage || !dateVal || selectedStaff.length === 0) {
         sendBtn.disabled = true;
-        sendBtn.innerText = "⚠️ Bitte Formular ausfüllen (Datum, Personal, Anlage fehlen)";
-        return false;
-    }
-    
-    if(anlage.startsWith('PUR')) {
-        const activeFTs = document.querySelectorAll('.ft-btn.active');
-        if(activeFTs.length === 0) {
-            sendBtn.disabled = true;
-            sendBtn.innerText = "⚠️ Bitte mindestens einen Formträger (FT) auswählen";
-            return false;
-        }
-    }
-    
-    const artikelRows = document.querySelectorAll('.artikel-row');
-    if(artikelRows.length === 0) {
-        sendBtn.disabled = true;
-        sendBtn.innerText = "⚠️ Bitte mindestens einen Artikel hinzufügen";
-        return false;
-    }
-    
-    // Satır içi validasyon kontrolü
-    let inputsValid = true;
-    artikelRows.forEach(row => {
-        const artName = row.querySelector('.inp-artikel-name').value.trim();
-        const gutVal = row.querySelector('.inp-artikel-gut').value.trim();
-        
-        if(!artName || !gutVal) {
-            inputsValid = false;
-        }
-        
-        const codeRows = row.querySelectorAll('.code-row');
-        codeRows.forEach(cRow => {
-            const codeVal = cRow.querySelector('.sel-code-val').value;
-            const numVal = cRow.querySelector('.inp-code-min').value;
-            ifS
-</script>
-
-// LIVE DASHBOARD KUTULARI (KACHEL) ÜRETİMİ
-function buildDashboardView() {
-    const container = document.getElementById('reportsContainer');
-    if(!container) return;
-    container.innerHTML = "";
-
-    // Sadece seçili olan Schicht verilerini filtrele
-    const filtered = cachedDashboardData.filter(r => r.schicht === activeFilterSchicht);
-
-    if(filtered.length === 0) {
-        container.innerHTML = `<div style="color:var(--text-muted); padding:10px; font-size:14px;">Keine Meldungen für Schicht ${activeFilterSchicht} vorhanden.</div>`;
+        sendBtn.innerText = "⚠️ Bitte Formular ausfüllen (Mitarbeiter & Anlage)";
         return;
     }
-
-    filtered.forEach(rep => {
-        const box = document.createElement('div');
-        box.className = 'report-box';
+    
+    if(anlage.startsWith("PUR")) {
+        let ftActive = false;
+        document.querySelectorAll('.ft-btn').forEach(b => { if(b.classList.includes('active')) ftActive = true; });
+    }
+    
+    const rows = document.querySelectorAll('.artikel-row');
+    if(rows.length === 0) {
+        sendBtn.disabled = true;
+        sendBtn.innerText = "⚠️ Bitte mindestens einen Artikel hinzufügen";
+        return;
+    }
+    
+    let valid = true;
+    rows.forEach(row => {
+        const name = row.querySelector('.inp-art-name').value.trim();
+        const gut = row.querySelector('.inp-art-gut').value;
+        if(!name || gut === "") valid = false;
         
-        // Dinamik gelen Ausschuss ve Störung satırlarını kutuya basmak için hazırla
-        let ausHtml = '';
-        if(rep.ausDetails && rep.ausDetails.length > 0) {
-            ausHtml = `<div class="report-danger"><b>Ausschuss Details:</b><ul>` + 
-                      rep.ausDetails.map(d => `<li>• ${d.code} -> ${d.qty} Stk</li>`).join('') + `</ul></div>`;
-        }
+        row.querySelectorAll('.code-row').forEach(cRow => {
+            const sel = cRow.querySelector('.inp-code-select').value;
+            const val = cRow.querySelector('.inp-code-val').value;
+            if(!sel || !val) valid = false;
+        });
+    });
+    
+    if(!valid) {
+        sendBtn.disabled = true;
+        sendBtn.innerText = "⚠️ Bitte alle Artikel- Felder & Codes ausfüllen";
+    } else {
+        sendBtn.disabled = false;
+        sendBtn.innerText = "💾 Bericht absenden / Speichern";
+        sendBtn.style.background = "var(--success)";
+    }
+}
 
-        let stoerHtml = '';
-        if(rep.stoerDetails && rep.stoerDetails.length > 0) {
-            stoerHtml = `<div class="report-warning"><b>Störungen:</b><ul>` + 
-                        rep.stoerDetails.map(s => `<li>• ${s.code} -> ${s.qty} min</li>`).join('') + `</ul></div>`;
-        }
+function checkOfflinePuffer() {
+    // Platzhalter für Offline-Synchronisierung falls gewünscht
+}
 
-        box.innerHTML = `
-            <div>
-                <div class="badge-origin">${rep.anlage}</div>
-                <div class="report-date">${rep.datum} - ${rep.schichtType}</div>
-                <div class="report-title">Art-Nr: <span class="highlight">${rep.artikelnummer || 'N/A'}</span></div>
-                
-                <ul class="report-details-list">
-                    <li><b>Gut:</b> ${rep.gut || 0} Stk</li>
-                    <li><b>Ausschuss Gesamt:</b> ${rep.ausschussGesamt || 0} Stk</li>
-                </ul>
-                
-                ${ausHtml}
-                ${stoerHtml}
-            </div>
-            <div class="report-user">👤 Erfasst von: ${rep.user || 'System'}</div>
-        `;
-        container.appendChild(box);
+function processReport() {
+    const anlage = document.getElementById('anlage').value;
+    const datum = document.getElementById('datum').value;
+    
+    let reportData = {
+        action: "submitReport",
+        user: loggedInUser,
+        schicht: currentSchicht,
+        schichtType: currentSchichtType,
+        datum: datum,
+        anlage: anlage,
+        mitarbeiter: selectedStaff,
+        formtraeger: Array.from(document.querySelectorAll('.ft-btn.active')).map(b => b.innerText),
+        artikel: []
+    };
+    
+    document.querySelectorAll('.artikel-row').forEach(row => {
+        let art = {
+            bezeichnung: row.querySelector('.inp-art-name').value.trim(),
+            gutteile: parseInt(row.querySelector('.inp-art-gut').value) || 0,
+            eintraege: []
+        };
+        
+        row.querySelectorAll('.code-row').forEach(cRow => {
+            art.eintraege.push({
+                typ: cRow.dataset.category,
+                code: cRow.querySelector('.inp-code-select').value,
+                wert: parseInt(cRow.querySelector('.inp-code-val').value) || 0
+            });
+        });
+        reportData.artikel.push(art);
+    });
+    
+    const sendBtn = document.getElementById('mainSendBtn');
+    sendBtn.disabled = true;
+    sendBtn.innerHTML = "⏳ Wird gesendet...";
+    
+    fetch(scriptURL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(reportData)
+    }).then(() => {
+        alert("✓ Bericht erfolgreich an Google Sheets übertragen!");
+        location.reload();
+    }).catch(e => {
+        alert("Fehler beim Senden. Bitte Verbindung prüfen.");
+        sendBtn.disabled = false;
+        liveCheck();
     });
 }
 </script>
-
 </body>
 </html>
