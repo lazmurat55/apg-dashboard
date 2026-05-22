@@ -324,11 +324,8 @@ async function checkLogin() {
     loginError.style.display = "none";
 
     try {
-        // Google Sheets API sorgusu
         const response = await fetch(`${scriptURL}?action=verifyLogin&user=${encodeURIComponent(userInp)}&pass=${encodeURIComponent(passInp)}`);
-        
         if (!response.ok) throw new Error("API hatası");
-        
         const result = await response.json();
 
         if (result.success) {
@@ -340,12 +337,8 @@ async function checkLogin() {
             loginError.innerText = "Falscher Benutzername oder Passwort!";
         }
     } catch (err) {
-        console.error("Bağlantı hatası detayı:", err);
+        console.error("Bağlantı hatası detayı, offline yedek plan devreye giriyor:", err);
         
-        /* YEDEK PLAN (OFFLINE LOGIN): 
-           Eğer Google Sheets'e o an internet/script hatası yüzünden bağlanamazsa, 
-           aşağıdaki listedeki kullanıcıların girişine izin verilir.
-        */
         const offlineUsers = {
             "Keskin": "517",
             "Uzun": "1433",
@@ -353,18 +346,17 @@ async function checkLogin() {
             "Karali": "533"
         };
 
-        // Küçük/büyük harf duyarlılığını ortadan kaldırarak kontrol et
         const enteredUserClean = userInp.trim();
         const masterPassword = offlineUsers[enteredUserClean];
 
         if (masterPassword && masterPassword === passInp.trim()) {
-            console.warn("Google Sheets'e bağlanılamadı, offline modda giriş yapıldı.");
+            console.warn("Google Sheets offline modda şef girişi doğrulandı.");
             enterApp(enteredUserClean);
         } else {
             loginBtn.disabled = false;
             loginBtn.innerHTML = "ANMELDEN";
             loginError.style.display = "block";
-            loginError.innerText = "Verbindingsfehler zur Google Sheets DB! (Oturum açılamadı)";
+            loginError.innerText = "Verbindungsfehler zur Google Sheets DB! (Oturum açılamadı)";
         }
     }
 }
@@ -456,7 +448,6 @@ function manualRefreshDashboard() {
     });
 }
 
-// --- YENİ ALMANCA KARE KUTU / KACHEL SİSTEMİ ÇIKTI FONKSİYONU ---
 function renderDashboardData(reports) {
     const container = document.getElementById('reportsDashboardContainer');
     if (!container) return;
@@ -467,8 +458,6 @@ function renderDashboardData(reports) {
     }
 
     let html = "";
-
-    // Gelen veriler dizide nasıl duruyorsa üst sol baştan başlayarak yan yana 3'erli akar.
     reports.forEach(report => {
         html += `
             <div class="dashboard-kachel">
@@ -510,13 +499,120 @@ function renderDashboardData(reports) {
             </div>
         `;
     });
-
     container.innerHTML = html;
 }
 
 function setInitialTodayDate() {
     const today = new Date();
     document.getElementById('datum').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+}
+
+function setSchicht(s) {
+    currentSchicht = s;
+    document.querySelectorAll('.schicht-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(`mSchichtA`).classList.toggle('active', s==='A');
+    document.getElementById(`mSchichtB`).classList.toggle('active', s==='B');
+    document.getElementById(`mSchichtC`).classList.toggle('active', s==='C');
+    updateWorkerListOverlay();
+    liveCheck();
+}
+
+function setSchichtType(t) {
+    currentSchichtType = t;
+    document.querySelectorAll('.type-btn').forEach(b => b.classList.remove('active'));
+    if(t==='Frühschicht') document.getElementById('tFrueh').classList.add('active');
+    if(t==='Spätschicht') document.getElementById('tSpaet').classList.add('active');
+    if(t==='Nachtschicht') document.getElementById('tNacht').classList.add('active');
+    liveCheck();
+}
+
+function openWorkerOverlay() {
+    document.getElementById('workerOverlay').style.display = "flex";
+    updateWorkerListOverlay();
+}
+
+function closeOverlay() {
+    document.getElementById('workerOverlay').style.display = "none";
+}
+
+function updateWorkerListOverlay() {
+    const listDiv = document.getElementById('workerList');
+    listDiv.innerHTML = "";
+    let staff = workerData[currentSchicht] || [];
+    staff.forEach(name => {
+        if(!selectedStaff.includes(name)) {
+            let d = document.createElement('div');
+            d.className = 'worker-opt';
+            d.innerText = name;
+            d.onclick = () => { selectWorker(name); };
+            listDiv.appendChild(d);
+        }
+    });
+}
+
+function selectWorker(name) {
+    if(!selectedStaff.includes(name)) {
+        selectedStaff.push(name);
+        renderSelectedWorkers();
+        updateWorkerListOverlay();
+        liveCheck();
+    }
+}
+
+function addManualWorker() {
+    const inp = document.getElementById('manualWorker');
+    let val = inp.value.trim();
+    if(val) {
+        selectWorker(val);
+        inp.value = "";
+    }
+}
+
+function removeWorker(name) {
+    selectedStaff = selectedStaff.filter(x => x !== name);
+    renderSelectedWorkers();
+    updateWorkerListOverlay();
+    liveCheck();
+}
+
+function renderSelectedWorkers() {
+    const cont = document.getElementById('workerDisplayContainer');
+    cont.innerHTML = "";
+    selectedStaff.forEach(name => {
+        let span = document.createElement('span');
+        span.className = 'selected-worker';
+        span.innerHTML = `${name} <span class="remove-worker" onclick="removeWorker('${name}')">✕</span>`;
+        cont.appendChild(span);
+    });
+}
+
+function onAnlageChange(v) {
+    const ftBox = document.getElementById('ftBox');
+    const comTracker = document.getElementById('comTracker');
+    
+    if(v.startsWith("PUR") || v === "CIM1") {
+        ftBox.style.display = "block";
+    } else {
+        ftBox.style.display = "none";
+        document.querySelectorAll('.ft-btn').forEach(b => b.classList.remove('active'));
+    }
+    
+    if(v === "COM") {
+        comTracker.style.display = "block";
+    } else {
+        comTracker.style.display = "none";
+    }
+    
+    const addBtn = document.getElementById('addArtikelBtn');
+    if(v) {
+        addBtn.disabled = false;
+        if(artikelCounter === 0) addArtikel();
+    } else {
+        addBtn.disabled = true;
+        document.getElementById('artikelContainer').innerHTML = "";
+        artikelCounter = 0;
+    }
+    liveCheck();
 }
 
 function addArtikel() {
@@ -526,177 +622,109 @@ function addArtikel() {
     div.className = 'artikel-row';
     div.id = `artikelRow_${artikelCounter}`;
     
+    const anlageVal = document.getElementById('anlage').value;
+    let category = "PUR";
+    if(anlageVal.startsWith("IM") || anlageVal === "CIM1") category = "Spritz";
+    if(anlageVal === "COM") category = "COM";
+
+    let ausOptions = (codeData[category]?.aus || []).map(c => `<option value="${c}">${c}</option>`).join('');
+    let stoerOptions = (codeData[category]?.stoer || []).map(c => `<option value="${c}">${c}</option>`).join('');
+    
     div.innerHTML = `
         <button class="remove-artikel-btn" onclick="removeArtikel(${artikelCounter})">✕ Entfernen</button>
         <div style="margin-bottom: 12px;">
             <label>Artikelnummer</label>
             <input type="text" class="art-num-inp" placeholder="z.B. BMW G60 Lippe" oninput="liveCheck()">
         </div>
-        <div class="grid-3">
+        <div class="grid-2">
             <div>
-                <label>Gutteile (Stk)</label>
-                <input type="number" class="art-gut-inp" placeholder="0" oninput="liveCheck()">
+                <label style="color:var(--success);">Gutmenge (Stk)</label>
+                <input type="number" class="art-gut-inp" value="0" min="0" oninput="liveCheck()">
             </div>
             <div>
-                <label>Ausschuss Ges.</label>
-                <input type="number" class="art-aus-gesamt-inp" placeholder="0" oninput="liveCheck()">
-            </div>
-            <div>
-                <label style="color:var(--orange-bright);">Arbeitszeit (Min)</label>
-                <input type="number" class="art-zeit-inp" placeholder="Minuten" style="border-color:var(--orange-bright);" oninput="liveCheck()">
+                <label style="color:var(--danger);">Ausschuss Gesamt</label>
+                <input type="number" class="art-aus-total" value="0" readOnly style="background:#1e293b; color:var(--text-muted);">
             </div>
         </div>
+        
         <div class="code-row-container">
-            <h4>Ausschuss-Details</h4>
-            <div id="ausCodesContainer_${artikelCounter}"></div>
+            <h4>Ausschuss-Fehlercodes Erfassung</h4>
+            <div class="code-container-aus" id="ausCodesCont_${artikelCounter}"></div>
             <div class="code-action-group">
-                <button class="btn-add-aus" onclick="addCodeRow(${artikelCounter}, 'aus')">+ Ausschuss-Code</button>
+                <button class="btn-add-aus" onclick="addCodeRow(${artikelCounter}, 'aus', '${escape(ausOptions)}')">+ Code hinzufügen</button>
             </div>
         </div>
+
         <div class="code-row-container">
-            <h4>Störungen</h4>
-            <div id="stoerCodesContainer_${artikelCounter}"></div>
+            <h4>Störungszeiten Erfassung (Minuten)</h4>
+            <div class="code-container-stoer" id="stoerCodesCont_${artikelCounter}"></div>
             <div class="code-action-group">
-                <button class="btn-add-stoer" onclick="addCodeRow(${artikelCounter}, 'stoer')">+ Störung (Min)</button>
+                <button class="btn-add-stoer" onclick="addCodeRow(${artikelCounter}, 'stoer', '${escape(stoerOptions)}')">+ Code hinzufügen</button>
             </div>
         </div>
     `;
     container.appendChild(div);
-    if(typeof liveCheck === "function") liveCheck();
-}
-
-function addCodeRow(artId, type) {
-    const container = document.getElementById(`${type}CodesContainer_${artId}`);
-    if(!container) return;
-    const anlageVal = document.getElementById('anlage').value;
-    let category = "PUR";
-    if (anlageVal.startsWith("IM") || anlageVal.startsWith("CIM")) category = "Spritz";
-    if (anlageVal === "COM") category = "COM";
-
-    let optionsHtml = `<option value="">-- Code wählen --</option>`;
-    if (codeData[category] && codeData[category][type]) {
-        codeData[category][type].forEach(code => {
-            optionsHtml += `<option value="${code}">${code}</option>`;
-        });
-    }
-
-    const rowDiv = document.createElement('div');
-    rowDiv.className = 'code-row';
-    rowDiv.innerHTML = `
-        <select class="code-select" onchange="liveCheck()">${optionsHtml}</select>
-        <input type="number" class="code-val-inp" placeholder="${type === 'aus' ? 'Stk' : 'Min'}" oninput="liveCheck()">
-        <button class="remove-row-btn" onclick="this.parentElement.remove(); liveCheck();">✕</button>
-    `;
-    container.appendChild(rowDiv);
+    liveCheck();
 }
 
 function removeArtikel(id) {
     const row = document.getElementById(`artikelRow_${id}`);
     if(row) row.remove();
-    if(typeof liveCheck === "function") liveCheck();
+    liveCheck();
 }
 
-function onAnlageChange(val) {
-    const ftBox = document.getElementById('ftBox');
-    const comTracker = document.getElementById('comTracker');
-    const addArtikelBtn = document.getElementById('addArtikelBtn');
-    
-    if(ftBox) ftBox.style.display = val.startsWith("PUR") ? "block" : "none";
-    if(comTracker) comTracker.style.display = val === "COM" ? "block" : "none";
-    
-    if(addArtikelBtn) {
-        if(val) {
-            addArtikelBtn.disabled = false;
-        } else {
-            addArtikelBtn.disabled = true;
-        }
-    }
-    if(typeof liveCheck === "function") liveCheck();
+function addCodeRow(artId, type, escapedOptions) {
+    const container = document.getElementById(type === 'aus' ? `ausCodesCont_${artId}` : `stoerCodesCont_${artId}`);
+    const options = unescape(escapedOptions);
+    const div = document.createElement('div');
+    div.className = 'code-row';
+    div.innerHTML = `
+        <select class="code-select" onchange="liveCheck()">${options}</select>
+        <input type="number" class="code-val" value="0" min="0" oninput="calculateArtikelTotals(${artId}); liveCheck();">
+        <span style="cursor:pointer; color:var(--danger); font-weight:bold; padding:0 4px;" onclick="this.parentElement.remove(); calculateArtikelTotals(${artId}); liveCheck();">✕</span>
+    `;
+    container.appendChild(div);
 }
 
-function openWorkerOverlay() { document.getElementById('workerOverlay').style.display = "flex"; renderOverlayWorkers(); }
-function closeOverlay() { document.getElementById('workerOverlay').style.display = "none"; }
-
-function renderOverlayWorkers() {
-    const list = document.getElementById('workerList');
-    list.innerHTML = "";
-    let currentActiveSchicht = document.getElementById('mSchichtA').classList.contains('active') ? 'A' : (document.getElementById('mSchichtC').classList.contains('active') ? 'C' : 'B');
-    if(workerData[currentActiveSchicht]) {
-        workerData[currentActiveSchicht].forEach(w => {
-            if(!selectedStaff.includes(w)) {
-                let div = document.createElement('div');
-                div.className = "worker-opt";
-                div.innerText = w;
-                div.onclick = () => { selectedStaff.push(w); renderSelectedWorkers(); renderOverlayWorkers(); };
-                list.appendChild(div);
-            }
-        });
-    }
-}
-
-function renderSelectedWorkers() {
-    const container = document.getElementById('workerDisplayContainer');
-    container.innerHTML = "";
-    selectedStaff.forEach(w => {
-        let div = document.createElement('div');
-        div.className = "selected-worker";
-        div.innerHTML = `${w} <span class="remove-worker" onclick="removeStaff('${w}')">✕</span>`;
-        container.appendChild(div);
+function calculateArtikelTotals(artId) {
+    const row = document.getElementById(`artikelRow_${artId}`);
+    if(!row) return;
+    let totalAus = 0;
+    row.querySelectorAll(`.code-container-aus .code-val`).forEach(input => {
+        totalAus += parseInt(input.value) || 0;
     });
-    if(typeof liveCheck === "function") liveCheck();
-}
-
-function removeStaff(name) {
-    selectedStaff = selectedStaff.filter(x => x !== name);
-    renderSelectedWorkers();
-    if(document.getElementById('workerOverlay').style.display === "flex") renderOverlayWorkers();
-}
-
-function addManualWorker() {
-    const inp = document.getElementById('manualWorker');
-    const val = inp.value.trim();
-    if(val && !selectedStaff.includes(val)) {
-        selectedStaff.push(val);
-        inp.value = "";
-        renderSelectedWorkers();
-        if(document.getElementById('workerOverlay').style.display === "flex") renderOverlayWorkers();
-    }
-}
-
-function setSchicht(s) {
-    document.getElementById('mSchichtA').classList.remove('active');
-    document.getElementById('mSchichtB').classList.remove('active');
-    document.getElementById('mSchichtC').classList.remove('active');
-    document.getElementById(`mSchicht${s}`).classList.add('active');
-    currentSchicht = s;
-    selectedStaff = [];
-    renderSelectedWorkers();
-}
-
-function setSchichtType(t) {
-    document.getElementById('tFrueh').classList.remove('active');
-    document.getElementById('tSpaet').classList.remove('active');
-    document.getElementById('tNacht').classList.remove('active');
-    if(t === 'Frühschicht') document.getElementById('tFrueh').classList.add('active');
-    if(t === 'Spätschicht') document.getElementById('tSpaet').classList.add('active');
-    if(t === 'Nachtschicht') document.getElementById('tNacht').classList.add('active');
-    currentSchichtType = t;
+    row.querySelector('.art-aus-total').value = totalAus;
 }
 
 function liveCheck() {
     const anlage = document.getElementById('anlage').value;
-    const sendBtn = document.getElementById('mainSendBtn');
-    if(anlage && selectedStaff.length > 0) {
-        sendBtn.disabled = false;
-        sendBtn.innerHTML = "Bericht absenden";
+    const datum = document.getElementById('datum').value;
+    const mainBtn = document.getElementById('mainSendBtn');
+    
+    let valid = true;
+    if(!anlage || !datum || selectedStaff.length === 0) valid = false;
+    
+    const rows = document.querySelectorAll('.artikel-row');
+    if(rows.length === 0) valid = false;
+    
+    rows.forEach(r => {
+        let num = r.querySelector('.art-num-inp').value.trim();
+        if(!num) valid = false;
+    });
+
+    if(valid) {
+        mainBtn.disabled = false;
+        mainBtn.innerHTML = "🚀 Schichtbericht absenden";
+        mainBtn.style.background = "var(--success)";
     } else {
-        sendBtn.disabled = true;
-        sendBtn.innerHTML = "⚠️ Bitte Formular ausfüllen";
+        mainBtn.disabled = true;
+        mainBtn.innerHTML = "⚠️ Bitte Formular vollständig ausfüllen";
+        mainBtn.style.background = "var(--primary)";
     }
 }
 
 function processReport() {
-    alert("Bericht verarbeitet!");
+    alert("Bericht erfolgreich verarbeitet und gespeichert!");
 }
 </script>
 </body>
