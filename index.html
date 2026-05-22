@@ -269,7 +269,7 @@
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycbyIkbIBTxwQ1zk7gVGkFwl-T3yCTa5-8l7gXGGbR-ReN21Z26lAXLgKKTLZYdNglTe2eA/exec";
+const scriptURL = "https://script.google.com/macros/s/AKfycbymekHauHN-LjNtYeuWjlLjSgB-x65fklMahH6aJFoVoc8T2_L5qEUkrhHZzddzt2HbsQ/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Spätschicht";
@@ -968,45 +968,20 @@ async function processReport() {
         return;
     }
 
-    try {
+ try { const response = await fetch(scriptURL, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(payload) }); const result = await response.text(); console.log(result); alert("✅ Bericht erfolgreich gesendet!"); location.reload();
+} catch (e) {
 
-        await fetch(scriptURL, {
+    console.error(e);
 
-            method: "POST",
+    saveToOfflinePuffer(payload);
 
-            mode: "no-cors",
+    alert("💾 Bericht lokal gespeichert!");
 
-            headers: {
-                "Content-Type": "application/json"
-            },
-
-            body: JSON.stringify(payload)
-
-        });
-
-        alert("✅ Bericht erfolgreich gesendet!");
-
-        location.reload();
-
-    } catch (e) {
-
-        saveToOfflinePuffer(payload);
-
-        alert("💾 Bericht lokal gespeichert!");
-
-        location.reload();
-
-    }
+    location.reload();
 
 }
 
-function saveToOfflinePuffer(data) {
-    let puffer = [];
-    try { puffer = JSON.parse(localStorage.getItem('apg_offline_puffer')) || []; }catch(e){}
-    puffer.push({ id: Date.now(), content: data });
-    localStorage.setItem('apg_offline_puffer', JSON.stringify(puffer));
 }
-
 async function checkOfflinePuffer() {
     if(!navigator.onLine) return;
     let puffer = [];
