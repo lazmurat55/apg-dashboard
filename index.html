@@ -1033,7 +1033,17 @@ async function loadAdminDashboard(isSilent) {
     }
 
     try {
-        const res = await fetch(`${scriptURL}?action=getDashboardData&schicht=${activeFilterSchicht}&_cb=${Date.now()}`);
+        const res = await fetch(scriptURL, {
+
+    method: "POST",
+
+    headers: {
+        "Content-Type": "application/json"
+    },
+
+    body: JSON.stringify(item.content)
+
+});
         const list = await res.json();
         
         if(!list || list.length === 0) {
