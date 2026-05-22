@@ -305,13 +305,52 @@ const codeData = {
     }
 };
 
+// --- Arayüz ve Personel Yönetimi ---
+
 function setInitialTodayDate() {
     const today = new Date();
     document.getElementById('datum').value = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
 }
 
-function scrollToBottom() {
-    window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+function openWorkerOverlay() {
+    const list = document.getElementById('workerList');
+    list.innerHTML = workerData[currentSchicht].map(w => 
+        `<div class="worker-opt" onclick="addStaff('${w}')">${w}</div>`
+    ).join('');
+    document.getElementById('workerOverlay').style.display = 'flex';
+}
+
+function closeOverlay() {
+    document.getElementById('workerOverlay').style.display = 'none';
+}
+
+function addStaff(name) {
+    if(!selectedStaff.includes(name)) {
+        selectedStaff.push(name);
+        renderStaff();
+    }
+    closeOverlay();
+}
+
+function addManualWorker() {
+    const input = document.getElementById('manualWorker');
+    const name = input.value.trim();
+    if(name) {
+        addStaff(name);
+        input.value = "";
+    }
+}
+
+function renderStaff() {
+    const container = document.getElementById('workerDisplayContainer');
+    container.innerHTML = selectedStaff.map(s => 
+        `<div class="selected-worker">${s} <span style="cursor:pointer" onclick="removeStaff('${s}')">✕</span></div>`
+    ).join('');
+}
+
+function removeStaff(name) {
+    selectedStaff = selectedStaff.filter(s => s !== name);
+    renderStaff();
 }
 
 async function checkLogin() {
@@ -320,25 +359,25 @@ async function checkLogin() {
     const errorDiv = document.getElementById('loginError');
     
     if(!u || !p) {
-        errorDiv.innerText = "❌ Bitte Name und Passwort eingeben!";
+        errorDiv.innerText = "❌ Lütfen kullanıcı adı ve şifre girin!";
         errorDiv.style.display = 'block';
         return;
     }
     
-    errorDiv.innerText = "⏳ Prüfe Login...";
+    errorDiv.innerText = "⏳ Giriş yapılıyor...";
     errorDiv.style.display = 'block';
-    errorDiv.style.color = "var(--primary)";
+    
+    // Basit bir simülasyon (Gerçek entegrasyonda fetch burada olacak)
+    enterApp(u);
+}
 
-    if (!navigator.onLine) {
-        if (u === superAdmin || schichtLeiterDb[u]) {
-            errorDiv.style.display = 'none';
-            enterApp(u);
-            return;
-        }
-        errorDiv.style.color = "var(--danger)";
-        errorDiv.innerText = "❌ Keine Netzverbindung!";
-        return;
-    }
+function enterApp(u) {
+    loggedInUser = u;
+    document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('mainApp').style.display = 'block';
+    setInitialTodayDate();
+    document.getElementById('currentUserDisplay').innerHTML = "👤 Kullanıcı: " + u;
+}
 
     try {
         const response = await fetch(`${scriptURL}?action=verifyLogin&user=${encodeURIComponent(u)}&pass=${encodeURIComponent(p)}&_cb=${Date.now()}`);
