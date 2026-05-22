@@ -208,26 +208,31 @@
     </div>
 
     <div id="adminPanel" class="form-card">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
-            <span id="adminUserDisplay" style="font-weight:700; color:var(--orange-bright); font-size: 16px;"></span>
-            <button onclick="location.reload()" style="width:auto; padding:6px 14px; font-size:13px; background:var(--danger); border-radius:6px;">Abmelden</button>
-        </div>
-
-        <h3 style="font-size: 20px; margin-bottom: 20px;">Schichtleiter Dashboard</h3>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <button id="manualRefreshBtn" class="refresh-btn" onclick="manualRefreshDashboard()">🔄 Aktualisieren</button>
-            <span id="refreshStatus" style="font-size: 13px; color: var(--text-muted);"></span>
-        </div>
-        
-        <div id="adminFilterGroup" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-bottom:16px;">
-            <button class="schicht-btn filter-btn" id="fltA" onclick="filterSchicht('A')">Schicht A</button>
-            <button class="schicht-btn filter-btn" id="fltB" onclick="filterSchicht('B')">Schicht B</button>
-            <button class="schicht-btn filter-btn" id="fltC" onclick="filterSchicht('C')">Schicht C</button>
-        </div>
-
-        <div id="reportsDashboardContainer"></div>
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
+        <span id="adminUserDisplay" style="font-weight:700; color:var(--orange-bright); font-size: 16px;"></span>
+        <button onclick="location.reload()" style="width:auto; padding:6px 14px; font-size:13px; background:var(--danger); border-radius:6px;">Abmelden</button>
     </div>
+
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 10px;">
+        <h3 style="font-size: 20px; margin-bottom: 0; border-bottom: none; padding-bottom: 0;">Schichtleiter Dashboard</h3>
+        
+        <div style="display: inline-flex; align-items: center; gap: 8px;">
+            <label style="margin: 0; font-size: 12px; white-space: nowrap;">Vardiya Seçin:</label>
+            <select id="schichtleiterSelect" onchange="filterSchicht(this.value)" style="width: auto; padding: 6px 30px 6px 12px; font-size: 14px; font-weight: 600; background: var(--bg-input); border: 1px solid var(--orange-bright); border-radius: 6px; cursor: pointer; color: var(--orange-bright);">
+                <option value="A">Schicht A</option>
+                <option value="B" selected>Schicht B</option>
+                <option value="C">Schicht C</option>
+            </select>
+        </div>
+    </div>
+    
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <button id="manualRefreshBtn" class="refresh-btn" onclick="manualRefreshDashboard()">🔄 Aktualisieren</button>
+        <span id="refreshStatus" style="font-size: 13px; color: var(--text-muted);"></span>
+    </div>
+
+    <div id="reportsDashboardContainer"></div>
+</div>
 </div>
 
 <div class="overlay" id="workerOverlay">
