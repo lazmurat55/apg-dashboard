@@ -39,6 +39,7 @@
         input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.25); }
         
         .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 10px; }
+        .grid-3 { display: grid; grid-template-columns: 1.5fr 1fr 1fr; gap: 14px; margin-bottom: 10px; }
         
         button { font-weight: 600; cursor: pointer; border: none; display: flex; justify-content: center; align-items: center; gap: 8px; }
         .btn-primary { background: var(--primary); color: white; box-shadow: 0 2px 4px rgba(59,130,246,0.2); }
@@ -92,19 +93,12 @@
         .worker-opt { padding:12px; background:var(--bg-input); border:1px solid var(--border-color); border-radius:8px; cursor:pointer; font-weight: 500; transition: all 0.2s; }
         .worker-opt:hover { border-color: var(--primary); background: rgba(59,130,246,0.05); }
         
-        .management-box { display: none; background: rgba(245, 158, 11, 0.05); border: 1px dashed var(--orange-bright); border-radius: 10px; padding: 16px; margin-top: 10px; margin-bottom: 20px; }
-        .managers-list { margin-top: 12px; font-size: 13px; color: var(--text-main); padding: 10px; background: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-color); }
-        .delete-manager-btn { color: var(--danger); font-weight: bold; margin-left: 10px; cursor: pointer; }
-        
-        .admin-action-btn { background: var(--border-color); color: var(--text-main); width: auto; padding: 8px 14px; font-size: 13px; border-radius: 8px; cursor: pointer; }
-        .admin-action-btn:hover { background: var(--primary); }
-        
         .refresh-btn { background: #334155; color: #fff; border: 1px solid var(--border-color); border-radius: 8px; padding: 10px 18px; font-size: 13px; width: auto; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 16px; cursor: pointer; }
         .refresh-btn:hover { background: var(--success); border-color: var(--success); }
         
-        #reportsContainer { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-height: 650px; overflow-y: auto; padding-right: 4px; margin-top: 15px; }
-        @media (max-width: 900px) { #reportsContainer { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 650px) { #reportsContainer { grid-template-columns: 1fr; } }
+        #reportsDashboardContainer { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; max-height: 650px; overflow-y: auto; padding-right: 4px; margin-top: 15px; }
+        @media (max-width: 900px) { #reportsDashboardContainer { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 650px) { #reportsDashboardContainer { grid-template-columns: 1fr; } }
 
         .report-box { background: var(--bg-input); border: 1px solid var(--border-color); border-radius: 12px; padding: 18px; position: relative; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.3); min-height: 190px; }
         .badge-origin { position: absolute; right: 12px; top: 12px; background: var(--primary); padding: 4px 12px; border-radius: 6px; font-size: 14px; font-weight: 700; color: #fff; }
@@ -117,7 +111,6 @@
 
         #loginScreen { display: block; max-width: 400px; margin: 60px auto 0; }
         #mainApp, #adminPanel { display: none; }
-
         .thank-you-footer { width: 100%; max-width: 1100px; margin: 20px auto 0; text-align: center; font-size: 14px; color: var(--text-muted); padding: 15px; border-top: 1px solid var(--border-color); }
     </style>
 </head>
@@ -217,27 +210,7 @@
     <div id="adminPanel" class="form-card">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; border-bottom: 1px solid var(--border-color); padding-bottom: 12px;">
             <span id="adminUserDisplay" style="font-weight:700; color:var(--orange-bright); font-size: 16px;"></span>
-            <div style="display:flex; gap:8px;">
-                <button id="toggleRightsBtn" class="admin-action-btn" onclick="toggleRightsPanel()" style="display:none;">⚙️ Admin-Optionen</button>
-                <button onclick="location.reload()" style="width:auto; padding:6px 14px; font-size:13px; background:var(--danger); border-radius:6px;">Abmelden</button>
-            </div>
-        </div>
-        
-        <div id="rightsManagementBox" class="management-box">
-            <h4>⚙️ Rechteverwaltung (Schichtleiter)</h4>
-            <label>Mitarbeiter auswählen</label>
-            <select id="rightsSelect" onchange="handleRightsSelectChange(this.value)"></select>
-            
-            <label>Zugewiesene Schicht</label>
-            <select id="assignedSchichtSelect">
-                <option value="A">Schicht A</option>
-                <option value="B" selected>Schicht B</option>
-                <option value="C">Schicht C</option>
-            </select>
-            
-            <button class="btn-primary" style="margin-top:14px; padding:10px; background:var(--success);" onclick="grantSchichtleiterRights()">✓ Berechtigung Speichern</button>
-            
-            <div class="managers-list" id="currentManagersList">Aktiv: Keine Leiter zugewiesen</div>
+            <button onclick="location.reload()" style="width:auto; padding:6px 14px; font-size:13px; background:var(--danger); border-radius:6px;">Abmelden</button>
         </div>
 
         <h3 style="font-size: 20px; margin-bottom: 20px;">Schichtleiter Dashboard</h3>
@@ -272,22 +245,18 @@
 </div>
 
 <script>
-const scriptURL = "https://script.google.com/macros/s/AKfycby_dsSuG6LXPZf1pCzgrd7Yyed56jxFrjLdkswSNZt4HNCNxpcQEMm7ownjpFMzzjtWPw/exec";
+// BURAYA SİZİN DEPLOY ETTİĞİNİZ KENDİ SCRIPT URL LİNKİNİZ GELECEK
+const scriptURL = "https://script.google.com/macros/s/AKfycbwlbny-o40l2TqRmeZM0-2Fe_t6MYD2iHxRiZahydkw1L54gIRBO5Au4G0dhoLcoJGyzQ/exec";
 
 let currentSchicht = "B";
 let currentSchichtType = "Spätschicht";
 let selectedStaff = [];
 let loggedInUser = "";
 let superAdmin = "Keskin"; 
-let schichtLeiterDb = {}; 
 let activeFilterSchicht = "B";
 let autoRefreshInterval = null;
 let cachedDashboardData = [];
 let artikelCounter = 0;
-
-if(localStorage.getItem('apg_schichtleiter_db')) {
-    try { schichtLeiterDb = JSON.parse(localStorage.getItem('apg_schichtleiter_db')); } catch(e){}
-}
 
 const workerData = {
     "A": ["Kunert M.", "Karali O.", "Mikuczynski K.", "Türkmen E.", "Amrouch M.", "Stania D.", "Kantaroglu A.", "Krancioch A.", "Held D.", "Berisha I.", "Neji M.", "Mulugeta G.", "Udezue P.", "Jansen M.", "Aksoy O.", "Yildirim S.", "Brand N.", "Louze A.", "Blanquez Romero V.", "Diallo M.D.", "Sener E.", "Klomrit", "Garcia"],
@@ -310,8 +279,7 @@ const codeData = {
     }
 };
 
-// ANMELDEN - GİRİŞ KONTROLÜ VE YÜKLENİYOR MEKANİZMASI
-function checkLogin() {
+async function checkLogin() {
     const userInp = document.getElementById('userInp').value.trim();
     const passInp = document.getElementById('passInp').value;
     const loginBtn = document.getElementById('loginBtn');
@@ -323,22 +291,28 @@ function checkLogin() {
         return;
     }
 
-    // Kum saati efektini tetikliyoruz ve butonu kilitliyoruz
     loginBtn.disabled = true;
-    loginBtn.innerHTML = "⏳ Bitte warten...";
+    loginBtn.innerHTML = "⏳ DB-Check...";
     loginError.style.display = "none";
 
-    // Kısa bir yapay gecikme (gerçekçi bir yüklenme hissi ve stabilite için)
-    setTimeout(() => {
-        if (passInp === "1234") { 
+    try {
+        const response = await fetch(`${scriptURL}?action=verifyLogin&user=${encodeURIComponent(userInp)}&pass=${encodeURIComponent(passInp)}`);
+        const result = await response.json();
+        
+        if (result.success) {
             enterApp(userInp);
         } else {
             loginBtn.disabled = false;
             loginBtn.innerHTML = "ANMELDEN";
             loginError.style.display = "block";
-            loginError.innerText = "Falsches Passwort! (Test: 1234)";
+            loginError.innerText = "Falscher Benutzername oder Passwort (laut Sifreler Tablosu)!";
         }
-    }, 800);
+    } catch(err) {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML = "ANMELDEN";
+        loginError.style.display = "block";
+        loginError.innerText = "Verbindungsfehler zur Google Sheets DB!";
+    }
 }
 
 function setInitialTodayDate() {
@@ -359,17 +333,21 @@ function addArtikel() {
         
         <div style="margin-bottom: 12px;">
             <label>Artikelnummer</label>
-            <input type="text" class="art-num-inp" placeholder="" oninput="liveCheck()">
+            <input type="text" class="art-num-inp" placeholder="z.B. BMW G60 Lippe" oninput="liveCheck()">
         </div>
         
-        <div class="grid-2">
+        <div class="grid-3">
             <div>
-                <label>Gutteile (Stück)</label>
-                <input type="number" class="art-gut-inp" placeholder="" oninput="liveCheck()">
+                <label>Gutteile (Stk)</label>
+                <input type="number" class="art-gut-inp" placeholder="0" oninput="liveCheck()">
             </div>
             <div>
-                <label>Ausschuss Gesamt (Stück)</label>
-                <input type="number" class="art-aus-gesamt-inp" placeholder="" oninput="liveCheck()">
+                <label>Ausschuss Ges.</label>
+                <input type="number" class="art-aus-gesamt-inp" placeholder="0" oninput="liveCheck()">
+            </div>
+            <div>
+                <label style="color:var(--orange-bright);">Arbeitszeit (Min)</label>
+                <input type="number" class="art-zeit-inp" placeholder="Minuten" style="border-color:var(--orange-bright);" oninput="liveCheck()">
             </div>
         </div>
         
@@ -403,10 +381,8 @@ function addCodeRow(artId, type) {
     const row = document.createElement('div');
     row.className = 'code-row';
     
-    let selectOpts = `<option value="">-- ${type === 'aus' ? 'Fehlercode' : 'Störungscode'} auswählen --</option>`;
-    options.forEach(o => {
-        selectOpts += `<option value="${o}">${o}</option>`;
-    });
+    let selectOpts = `<option value="">-- ${type === 'aus' ? 'Fehlercode' : 'Störungscode'} --</option>`;
+    options.forEach(o => { selectOpts += `<option value="${o}">${o}</option>`; });
     
     row.innerHTML = `
         <select class="code-select" onchange="liveCheck()">
@@ -453,11 +429,7 @@ function onAnlageChange(val) {
         comTracker.style.display = "none";
     }
     
-    if(val) {
-        addBtn.disabled = false;
-    } else {
-        addBtn.disabled = true;
-    }
+    if(val) { addBtn.disabled = false; } else { addBtn.disabled = true; }
     liveCheck();
 }
 
@@ -465,13 +437,12 @@ function liveCheck() {
     const anlage = document.getElementById('anlage').value;
     const datum = document.getElementById('datum').value;
     const sendBtn = document.getElementById('mainSendBtn');
+    const comTracker = document.getElementById('comTracker');
     
     let isValid = true;
     let statusText = "⚠️ Bitte Formular ausfüllen";
     
-    if(!anlage || !datum || selectedStaff.length === 0) {
-        isValid = false;
-    }
+    if(!anlage || !datum || selectedStaff.length === 0) isValid = false;
     
     if(anlage.startsWith("PUR")) {
         const activeFTs = document.querySelectorAll('.ft-btn.active').length;
@@ -479,20 +450,21 @@ function liveCheck() {
     }
     
     const artikelRows = document.querySelectorAll('.artikel-row');
-    if(artikelRows.length === 0) {
-        isValid = false;
-    }
+    if(artikelRows.length === 0) isValid = false;
+    
+    let totalArbeitszeit = 0;
     
     artikelRows.forEach(row => {
         const artNum = row.querySelector('.art-num-inp').value.trim();
         const gutteile = row.querySelector('.art-gut-inp').value.trim();
         const ausGesamtInp = row.querySelector('.art-aus-gesamt-inp').value.trim();
+        const artZeitInp = row.querySelector('.art-zeit-inp').value.trim();
         
-        if(!artNum || !gutteile || !ausGesamtInp) {
-            isValid = false;
-        }
+        if(!artNum || !gutteile || !ausGesamtInp || !artZeitInp) isValid = false;
         
         const ausGesamt = parseInt(ausGesamtInp) || 0;
+        const artZeit = parseInt(artZeitInp) || 0;
+        totalArbeitszeit += artZeit;
         
         let subAusTotal = 0;
         const subAusRows = row.querySelectorAll('[id^="ausCodesContainer_"] .code-row');
@@ -507,14 +479,20 @@ function liveCheck() {
             isValid = false;
             statusText = `❌ Fehler: Ausschuss-Details Summe (${subAusTotal}) ≠ Gesamt (${ausGesamt})!`;
         }
-        
-        const subStoerRows = row.querySelectorAll('[id^="stoerCodesContainer_"] .code-row');
-        subStoerRows.forEach(subRow => {
-            const sel = subRow.querySelector('.code-select').value;
-            const val = parseInt(subRow.querySelector('.code-val-inp').value) || 0;
-            if(!sel || val <= 0) isValid = false;
-        });
     });
+    
+    if(anlage === "COM") {
+        comTracker.innerText = `⏱️ COM Schichtzeit-Konto: ${totalArbeitszeit} / 480 Min`;
+        if(totalArbeitszeit > 480) {
+            isValid = false;
+            statusText = `❌ Azami süre aşıldı! Toplam İşçi Zamanı (${totalArbeitszeit} Min) > 480 Min!`;
+        }
+    } else {
+        if(totalArbeitszeit > 480) {
+            isValid = false;
+            statusText = `❌ Fehler: Gesamte Arbeitszeit (${totalArbeitszeit} Min) > 480 Min!`;
+        }
+    }
     
     if(isValid) {
         sendBtn.disabled = false;
@@ -559,9 +537,7 @@ function openWorkerOverlay() {
     document.getElementById('workerOverlay').style.display = 'flex';
 }
 
-function closeOverlay() {
-    document.getElementById('workerOverlay').style.display = 'none';
-}
+function closeOverlay() { document.getElementById('workerOverlay').style.display = 'none'; }
 
 function selectWorker(name) {
     if(!selectedStaff.includes(name)) {
@@ -597,50 +573,18 @@ function updateWorkerDisplay() {
     liveCheck();
 }
 
-function updateManagersList() {
-    const container = document.getElementById('currentManagersList');
-    if(!container) return;
-    const keys = Object.keys(schichtLeiterDb);
-    if(keys.length === 0) {
-        container.innerHTML = "Aktiv: Keine Leiter zugewiesen";
-        return;
-    }
-    container.innerHTML = "<b>Aktiv:</b><br>" + keys.map(k => `${k} (Schicht ${schichtLeiterDb[k]}) <span class="delete-manager-btn" onclick="removeSchichtleiterRight('${k}')">✕</span>`).join('<br>');
-}
-
 function enterApp(u) {
     loggedInUser = u;
     document.getElementById('loginScreen').style.display = 'none';
     setInitialTodayDate();
     
-    if (u === superAdmin) {
+    if (u.toLowerCase() === superAdmin.toLowerCase()) {
         document.getElementById('mainContainer').classList.add('wide');
         document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('adminUserDisplay').innerHTML = "👑 Admin: " + u;
-        document.getElementById('toggleRightsBtn').style.display = 'inline-block';
-        loadUserSelect();
-        updateManagersList();
+        document.getElementById('adminUserDisplay').innerHTML = "👑 Admin-Dashboard: " + u;
         filterSchicht('B');
         startAutoRefresh();
-    } 
-    else if (schichtLeiterDb[u]) {
-        const assignedSchicht = schichtLeiterDb[u];
-        document.getElementById('mainContainer').classList.add('wide');
-        document.getElementById('adminPanel').style.display = 'block';
-        document.getElementById('adminUserDisplay').innerHTML = `🏃 Leiter: ${u} (Schicht ${assignedSchicht})`;
-        document.getElementById('toggleRightsBtn').style.display = 'none'; 
-        document.getElementById('rightsManagementBox').style.display = 'none';
-        
-        document.querySelectorAll('.filter-btn').forEach(btn => btn.style.display = 'none');
-        const targetBtn = document.getElementById('flt' + assignedSchicht);
-        if(targetBtn) {
-            targetBtn.style.display = 'inline-block';
-            targetBtn.classList.add('active-filter');
-        }
-        filterSchicht(assignedSchicht);
-        startAutoRefresh();
-    } 
-    else {
+    } else {
         document.getElementById('mainContainer').classList.remove('wide');
         document.getElementById('mainApp').style.display = 'block';
         document.getElementById('currentUserDisplay').innerHTML = "👤 Angemeldet: " + u;
@@ -649,58 +593,21 @@ function enterApp(u) {
 }
 
 function startAutoRefresh() {
+    loadAdminDashboard(true);
     if(autoRefreshInterval) clearInterval(autoRefreshInterval);
-    checkAndSetDynamicRefresh();
-    autoRefreshInterval = setInterval(checkAndSetDynamicRefresh, 60000); 
-}
-
-let currentRefreshTempo = null; 
-let dashboardExecutionInterval = null;
-
-function checkAndSetDynamicRefresh() {
-    const now = new Date();
-    const currentTimeInMinutes = (now.getHours() * 60) + now.getMinutes();
-    
-    const isYogunSaat = 
-        (currentTimeInMinutes >= 810 && currentTimeInMinutes <= 850) || 
-        (currentTimeInMinutes >= 1290 && currentTimeInMinutes <= 1330) || 
-        (currentTimeInMinutes >= 330 && currentTimeInMinutes <= 370);
-
-    let targetTempo = isYogunSaat ? "hizli" : "sakin";
-
-    if (currentRefreshTempo !== targetTempo) {
-        currentRefreshTempo = targetTempo;
-        if(dashboardExecutionInterval) clearInterval(dashboardExecutionInterval);
-        
-        if (targetTempo === "hizli") {
-            loadAdminDashboard(true);
-            dashboardExecutionInterval = setInterval(() => { loadAdminDashboard(true); }, 90000);
-            document.getElementById('refreshStatus').innerText = "Modus: Live (90s)";
-        } else {
-            loadAdminDashboard(true);
-            dashboardExecutionInterval = setInterval(() => { loadAdminDashboard(true); }, 1800000);
-            document.getElementById('refreshStatus').innerText = "Modus: Eco (30m)";
-        }
-    }
+    autoRefreshInterval = setInterval(() => { loadAdminDashboard(true); }, 120000); // 2 Dakikada bir oto yenileme
 }
 
 async function manualRefreshDashboard() {
     const btn = document.getElementById('manualRefreshBtn');
-    const status = document.getElementById('refreshStatus');
     btn.disabled = true;
     btn.innerHTML = "⏳ Lädt...";
-    status.innerText = "Wird aktualisiert...";
     await loadAdminDashboard(false);
     btn.disabled = false;
     btn.innerHTML = "🔄 Aktualisieren";
-    const now = new Date();
-    status.innerText = `Zulterzt: ${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}`;
 }
 
 async function loadAdminDashboard(isBackground) {
-    if(!isBackground) {
-        document.getElementById('reportsDashboardContainer').innerHTML = "<div style='text-align:center; padding:20px;'>Daten werden geladen...</div>";
-    }
     try {
         const response = await fetch(`${scriptURL}?action=getDashboardData&_cb=${Date.now()}`);
         const data = await response.json();
@@ -725,13 +632,13 @@ function renderDashboard() {
         <div class="report-box">
             <span class="badge-origin">${r.anlage || 'Anlage'}</span>
             <div class="report-date">${r.datum || ''} - ${r.schichtType || ''}</div>
-            <div class="report-title">Mitarbeiter: ${r.personalCount || 0}</div>
+            <div class="report-title">Mitarbeiteranzahl: ${r.personalCount || 0}</div>
             <ul class="report-details-list">
-                <li>Gutteile gesamt: <b>${r.totalGut || 0}</b></li>
-                <li class="report-danger">Ausschuss: <b>${r.totalAus || 0}</b></li>
+                <li>Gutteile: <b>${r.totalGut || 0} Stk</b></li>
+                <li class="report-danger">Ausschuss: <b>${r.totalAus || 0} Stk</b></li>
                 <li class="report-warning">Störungen: <b>${r.totalStoer || 0} Min</b></li>
             </ul>
-            <div class="report-user">Erstellt von: ${r.user || 'Unbekannt'}</div>
+            <div class="report-user">Sender: ${r.user}</div>
         </div>
     `).join('');
 }
@@ -743,76 +650,20 @@ function filterSchicht(s) {
     renderDashboard();
 }
 
-function toggleRightsPanel() {
-    const panel = document.getElementById('rightsManagementBox');
-    const btn = document.getElementById('toggleRightsBtn');
-    if (panel.style.display === 'block') {
-        panel.style.display = 'none';
-        btn.style.background = 'var(--border-color)';
-    } else {
-        panel.style.display = 'block';
-        btn.style.background = 'var(--primary)';
-    }
-}
-
-// BERECHTIGUNG / RECHTE
-function loadUserSelect() {
-    const select = document.getElementById('rightsSelect');
-    if(!select) return;
-    const allUsers = Object.keys(workerData).flatMap(k => workerData[k]).filter((v, i, a) => a.indexOf(v) === i);
-    select.innerHTML = '<option value="">-- Name wählen --</option>' + 
-                       '<option value="_CLEAR_ALL_" style="color:var(--danger); font-weight:bold;">⚠️ Alle Berechtigungen löschen</option>' +
-                       allUsers.map(u => `<option value="${u}">${u}</option>`).join('');
-}
-
-function handleRightsSelectChange(value) {
-    if (value === "_CLEAR_ALL_" || value === "LÖSCHEN") {
-        if (confirm("Möchten Sie wirklich ALLE Berechtigungen löschen?")) {
-            schichtLeiterDb = {};
-            localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
-            updateManagersList();
-            alert("🗑️ Alle Berechtigungen gelöscht.");
-        }
-        document.getElementById('rightsSelect').value = "";
-    }
-}
-
-function grantSchichtleiterRights() {
-    const name = document.getElementById('rightsSelect').value;
-    const schicht = document.getElementById('assignedSchichtSelect').value;
-    if(!name) { alert("Bitte einen Mitarbeiter auswählen!"); return; }
-    schichtLeiterDb[name] = schicht;
-    localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
-    updateManagersList();
-    alert(`✅ ${name} autorisiert für Schicht ${schicht}.`);
-}
-
-function removeSchichtleiterRight(name) {
-    if (confirm(`Möchten Sie die Berechtigung für ${name} löschen?`)) {
-        delete schichtLeiterDb[name];
-        localStorage.setItem('apg_schichtleiter_db', JSON.stringify(schichtLeiterDb));
-        updateManagersList();
-    }
-}
-
-// GOOGLE SHEETS VERİ GÖNDERME
 async function processReport() {
     const sendBtn = document.getElementById('mainSendBtn');
-    
     sendBtn.disabled = true;
-    sendBtn.innerHTML = "⏳ Daten werden gesendet...";
-    sendBtn.style.background = "var(--orange-bright)";
+    sendBtn.innerHTML = "⏳ Senden...";
 
     let selectedFTs = [];
-    document.querySelectorAll('.ft-btn.active').forEach(btn => {
-        selectedFTs.push(btn.innerText);
-    });
+    document.querySelectorAll('.ft-btn.active').forEach(btn => { selectedFTs.push(btn.innerText); });
 
     let artikelData = [];
     document.querySelectorAll('.artikel-row').forEach(row => {
         const artNum = row.querySelector('.art-num-inp').value.trim();
         const gutteile = parseInt(row.querySelector('.art-gut-inp').value) || 0;
         const ausGesamt = parseInt(row.querySelector('.art-aus-gesamt-inp').value) || 0;
+        const arbeitszeit = parseInt(row.querySelector('.art-zeit-inp').value) || 0;
         
         let ausDetails = [];
         row.querySelectorAll('[id^="ausCodesContainer_"] .code-row').forEach(subRow => {
@@ -832,28 +683,27 @@ async function processReport() {
             artikelnummer: artNum,
             gutteile: gutteile,
             ausschussGesamt: ausGesamt,
+            arbeitszeitMinuten: arbeitszeit,
             ausschussDetails: ausDetails,
             stoerungen: stoerDetails
         });
     });
 
     const payload = {
-        action: "saveReport",
-        user: loggedInUser,
         schicht: currentSchicht,
         schichtType: currentSchichtType,
         datum: document.getElementById('datum').value,
         anlage: document.getElementById('anlage').value,
         formtraeger: selectedFTs,
         personal: selectedStaff,
+        user: loggedInUser,
         artikel: artikelData
     };
 
     try {
-        await fetch(scriptURL, {
+        const response = await fetch(scriptURL, {
             method: "POST",
-            mode: "no-cors", 
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "text/plain" }, // CORS hatalarını önlemek için text/plain en güvenlisidir
             body: JSON.stringify(payload)
         });
 
@@ -866,8 +716,8 @@ async function processReport() {
         onAnlageChange("");
         
     } catch (error) {
-        console.error("Senden fehlgeschlagen:", error);
-        alert("❌ Fehler beim Senden der Daten. Bitte Internetverbindung prüfen!");
+        console.error(error);
+        alert("❌ Fehler beim Senden!");
     } finally {
         liveCheck();
     }
