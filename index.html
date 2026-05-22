@@ -543,402 +543,530 @@ function setSchichtType(t) {
 
 function openWorkerOverlay() {
     const listDiv = document.getElementById('workerList');
-    const currentList = workerData[currentSchicht] || [];
-    listDiv.innerHTML = currentList.map(w => {
-        const isSel = selectedStaff.includes(w);
-        return `<div class="worker-opt" style="${isSel ? 'border-color:var(--primary); background:rgba(59,130,246,0.1);' : ''}" onclick="toggleWorker('${w}')">${w}</div>`;
-    }).join('');
+    if(!listDiv) return;
+    
+    // Aktif vardiyaya göre işçi listesini yükle
+    listDiv.innerHTML = workerData[currentSchicht]
+        .map(w => `<div class="worker-opt" onclick="addStaff('${w}')">${w}</div>`)
+        .join('');
+    
     document.getElementById('workerOverlay').style.display = 'flex';
 }
 
 function closeOverlay() {
     document.getElementById('workerOverlay').style.display = 'none';
+    document.getElementById('manualWorker').value = "";
 }
 
-function toggleWorker(w) {
-    if(selectedStaff.includes(w)) {
-        selectedStaff = selectedStaff.filter(x => x !== w);
-    } else {
-        selectedStaff.push(w);
+function addStaff(name) {
+    if (!selectedStaff.includes(name)) {
+        selectedStaff.push(name);
+        renderStaff();
     }
-    renderStaff();
-    openWorkerOverlay(); 
-    liveCheck();
+    closeOverlay();
 }
 
 function addManualWorker() {
-    const inp = document.getElementById('manualWorker');
-    const val = inp.value.trim();
-    if(val) {
-        if(!selectedStaff.includes(val)) {
-            selectedStaff.push(val);
-            renderStaff();
-            liveCheck();
-        }
-        inp.value = "";
-        closeOverlay();
+    const name = document.getElementById('manualWorker').value.trim();
+    if (name) {
+        addStaff(name);
     }
 }
 
-function removeWorker(w) {
-    selectedStaff = selectedStaff.filter(x => x !== w);
+function removeStaff(name) {
+    selectedStaff = selectedStaff.filter(w => w !== name);
     renderStaff();
-    liveCheck();
 }
 
 function renderStaff() {
     const container = document.getElementById('workerDisplayContainer');
-    if(selectedStaff.length === 0) {
-        container.innerHTML = `<span style="color:var(--text-muted); font-size:13px; padding:4px;">Keine Mitarbeiter ausgewählt</span>`;
-        return;
-    }
-    container.innerHTML = selectedStaff.map(w => `
-        <div class="selected-worker">
-            ${w} <span class="remove-worker" onclick="removeWorker('${w}')">✕</span>
-        </div>
-    `).join('');
-}
-
-function getActiveFehlerKategorie() {
-    const anlage = document.getElementById('anlage').value;
-    if(!anlage) return null;
-    if(anlage === 'COM') return 'COM';
-    if(anlage.startsWith('IM') || anlage.startsWith('CIM')) return 'Spritz';
-    if(anlage.startsWith('PUR')) return 'PUR';
-    return null;
-}
-
-function onAnlageChange(val) {
-    const container = document.getElementById('artikelContainer');
-    container.innerHTML = "";
-    artikelCounter = 0;
+    if (!container) return;
     
-    document.getElementById('comTracker').style.display = (val === 'COM') ? 'block' : 'none';
-    document.getElementById('ftBox').style.display = (val.startsWith('PUR')) ? 'block' : 'none';
-    
-    const ftBtns = document.querySelectorAll('.ft-btn');
-    ftBtns.forEach(b => b.classList.remove('active'));
-    
-    if(val) {
-        document.getElementById('addArtikelBtn').disabled = false;
-        addArtikel(); 
+    if (selectedStaff.length === 0) {
+        container.innerHTML = `<span style="color:var(--text-muted); font-size:13px;">Kein Mitarbeiter ausgewählt</span>`;
     } else {
-        document.getElementById('addArtikelBtn').disabled = true;
+        container.innerHTML = selectedStaff
+            .map(w => `<div class="selected-worker">${w} <span style="cursor:pointer; color:var(--dash-danger);" onclick="removeStaff('${w}')">✕</span></div>`)
+            .join('');
     }
     liveCheck();
 }
 
-// ARTIKEL ROW OLUŞTURMA: Talep ettiğin düzen tamamen boş ve Almanca kodlu listelerle entegre edildi.
-function addArtikel() {
-    artikelCounter++;
-    const kat = getActiveFehlerKategorie();
-    if(!kat) return;
-
+/**
+ * MAKİNE SEÇİMİ DEĞİŞTİĞİNDE TETİKLENEN MOTOR
+ */
+function onAnlageChange(val) {
+    const ftBox = document.getElementById('ftBox');
+    const comTracker = document.getElementById('comTracker');
+    const addBtn = document.getElementById('addArtikelBtn');
     const container = document.getElementById('artikelContainer');
-    const row = document.createElement('div');
-    row.className = 'artikel-row';
-    row.id = `artikelRow_${artikelCounter}`;
     
-    // Hata Katalog Listeleri Hazırlanıyor
-    const ausOptions = codeData[kat].aus.map(c => `<option value="${c}">${c}</option>`).join('');
-    const stoerOptions = codeData[kat].stoer.map(c => `<option value="${c}">${c}</option>`).join('');
+    // Her makine değişiminde eski artikelleri temizle ve temiz sayfa aç
+    container.innerHTML = "";
+    
+    if (!val) {
+        ftBox.style.display = "none";
+        comTracker.style.display = "none";
+        addBtn.disabled = true;
+        liveCheck();
+        return;
+    }
 
-    row.innerHTML = `
-        <button class="remove-artikel-btn" onclick="removeArtikel(${artikelCounter})">✕ Entfernen</button>
-        
-        <div class="form-group">
-            <label>Artikelnummer</label>
-            <input type="text" class="form-input art-nummer" placeholder="" oninput="liveCheck()">
+    addBtn.disabled = false;
+
+    // PUR 1-9 arası ise Formträger (Kalıp Taşıyıcı) panelini göster
+    if (val.startsWith("PUR")) {
+        ftBox.style.display = "block";
+        comTracker.style.display = "none";
+        // Formträger seçimlerini sıfırla
+        document.querySelectorAll('.ft-btn').forEach(btn => btn.classList.remove('active'));
+    } 
+    // Compound (COM) ise Schichtzeit takip kutusunu aç
+    else if (val === "COM") {
+        ftBox.style.display = "none";
+        comTracker.style.display = "block";
+        updateComTracker(0);
+    } 
+    // IM 1-5 veya CIM 1 ise
+    else {
+        ftBox.style.display = "none";
+        comTracker.style.display = "none";
+    }
+
+    // İlk artikeli otomatik olarak oluştur
+    addArtikel();
+}
+
+/**
+ * DİNAMİK ARTIKEL (KART) EKLEME SİSTEMİ
+ */
+let artikelCounter = 0;
+function addArtikel() {
+    const anlage = document.getElementById('anlage').value;
+    if (!anlage) return;
+
+    artikelCounter++;
+    const container = document.getElementById('artikelContainer');
+    
+    // Makine tipine göre hangi hata listesinin çekileceğini belirle (CIM1 -> Spritz)
+    let machineType = "PUR";
+    if (anlage === "COM") {
+        machineType = "COM";
+    } else if (anlage.startsWith("IM") || anlage === "CIM1") {
+        machineType = "Spritz"; 
+    }
+
+    const card = document.createElement('div');
+    card.className = 'artikel-row';
+    card.id = `artikelCard_${artikelCounter}`;
+    
+    // Kartın HTML iskeleti (Gutmenge birimi COM için KG, diğerleri için Stk)
+    const einheit = (machineType === "COM") ? "KG" : "Stk";
+
+    card.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h4 style="font-size:15px; color:var(--primary);">📦 Artikel / Typ #${artikelCounter}</h4>
+            ${artikelCounter > 1 ? `<span style="color:var(--danger); cursor:pointer; font-size:13px; font-weight:600;" onclick="removeArtikel(${artikelCounter})">✕ Entfernen</span>` : ''}
         </div>
-        
+
         <div class="grid-2">
             <div>
-                <label>Gut (Stk)</label>
-                <input type="number" class="form-input art-gut" placeholder="" oninput="liveCheck()">
+                <label>Artikelnummer</label>
+                <input type="text" class="inp-art-nr" placeholder="z.B. Kuga-2016-EGR" oninput="liveCheck()">
             </div>
             <div>
-                <label>Ausschuss Gesamt (Stk)</label>
-                <input type="number" class="form-input art-ausschuss-gesamt" placeholder="" oninput="liveCheck()">
+                <label>Dauer (Minuten)</label>
+                <input type="number" class="inp-art-dauer" placeholder="480" min="0" oninput="liveCheck()">
             </div>
         </div>
 
-        <div class="code-row-container">
-            <label style="margin-top:0;">Ausschuss-Gründe</label>
-            <div class="aus-rows-wrapper" id="ausWrapper_${artikelCounter}">
-                <div class="code-row">
-                    <select class="aus-code-sel" onchange="onCodeSelectChange(this)">
-                        <option value="" disabled selected>Fehlercode auswählen</option>
-                        ${ausOptions}
-                    </select>
-                    <input type="number" placeholder="Stk" class="aus-qty-inp" oninput="liveCheck()">
-                    <button class="remove-row-btn" onclick="this.parentElement.remove(); liveCheck();">✕</button>
-                </div>
+        <div class="grid-2">
+            <div>
+                <label>Gutmenge (${einheit})</label>
+                <input type="number" class="inp-art-gut" placeholder="0" min="0" oninput="liveCheck()">
             </div>
-            <input type="text" class="sonstige-input aus-sonstige" placeholder="Ausschuss Freitext angeben...">
-            
-            <div class="code-action-group">
-                <button type="button" class="btn-add-aus" onclick="addDynamicCodeRow(${artikelCounter}, 'aus')">+ Ausschuss-Grund</button>
+            <div>
+                <label>Ausschuss Gesamt (${einheit})</label>
+                <input type="number" class="inp-art-aus-ges" placeholder="0" min="0" value="0" readonly style="background:rgba(0,0,0,0.2); color:var(--text-muted);">
             </div>
         </div>
 
-        <div class="code-row-container" style="margin-top:15px;">
-            <label style="margin-top:0;">Störungen</label>
-            <div class="stoer-rows-wrapper" id="stoerWrapper_${artikelCounter}">
-                <div class="code-row">
-                    <select class="stoer-code-sel" onchange="onCodeSelectChange(this)">
-                        <option value="" disabled selected>Störungscode auswählen</option>
-                        ${stoerOptions}
-                    </select>
-                    <input type="number" placeholder="min" class="stoer-qty-inp" oninput="liveCheck()">
-                    <button class="remove-row-btn" onclick="this.parentElement.remove(); liveCheck();">✕</button>
-                </div>
+        <div class="status-badge" id="badge_${artikelCounter}">❌ Hata Sayısı Uyuşmuyor</div>
+
+        <div class="code-row-container" id="codeContainer_${artikelCounter}">
             </div>
-            <input type="text" class="sonstige-input stoer-sonstige" placeholder="Störung Freitext angeben...">
-            
-            <div class="code-action-group">
-                <button type="button" class="btn-add-stoer" onclick="addDynamicCodeRow(${artikelCounter}, 'stoer')">+ Störung</button>
-            </div>
+
+        <div class="code-action-group">
+            <button class="btn-add-aus" onclick="addCodeRow(${artikelCounter}, '${machineType}', 'aus')">+ Ausschuss-Grund</button>
+            <button class="btn-add-stoer" onclick="addCodeRow(${artikelCounter}, '${machineType}', 'stoer')">+ Störzeit-Grund</button>
         </div>
     `;
-    
-    container.appendChild(row);
+
+    container.appendChild(card);
     liveCheck();
     scrollToBottom();
 }
 
 function removeArtikel(id) {
-    const row = document.getElementById(`artikelRow_${id}`);
-    if(row) row.remove();
+    const card = document.getElementById(`artikelCard_${id}`);
+    if (card) {
+        card.remove();
+        liveCheck();
+    }
+}
+
+/**
+ * HATA VE STÖRUNG SATIRI EKLEME MOTORU
+ */
+function addCodeRow(artikelId, machineType, type) {
+    const container = document.getElementById(`codeContainer_${artikelId}`);
+    if (!container) return;
+
+    const rowId = Date.now() + Math.random().toString(36).substr(2, 5);
+    const options = codeData[machineType][type];
+    
+    const row = document.createElement('div');
+    card.className = 'code-row'; // Üst css tanımlarına uygun class
+    row.id = `row_${rowId}`;
+    row.setAttribute('data-type', type);
+
+    let optionsHtml = options.map(opt => `<option value="${opt}">${opt}</option>`).join('');
+
+    row.innerHTML = `
+        <div class="code-row">
+            <select class="select-code-val" onchange="handleCodeSelectChange('${rowId}', this.value)">
+                ${optionsHtml}
+            </select>
+            <input type="number" class="input-code-menge" min="0" value="0" oninput="liveCheck()" placeholder="${type === 'aus' ? 'Menge' : 'Min'}">
+            <span class="remove-row-btn" onclick="removeCodeRow('${rowId}', ${artikelId})">✕</span>
+        </div>
+        <input type="text" id="sonstige_${rowId}" class="sonstige-input" placeholder="Bitte Freitext eingeben..." oninput="liveCheck()">
+    `;
+
+    container.appendChild(row);
     liveCheck();
 }
 
-// Dinamik Alt Satır Ekleme Sistemi
-function addDynamicCodeRow(artId, type) {
-    const kat = getActiveFehlerKategorie();
-    if(!kat) return;
-    
-    const wrapper = document.getElementById(type === 'aus' ? `ausWrapper_${artId}` : `stoerWrapper_${artId}`);
-    const options = codeData[kat][type].map(c => `<option value="${c}">${c}</option>`).join('');
-    
-    const div = document.createElement('div');
-    div.className = 'code-row';
-    div.innerHTML = `
-        <select class="${type}-code-sel" onchange="onCodeSelectChange(this)">
-            <option value="" disabled selected>${type === 'aus' ? 'Fehlercode' : 'Störungscode'} auswählen</option>
-            ${options}
-        </select>
-        <input type="number" placeholder="${type === 'aus' ? 'Stk' : 'min'}" class="${type}-qty-inp" oninput="liveCheck()">
-        <button class="remove-row-btn" onclick="this.parentElement.remove(); liveCheck();">✕</button>
-    `;
-    wrapper.appendChild(div);
+function removeCodeRow(rowId, artikelId) {
+    const row = document.getElementById(`row_${rowId}`);
+    if (row) {
+        row.remove();
+        liveCheck();
+    }
 }
 
-function onCodeSelectChange(sel) {
-    const rowContainer = sel.closest('.code-row-container');
-    const sonstigeInp = rowContainer.querySelector('.sonstige-input');
-    
-    // Eğer satırlardan herhangi birinde "Sonstige" seçilirse alttaki text alanını aç
-    const allSelects = rowContainer.querySelectorAll('select');
-    let hasSonstige = false;
-    allSelects.forEach(s => { if(s.value === 'Sonstige') hasSonstige = true; });
-    
-    if(hasSonstige) {
-        sonstigeInp.style.display = 'block';
+function handleCodeSelectChange(rowId, value) {
+    const sonstigeInp = document.getElementById(`sonstige_${rowId}`);
+    if (value.toLowerCase().includes("sonstige")) {
+        sonstigeInp.style.display = "block";
     } else {
-        sonstigeInp.style.display = 'none';
+        sonstigeInp.style.display = "none";
         sonstigeInp.value = "";
     }
     liveCheck();
 }
 
-function liveCheck() {
-    const anlage = document.getElementById('anlage').value;
-    const datum = document.getElementById('datum').value;
-    const mainSendBtn = document.getElementById('mainSendBtn');
-    
-    if(!anlage || !datum || selectedStaff.length === 0) {
-        mainSendBtn.disabled = true;
-        mainSendBtn.innerText = "⚠️ Bitte Formular ausfüllen (Mitarbeiter & Anlage)";
-        return;
+function updateComTracker(min) {
+    const tracker = document.getElementById('comTracker');
+    if (!tracker) return;
+    tracker.innerText = `⏱️ COM Schichtzeit-Konto: ${min} / 480 Min`;
+    if (min === 480) {
+        tracker.style.background = "rgba(16, 185, 129, 0.15)";
+        tracker.style.borderColor = "var(--success)";
+    } else {
+        tracker.style.background = "rgba(59, 130, 246, 0.1)";
+        tracker.style.borderColor = "var(--primary)";
     }
-
-    const rows = document.querySelectorAll('.artikel-row');
-    if(rows.length === 0) {
-        mainSendBtn.disabled = true;
-        mainSendBtn.innerText = "⚠️ Bitte mindestens einen Artikel hinzufügen";
-        return;
-    }
-
-    let allValid = true;
-    rows.forEach(r => {
-        const num = r.querySelector('.art-nummer').value.trim();
-        const gut = r.querySelector('.art-gut').value.trim();
-        if(!num || !gut) allValid = false;
-    });
-
-    if(!allValid) {
-        mainSendBtn.disabled = true;
-        mainSendBtn.innerText = "⚠️ Artikelnummer und Gut (Stk) ausfüllen";
-        return;
-    }
-
-    mainSendBtn.disabled = false;
-    mainSendBtn.innerText = "🚀 DATEN SENDEN / SPEICHERN";
 }
 
-// VERİ İŞLEME VE TOPLAM TUTAR KONTROLÜ (VALIDATION)
-function processReport() {
-    if(document.getElementById('mainSendBtn').disabled) return;
+/**
+ * CANLI KONTROL VE GEÇERLİLİK MOTORU (LIVECHECK)
+ */
+function liveCheck() {
+    const anlage = document.getElementById('anlage').value;
+    const sendBtn = document.getElementById('mainSendBtn');
     
+    if (!anlage || selectedStaff.length === 0) {
+        sendBtn.disabled = true;
+        sendBtn.innerText = "⚠️ Bitte Personal und Anlage wählen";
+        return;
+    }
+
+    // PUR ise en az bir Formträger seçilmiş mi kontrol et
+    if (anlage.startsWith("PUR")) {
+        let activeFtCount = 0;
+        document.querySelectorAll('.ft-btn').forEach(btn => {
+            if(btn.classList.contains('active')) activeFtCount++;
+        });
+        if (activeFtCount === 0) {
+            sendBtn.disabled = true;
+            sendBtn.innerText = "⚠️ Bitte Formträger (FT) auswählen";
+            return;
+        }
+    }
+
+    let totalDauer = 0;
+    let formValid = true;
+
+    // Her bir artikel kartını döngüye al
+    const cards = document.querySelectorAll('.artikel-row');
+    cards.forEach(card => {
+        const id = card.id.split('_')[1];
+        const artNr = card.querySelector('.inp-art-nr').value.trim();
+        const dauer = parseInt(card.querySelector('.inp-art-dauer').value) || 0;
+        const gut = card.querySelector('.inp-art-gut').value.trim();
+        const badge = document.getElementById(`badge_${id}`);
+        const ausGesamtInput = card.querySelector('.inp-art-aus-ges');
+
+        totalDauer += dauer;
+
+        if (!artNr || dauer <= 0 || gut === "") {
+            formValid = false;
+        }
+
+        // Kartın altındaki hata/störung dökümünü topla
+        let sumAusschuss = 0;
+        const rows = card.querySelectorAll('[id^="row_"]');
+        
+        rows.forEach(row => {
+            const type = row.getAttribute('data-type');
+            const menge = parseFloat(row.querySelector('.input-code-menge').value) || 0;
+            const selectVal = row.querySelector('.select-code-val').value;
+            const sonstigeVal = row.querySelector('.sonstige-input').value.trim();
+
+            if (type === 'aus') {
+                sumAusschuss += menge;
+            }
+
+            // Eğer Sonstige seçildiyse text alanı boş kalamaz
+            if (selectVal.toLowerCase().includes("sonstige") && !sonstigeVal) {
+                formValid = false;
+            }
+        });
+
+        // Ausschuss Gesamt değerini otomatik güncelle
+        ausGesamtInput.value = sumAusschuss;
+
+        // Rozet durumunu güncelle (Ok mi yoksa Hata mı?)
+        if (badge) {
+            if (sumAusschuss >= 0) {
+                badge.className = "status-badge ok";
+                badge.innerText = `✓ Ausschuss: ${sumAusschuss}`;
+            }
+        }
+    });
+
+    if (anlage === "COM") {
+        updateComTracker(totalDauer);
+    }
+
+    // Toplam süre tam 480 dakika olmak zorunda!
+    if (totalDauer !== 480) {
+        formValid = false;
+        sendBtn.innerText = `⏱️ Schichtzeit muss 480 Min sein! (Aktuell: ${totalDauer} Min)`;
+        sendBtn.disabled = true;
+        return;
+    }
+
+    if (!formValid) {
+        sendBtn.disabled = true;
+        sendBtn.innerText = "⚠️ Bitte alle Felder korrekt ausfüllen";
+        return;
+    }
+
+    // Her şey eksiksiz ve hatasızsa butonu aç
+    sendBtn.disabled = false;
+    sendBtn.innerText = "🚀 Schichtbericht absenden";
+}
+
+/**
+ * GOOGLE SHEETS BACKEND BAĞLANTI VE GÖNDERİM MOTORU
+ */
+async function processReport() {
+    const sendBtn = document.getElementById('mainSendBtn');
+    sendBtn.disabled = true;
+    sendBtn.innerText = "⏳ Übermittle Daten...";
+
     const anlage = document.getElementById('anlage').value;
     const datum = document.getElementById('datum').value;
-    const rows = document.querySelectorAll('.artikel-row');
-    
-    let activeFt = [];
-    if(anlage.startsWith('PUR')) {
-        document.querySelectorAll('.ft-btn.active').forEach(b => activeFt.push(b.innerText));
+
+    // Aktif formträgerleri diziye topla
+    let selectedFTs = [];
+    if (anlage.startsWith("PUR")) {
+        document.querySelectorAll('.ft-btn').forEach(btn => {
+            if(btn.classList.contains('active')) selectedFTs.push(btn.innerText);
+        });
     }
 
     let payload = {
-        anlage: anlage,
-        datum: datum,
+        action: "submitReport",
+        user: loggedInUser,
         schicht: currentSchicht,
         schichtType: currentSchichtType,
-        staff: selectedStaff,
-        formtraeger: activeFt,
-        user: loggedInUser,
-        artikel: []
+        datum: datum,
+        anlage: anlage,
+        formtraeger: selectedFTs.join(', '),
+        personal: selectedStaff.join(', '),
+        artikels: []
     };
 
-    let validationFailed = false;
+    // Tüm girilen artikelleri json formatına derle
+    document.querySelectorAll('.artikel-row').forEach(card => {
+        const artNr = card.querySelector('.inp-art-nr').value.trim();
+        const dauer = parseInt(card.querySelector('.inp-art-dauer').value) || 0;
+        const gut = parseFloat(card.querySelector('.inp-art-gut').value) || 0;
+        const ausGes = parseFloat(card.querySelector('.inp-art-aus-ges').value) || 0;
 
-    rows.forEach(r => {
-        const num = r.querySelector('.art-nummer').value.trim();
-        const gut = parseInt(r.querySelector('.art-gut').value) || 0;
-        const ausschussGesamt = parseInt(r.querySelector('.art-ausschuss-gesamt').value) || 0;
+        let scCodes = [];
+        card.querySelectorAll('[id^="row_"]').forEach(row => {
+            const type = row.getAttribute('data-type');
+            const code = row.querySelector('.select-code-val').value;
+            const menge = parseFloat(row.querySelector('.input-code-menge').value) || 0;
+            const sonstigeText = row.querySelector('.sonstige-input').value.trim();
 
-        // Alt nedenlerin miktarlarını hesapla
-        let ausDetails = [];
-        r.querySelectorAll('#' + r.id + ' .aus-rows-wrapper .code-row').forEach(row => {
-            const code = row.querySelector('.aus-code-sel').value;
-            const qty = parseInt(row.querySelector('.aus-qty-inp').value) || 0;
-            if(code && qty > 0) ausDetails.push({ code: code, qty: qty });
-        });
-        
-        let summeAusschussGruende = ausDetails.reduce((sum, item) => sum + item.qty, 0);
-
-        // KRİTİK DOĞRULAMA UYARISI: Toplam hurda ile nedenlerin toplamı st aynı olmalı!
-        if (ausschussGesamt !== summeAusschussGruende) {
-            alert(`FEHLER bei Artikel ${num}:\nDer eingegebene Ausschuss Gesamt (${ausschussGesamt} Stk) stimmt nicht mit der Summe der Ausschuss-Gründe (${summeAusschussGruende} Stk) überein!\n\nBitte korrigieren Sie die Mengen.`);
-            validationFailed = true;
-            return;
-        }
-
-        let stoerDetails = [];
-        r.querySelectorAll('#' + r.id + ' .stoer-rows-wrapper .code-row').forEach(row => {
-            const code = row.querySelector('.stoer-code-sel').value;
-            const qty = parseInt(row.querySelector('.stoer-qty-inp').value) || 0;
-            if(code && qty > 0) stoerDetails.push({ code: code, qty: qty });
+            scCodes.push({
+                type: type,
+                code: code,
+                menge: menge,
+                freitext: sonstigeText
+            });
         });
 
-        payload.artikel.push({
-            artikelnummer: num,
-            gut: gut,
-            ausschussGesamt: ausschussGesamt,
-            ausDetails: ausDetails,
-            ausSonstige: r.querySelector('.aus-sonstige').value.trim(),
-            stoerDetails: stoerDetails,
-            stoerSonstige: r.querySelector('.stoer-sonstige').value.trim()
+        payload.artikels.push({
+            artikelnummer: artNr,
+            dauer: dauer,
+            gutmenge: gut,
+            ausschussGesamt: ausGes,
+            codes: scCodes
         });
     });
 
-    if (validationFailed) return; // Eğer miktar hatası varsa veri gönderimini keser.
-
-    sendData(payload);
-}
-
-function sendData(data) {
-    console.log("Sende Daten: ", data);
-    
-    // Offline Yönetimi Puffer Kontrolü
-    if(!navigator.onLine) {
-        let puffer = JSON.parse(localStorage.getItem('apg_offline_puffer') || '[]');
-        puffer.push({ timestamp: Date.now(), data: data });
-        localStorage.setItem('apg_offline_puffer', JSON.stringify(puffer));
-        alert("💾 Daten lokal gespeichert (Kein Internet). Wird bei Verbindung automatisch übertragen!");
-        resetFormAfterSend();
+    // İnternet kontrolü - Yoksa offline hafızaya al
+    if (!navigator.onLine) {
+        saveToOfflineBuffer(payload);
+        alert("💾 Keine Netzverbindung! Der Bericht wurde lokal auf dem Gerät gespeichert ve wird automatisch gesendet, sobald Sie online sind.");
+        resetFormAfterSuccess();
         return;
     }
 
-    document.getElementById('mainSendBtn').disabled = true;
-    document.getElementById('mainSendBtn').innerText = "⏳ Übertragung läuft...";
-
-    fetch(`${scriptURL}?action=submitReport`, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(data)
-    })
-    .then(() => {
-        alert("✅ Daten erfolgreich an das System übertragen!");
-        resetFormAfterSend();
-    })
-    .catch(err => {
-        console.error(err);
-        alert("❌ Fehler beim Senden. Daten lokal gesichert.");
-    });
+    try {
+        const response = await fetch(scriptURL, {
+            method: "POST",
+            mode: "no-cors", // CORS engellerini aşmak için kararlı mod
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload)
+        });
+        
+        alert("✅ Schichtbericht erfolgreich an die Datenbank gesendet!");
+        resetFormAfterSuccess();
+    } catch (error) {
+        saveToOfflineBuffer(payload);
+        alert("⚠️ Verbindung temporär fehlgeschlagen. Bericht ist im Offline-Puffer gesichert!");
+        resetFormAfterSuccess();
+    }
 }
 
-function resetFormAfterSend() {
-    document.getElementById('anlage').value = "";
-    document.getElementById('artikelContainer').innerHTML = "";
+function resetFormAfterSuccess() {
     selectedStaff = [];
-    renderStaff();
-    onAnlageChange("");
+    document.getElementById('anlage').value = "";
+    document.getElementById('workerDisplayContainer').innerHTML = "";
+    document.getElementById('artikelContainer').innerHTML = "";
+    document.getElementById('ftBox').style.display = "none";
+    document.getElementById('comTracker').style.display = "none";
+    
+    const sendBtn = document.getElementById('mainSendBtn');
+    sendBtn.disabled = true;
+    sendBtn.innerText = "⚠️ Bitte Formular ausfüllen";
+    
     liveCheck();
 }
 
-function checkOfflinePuffer() {
-    if(!navigator.onLine) return;
-    let puffer = JSON.parse(localStorage.getItem('apg_offline_puffer') || '[]');
-    if(puffer.length === 0) return;
-
-    console.log(`Sende ${puffer.length} gepufferte Offline-Meldungen...`);
-    
-    puffer.forEach((item, index) => {
-        fetch(`${scriptURL}?action=submitReport`, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(item.data)
-        }).then(() => {
-            puffer.splice(index, 1);
-            localStorage.setItem('apg_offline_puffer', JSON.stringify(puffer));
-        });
-    });
+/**
+ * OFFLINE PUFFER (INTERNET KESİNTİSİ KORUMASI) MANTIĞI
+ */
+function saveToOfflineBuffer(data) {
+    let buffer = [];
+    if(localStorage.getItem('apg_offline_buffer')) {
+        try { buffer = JSON.parse(localStorage.getItem('apg_offline_buffer')); } catch(e){}
+    }
+    buffer.push(data);
+    localStorage.setItem('apg_offline_buffer', JSON.stringify(buffer));
 }
 
-// LIVE DASHBOARD VERİ ÇEKME VE LİSTELEME (TEK KUTU İÇİNDE)
-async function loadAdminDashboard(isAuto) {
-    if(!navigator.onLine) return;
-    try {
-        const response = await fetch(`${scriptURL}?action=getDashboardData&_cb=${Date.now()}`);
-        const result = await response.json();
-        if(result && result.data) {
-            cachedDashboardData = result.data;
-            buildDashboardView();
+async function checkOfflinePuffer() {
+    if (!navigator.onLine || !localStorage.getItem('apg_offline_buffer')) return;
+    
+    let buffer = [];
+    try { buffer = JSON.parse(localStorage.getItem('apg_offline_buffer')); } catch(e){}
+    if (buffer.length === 0) return;
+
+    console.log(`🔄 Sinyal alındı! ${buffer.length} adet bekleyen hazır rapor gönderiliyor...`);
+    
+    for (let i = 0; i < buffer.length; i++) {
+        try {
+            await fetch(scriptURL, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(buffer[i])
+            });
+        } catch(e) {
+            return; // Tekrar hata alırsak döngüyü kır, sonra dener
         }
-    } catch(e) {
-        console.error("Dashboard-Ladefehler:", e);
+    }
+
+    localStorage.removeItem('apg_offline_buffer');
+    console.log("✅ Offline tampon bellek başarıyla temizlendi, tüm raporlar senkronize edildi.");
+}
+
+/**
+ * SCHICHTLEITER (YÖNETİCİ) PANALİ İÇİN VERİ ÇEKME MOTORU
+ */
+async function loadAdminDashboard(isAuto) {
+    const container = document.getElementById('reportsContainer');
+    if (!container || document.getElementById('adminPanel').style.display !== 'block') return;
+
+    if (!isAuto) {
+        container.innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted); font-weight:600;'>⏳ Raporlar sunucudan yükleniyor, lütfen bekleyin...</div>";
+    }
+
+    try {
+        const response = await fetch(`${scriptURL}?action=getReports&schicht=${activeFilterSchicht}&_cb=${Date.now()}`);
+        const reports = await response.json();
+
+        if (!reports || reports.length === 0) {
+            container.innerHTML = `<div style='grid-column:1/-1; text-align:center; padding:40px; color:var(--text-muted); font-weight:600;'>Einträge für Schicht ${activeFilterSchicht} vorhanden.</div>`;
+            return;
+        }
+
+        // Gelen verileri şık kutular halinde ekrana bas
+        container.innerHTML = reports.map(rep => {
+            return `
+                <div class="report-box">
+                    <span class="badge-origin">${rep.anlage}</span>
+                    <div class="report-date">${rep.datum} - ${rep.schichtType}</div>
+                    <div class="report-title">📦 ${rep.artikelnummer}</div>
+                    <div class="report-warning">⏱️ Süre: ${rep.dauer} Min | Gut: ${rep.gutmenge}</div>
+                    <div class="report-danger">❌ Ausschuss: ${rep.ausschuss}</div>
+                    <div class="report-user">👤 Erstellt von: ${rep.bediener}</div>
+                </div>
+            `;
+        }).join('');
+
+    } catch (error) {
+        if (!isAuto) {
+            container.innerHTML = "<div style='grid-column:1/-1; text-align:center; padding:40px; color:var(--danger); font-weight:600;'>❌ Serververbindung fehlgeschlagen. Dashboard im Offline-Modus.</div>";
+        }
     }
 }
 
 function filterSchicht(s) {
     activeFilterSchicht = s;
-    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-filter'));
-    document.getElementById('flt' + s)?.classList.add('active-filter');
-    buildDashboardView();
+    document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+    document.getElementById('flt' + s)?.classList.add('active');
+    loadAdminDashboard(false);
 }
+</script>
 
 // LIVE DASHBOARD KUTULARI (KACHEL) ÜRETİMİ
 function buildDashboardView() {
